@@ -1,6 +1,6 @@
 # $H\gamma$ analysis at FCC-ee
 
-We look at $e^+ e^- \rightarrow H \gamma$ at 160~GeV, 240~GeV and 365~GeV at FCC-ee. 
+We look at $e^+ e^- \rightarrow H \gamma$ at 160 GeV, 240 GeV and 365 GeV at FCC-ee. 
 
 ## Installation
 
