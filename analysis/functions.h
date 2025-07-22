@@ -416,7 +416,33 @@ int get_higgs_to_WW(Vec_mc mcparticles, Vec_i ind_daugthers){
     return higgs_to_WW; // return the absolute value of the PDG of the daughters
 }
 
+rp return_rp_from_tlv(TLorentzVector tlv) {
+    rp rp_fcc;
+    rp_fcc.momentum.x = tlv.Px();
+    rp_fcc.momentum.y = tlv.Py();
+    rp_fcc.momentum.z = tlv.Pz();
+    rp_fcc.mass = tlv.M();
+    return rp_fcc;
+}
 
+
+Vec_rp get_recoil_photon_and_jets(float ecm, const TLorentzVector &jet1, const TLorentzVector &jet2, rp photon){
+    // get the recoil of the two jets from the two leptons
+
+    TLorentzVector tlv_photon;
+    tlv_photon.SetPxPyPzE(photon.momentum.x, photon.momentum.y, photon.momentum.z, photon.energy);
+
+    TLorentzVector tlv_jets = jet1 + jet2 + tlv_photon;
+
+    // calculate recoil
+    auto tlv_recoil = TLorentzVector(0, 0, 0, ecm);
+    tlv_recoil -= tlv_jets;
+
+    rp recoil = return_rp_from_tlv(tlv_recoil);
+    Vec_rp result;
+    result.emplace_back(recoil);
+    return result;
+}
  
  
 

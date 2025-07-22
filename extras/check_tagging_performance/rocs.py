@@ -20,6 +20,6 @@ path2 = "/eos/experiment/fcc/ee/datasets/CLD_fullsim_tagging_results_key4hep/CLD
 
 # all_rocs(data1, data2, 'FCCAnalyses', 'key4hep', save=save_status, name='roc-FCCAnalyses-check')
 
-single_roc(data1,'HZ-240', save=save_status, name='roc-HZ-240')
+# single_roc(data1,'HZ-240', save=save_status, name='roc-HZ-240')
 
 print("Plotted ROC curves.")

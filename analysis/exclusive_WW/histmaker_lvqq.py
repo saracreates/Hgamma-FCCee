@@ -66,7 +66,7 @@ intLumi = config['intLumi']
 # define some binning for various histograms
 bins_a_p = (100, 0, 500) # 100 MeV bins
 bins_a_n = (10, 0, 10) # 100 MeV bins
-bins_count = (10, 0, 10)
+bins_count = (20, 0, 20)
 
 
 # name of collections in EDM root files
@@ -167,11 +167,11 @@ def build_graph(df, dataset):
     # compute the muon isolation and store muons with an isolation cut of 0df = df.25 in a separate column muons_sel_iso
     df = df.Define(
         "muons_iso",
-        "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.1)(muons_all, ReconstructedParticles)",
+        "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.5)(muons_all, ReconstructedParticles)",
     )
     df = df.Define(
         "muons_sel_iso",
-        "FCCAnalyses::ZHfunctions::sel_iso(0.5)(muons_all, muons_iso)",
+        "FCCAnalyses::ZHfunctions::sel_iso(0.25)(muons_all, muons_iso)",
     )
     df = df.Define(
         "muons_sel_q",
@@ -179,11 +179,11 @@ def build_graph(df, dataset):
     )
     df = df.Define(
         "electrons_iso",
-        "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.1)(electrons_all, ReconstructedParticles)",
+        "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.5)(electrons_all, ReconstructedParticles)",
     )
     df = df.Define(
         "electrons_sel_iso",
-        "FCCAnalyses::ZHfunctions::sel_iso(0.5)(electrons_all, electrons_iso)",
+        "FCCAnalyses::ZHfunctions::sel_iso(0.25)(electrons_all, electrons_iso)",
     )
     df = df.Define(
         "electrons_sel_q",
@@ -318,30 +318,20 @@ def build_graph(df, dataset):
     ########
     ### Cut 6: Only use events with MC H -> WW
     ########
-    df = df.Define("is_higgs_to_WW", "FCCAnalyses::ZHfunctions::get_higgs_to_WW(Particle, Particle1)")
-    df = df.Filter("is_higgs_to_WW == 1")
-    df = df.Define("cut6", "6")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
+    # df = df.Define("is_higgs_to_WW", "FCCAnalyses::ZHfunctions::get_higgs_to_WW(Particle, Particle1)")
+    # df = df.Filter("is_higgs_to_WW == 1")
+    # df = df.Define("cut6", "6")
+    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
 
     ##########
-    ### CUT 7: one isolated lepton
+    ### CUT 6: one isolated lepton
     ##########
     df = df.Define("num_isolated_leptons", "electrons_sel_iso.size() + muons_sel_iso.size()")
     results.append(df.Histo1D(("num_isolated_leptons", "", 10, 0, 10), "num_isolated_leptons"))
 
     df = df.Filter("num_isolated_leptons == 1")  # one isolated lepton
-    df = df.Define("cut7", "7")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
-
-
-    ##########
-    ### CUT 8: missing momentum 
-    ##########
-    df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
-    df = df.Define("miss_p", "FCCAnalyses::ReconstructedParticle::get_p(missP)[0]")
-    df = df.Define("miss_e", "FCCAnalyses::ReconstructedParticle::get_e(missP)[0]")
-    results.append(df.Histo1D(("miss_p", "", 100, 0, 200), "miss_p"))
-    results.append(df.Histo1D(("miss_e", "", 100, 0, 200), "miss_e"))
+    df = df.Define("cut6", "6")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
 
 
     # cluster 2 jets
@@ -377,6 +367,7 @@ def build_graph(df, dataset):
     i = 2
     for j in range(1, 3):
         df = df.Define(f"jet{j}_nconst_N{i}", f"jet_nconst_N{i}[{j-1}]")
+        results.append(df.Histo1D((f"jet{j}_nconst_N{i}", "", 30, 0, 30), f"jet{j}_nconst_N{i}"))
 
 
     df = df.Define("jets_p4","JetConstituentsUtils::compute_tlv_jets({})".format(jetClusteringHelper.jets))
@@ -384,33 +375,66 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("m_jj", "", 100, 0, 200), "m_jj"))
 
     ###########
-    ### CUT 9: two jets (maybe cut on y12?)
+    ### CUT 7: jet mass cut (W* mass)
     ###########
 
+    df = df.Filter("15 < m_jj && m_jj < 55")  # W* mass cut
+    df = df.Define("cut7", "7")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 
-    ###########
-    ### CUT 10: jet mass cut (W* mass)
-    ###########
+    ##########
+    ### CUT 8: missing momentum 
+    ##########
+    df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
+    df = df.Define("miss_p", "FCCAnalyses::ReconstructedParticle::get_p(missP)[0]")
+    df = df.Define("miss_e", "FCCAnalyses::ReconstructedParticle::get_e(missP)[0]")
+    results.append(df.Histo1D(("miss_p", "", 100, 0, 200), "miss_p"))
+    results.append(df.Histo1D(("miss_e", "", 100, 0, 200), "miss_e"))
+
+    df = df.Filter("miss_p > 20")  # missing momentum cut
+    df = df.Define("cut8", "8")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
 
     ##########
-    ### CUT 11: recoil of photon plus qq jets must be in W mass range
+    ### CUT 9: recoil of photon plus qq jets must be in W mass range
     ##########
 
+    df = df.Define("jet1", "jets_p4[0]")
+    df = df.Define("jet2", "jets_p4[1]")
+    df = df.Define("photon", "photons_boosted[0]")  # only one photon after cuts
 
+    df = df.Define("recoil_W", "FCCAnalyses::ZHfunctions::get_recoil_photon_and_jets(240.0, jet1, jet2, photon)")
+    df = df.Define("recoil_W_m", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_W)[0]")  # recoil mass of photon plus qq jets
+    results.append(df.Histo1D(("recoil_W_m", "", 100, 0, 200), "recoil_W_m"))
 
-    """
+    df = df.Filter("73 < recoil_W_m && recoil_W_m < 190")  # W mass range cut
+    df = df.Define("cut9", "9")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
+
+    ########
+    ### CUT 10: number of constituents in jets
+    ########
+
+    results.append(df.Histo1D((f"jet1_nconst_N2_cut9", "", 30, 0, 30), f"jet1_nconst_N2"))
+    results.append(df.Histo1D((f"jet2_nconst_N2_cut9", "", 30, 0, 30), f"jet2_nconst_N2"))
+
+    df = df.Filter("jet1_nconst_N2 > 4 && jet2_nconst_N2 > 4")  # at least 4 constituent in each jet
+    df = df.Define("cut10", "10")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
+
+    
     #########
-    ### CUT 6: gamma recoil cut tight
+    ### CUT 11: gamma recoil cut tight
     #########
     #df = df.Filter("123.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
-    df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}") 
-
-    df = df.Define("cut6", "6")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
-
     results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 70, 80, 150), "gamma_recoil_m"))
-    """
+
+    df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}") 
+    df = df.Define("cut11", "11")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+
+    
    
 
 

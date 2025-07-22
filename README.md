@@ -18,12 +18,12 @@ fccanalysis build -j 8
 After sourcing FCCAnalyses, run the analyses with 
 
 ```
-fccanalysis run analysis/histmaker_inclusive.py
+fccanalysis run analysis/inclusive/histmaker_inclusive.py
 ```
 
 and create the plots with 
 ```
 export PYTHONPATH=/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/extras:$PYTHONPATH
 export PATH=/cvmfs/sft.cern.ch/lcg/external/texlive/2020/bin/x86_64-linux:$PATH
-fccanalysis plots analysis/plots_inclusive.py
+fccanalysis plots analysis/inclusive/plots_inclusive.py
 ```

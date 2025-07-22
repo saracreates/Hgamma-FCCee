@@ -48,7 +48,7 @@ def load_data(file_name, key='JetTags;1'):
     t1 = time.time()
     file = uproot.open(file_name)
     tree = file[key]
-    data = tree.arrays(library="np")
+    data = tree.arrays(library="np", )
     t2 = time.time()
     print(f"Time to load data: {t2-t1}")
     return data
