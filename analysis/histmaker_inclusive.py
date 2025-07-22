@@ -9,7 +9,7 @@ def load_config(config_path):
 
 
 
-config = load_config("config_365.yaml")
+config = load_config("config/config_240.yaml")
 
 print("Configuration:")
 print(config)
@@ -49,7 +49,7 @@ prodTag     = "FCCee/winter2023/IDEA/"
 procDict = "FCCee_procDict_winter2023_IDEA.json"
 
 # additional/custom C++ functions, defined in header files (optional)
-includePaths = ["../tutorial/functions.h"]
+includePaths = ["functions.h"]
 
 # Define the input dir (optional)
 #inputDir    = "outputs/FCCee/higgs/mH-recoil/mumu/stage1"
@@ -94,10 +94,9 @@ collections = {
 
 
 #cuts
-photon_iso_cone_radius = config['cuts']['photon_iso_cone_radius']
+photon_iso_cone_radius_min, photon_iso_cone_radius_max = config['cuts']['photon_iso_cone_radius_range']
 photon_iso_threshold = config['cuts']['photon_iso_threshold']
-photon_energy_min = config['cuts']['photon_energy_min']
-photon_energy_max = config['cuts']['photon_energy_max']
+photon_energy_min, photon_energy_max = config['cuts']['photon_energy_range']
 photon_cos_theta_max = config['cuts']['photon_cos_theta_max']
 recoil_mass_min, recoil_mass_max = config['cuts']['recoil_mass_range']
 signal_mass_min, signal_mass_max = config['cuts']['recoil_mass_signal_range']
@@ -170,7 +169,7 @@ def build_graph(df, dataset):
    
 
     #isolation cut
-    df = df.Define("photons_iso", f"FCCAnalyses::ZHfunctions::coneIsolation({photon_iso_cone_radius}, 0.5)(photons_all, ReconstructedParticles)")  # is this correct?
+    df = df.Define("photons_iso", f"FCCAnalyses::ZHfunctions::coneIsolation({photon_iso_cone_radius_min}, {photon_iso_cone_radius_max})(photons_all, ReconstructedParticles)")  # is this correct?
     df = df.Define("photons_sel_iso",f"FCCAnalyses::ZHfunctions::sel_iso({photon_iso_threshold})(photons_all, photons_iso)",) # and this??
    
     df = df.Define("photons_iso_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_sel_iso)") 

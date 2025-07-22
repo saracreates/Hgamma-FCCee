@@ -6,7 +6,7 @@ def load_config(config_path):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
-config = load_config("config_365.yaml")
+config = load_config("config/config_240.yaml")
 
 # global parameters
 intLumi        = 1.
@@ -38,8 +38,16 @@ colors['Amumu'] = ROOT.kMagenta
 #procs['signal'] = {'ZH':['wzp6_ee_mumuH_ecm240']}
 #procs['backgrounds'] =  {'WW':['p8_ee_WW_ecm240'], 'ZZ':['p8_ee_ZZ_ecm240']}
 procs = {}
-procs['signal'] = {'AH':['p8_ee_Hgamma_ecm365']}
-procs['backgrounds'] =  {'Aqq':['p8_ee_qqgamma_ecm365'], 'Acc':['p8_ee_ccgamma_ecm365'], 'Abb':['p8_ee_bbgamma_ecm365'], 'Atautau':['p8_ee_tautaugamma_ecm365'], 'Amumu':['p8_ee_mumugamma_ecm365'], 'Aee':['p8_ee_eegamma_ecm365'], 'WW':['p8_ee_WW_ecm365'], 'ZZ':['p8_ee_ZZ_ecm365']}
+procs['signal'] = {'AH':[f"p8_ee_Hgamma_ecm{config['ecm']}"]}
+procs['backgrounds'] =  {
+    'Aqq':[f"p8_ee_qqgamma_ecm{config['ecm']}"], 
+    'Acc':[f"p8_ee_ccgamma_ecm{config['ecm']}"], 
+    'Abb':[f"p8_ee_bbgamma_ecm{config['ecm']}"], 
+    'Atautau':[f"p8_ee_tautaugamma_ecm{config['ecm']}"], 
+    'Amumu':[f"p8_ee_mumugamma_ecm{config['ecm']}"], 
+    'Aee':[f"p8_ee_eegamma_ecm{config['ecm']}"], 
+    'WW':[f"p8_ee_WW_ecm{config['ecm']}"], 
+    'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"]}
 
 legend = {}
 legend['AH'] = '#gamma H'
@@ -58,7 +66,8 @@ hists = {}
 hists2D = {}
 
 
-
+recoil_mass_min, recoil_mass_max = config['cuts']['recoil_mass_range']
+signal_mass_min, signal_mass_max = config['cuts']['recoil_mass_signal_range']
 
 
 hists["cutFlow"] = {
@@ -71,7 +80,7 @@ hists["cutFlow"] = {
     "ymin":     1e4,
     "ymax":     1e11,
     #"xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5"],
-    "xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5", "110 < m_{recoil} < 140 ", "123.5  < m_{recoil} < 126.5 "],
+    "xtitle":   ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)],
     "ytitle":   "Events ",
 }
 

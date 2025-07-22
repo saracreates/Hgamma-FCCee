@@ -1,0 +1,27 @@
+ecm: 240
+intLumi: 2700000  # 2.7 /ab
+
+inputDirBase: "/eos/user/l/lherrman/FCC/data/HiggsGamma"
+outputDir: "outputs/"
+
+processList:
+  p8_ee_Hgamma:    { crossSection: 8.20481e-05,  fraction: 1}
+  p8_ee_bbgamma:   { crossSection: 2.35,  fraction: 1}
+  p8_ee_ccgamma:   { crossSection: 2.15,  fraction: 1}
+  p8_ee_qqgamma:   { crossSection: 6.9, fraction: 1}
+  p8_ee_eegamma:   { crossSection: 190,  fraction: 1}
+  p8_ee_mumugamma: { crossSection: 0.8, fraction: 1}
+  p8_ee_tautaugamma: { crossSection: 0.77, fraction: 1}
+  p8_ee_WW:        {fraction: 0.01}  
+  p8_ee_ZZ:        {fraction: 0.01}
+  p8_ee_ZH:        {crossSection: 0.2, fraction: 1} 
+ 
+
+cuts:
+  photon_iso_cone_radius_range: [0.01, 0.5]
+  photon_iso_threshold: 0.2
+  photon_energy_range: [60, 100]
+  photon_cos_theta_max: 0.9
+  recoil_mass_range: [110, 150]
+  recoil_mass_signal_range: [123.5, 126.5]
+  min_n_reco_no_gamma: 5
