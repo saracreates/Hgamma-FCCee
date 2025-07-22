@@ -2,3 +2,6 @@
 *.root
 # ouput files (plots etc)
 outputs/
+
+# pycache
+extras/check_tagging_performance/__pycache__/

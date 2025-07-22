@@ -14,9 +14,11 @@ Then, create a flat tree (jet-based) with
 ```
 python3 extras/check_tagging_performance/from_eventbased_2_jetbased.py outputs/jettags/Hgamma/p8_ee_Hgamma_ecm240.root outputs/jettags/Hgamma/p8_ee_Hgamma_ecm240_jetbased.root 0 50000
 ```
+(not needed for roc curves if number of jet tags = 2)
 
 and then the ROC curve with
 ```
 python3 extras/check_tagging_performance/rocs.py
 ``` 
+But atm use the notebook to produce plots...
 
