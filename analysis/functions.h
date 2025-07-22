@@ -336,7 +336,85 @@ float get_cosTheta_miss(Vec_rp met){
     return costheta;
 }
 
+// returns missing four momentum vector, based on reco particles
+Vec_rp missingParticle(float ecm, Vec_rp in, float p_cutoff = 0.0) {
+    float px = 0, py = 0, pz = 0, e = 0;
+    for(auto &p : in) {
+        if (std::sqrt(p.momentum.x * p.momentum.x + p.momentum.y*p.momentum.y) < p_cutoff) continue;
+        px += -p.momentum.x;
+        py += -p.momentum.y;
+        pz += -p.momentum.z;
+        e += p.energy;
+    }
+    
+    Vec_rp ret;
+    rp res;
+    res.momentum.x = px;
+    res.momentum.y = py;
+    res.momentum.z = pz;
+    res.energy = ecm-e;
+    ret.emplace_back(res);
+    return ret;
+}
 
+int get_higgs_to_WW(Vec_mc mcparticles, Vec_i ind_daugthers){
+    // get higgs
+    int pdg_higgs = 25;
+    edm4hep::MCParticleData higgs;
+    int count_higgs = 0;
+    std::vector<int> daugthers_ids;
+    int higgs_to_WW = 1; // assume it is a Higgs to WW decay
+
+    // count number of Higgs
+    for(edm4hep::MCParticleData& mcp: mcparticles){
+        if(mcp.PDG == pdg_higgs){
+            count_higgs++;
+        }
+    }
+    // NOTE: This does not work with the Madgraph samples ...
+    // if (count_higgs != 1){
+    //     std::cout << "ERROR: there should be exactly one Higgs in the event but found " << count_higgs << std::endl;
+    //     exit(1);
+    // }
+
+    int n_higgs = 0;
+    for(edm4hep::MCParticleData& mcp: mcparticles){
+        if(mcp.PDG == pdg_higgs){
+            // std::cout << "Checking Higgs (" << mcp.PDG << ") with generator status " << mcp.generatorStatus << std::endl;
+            higgs = mcp;
+            int db = higgs.daughters_begin;
+            int de = higgs.daughters_end;
+            int size_daughters = de - db;
+            if (size_daughters != 2){
+                if (size_daughters == 1 and mcparticles[ind_daugthers[db]].PDG == 25) {
+                    // std::cout << "INFO: Higgs has only one daughter with PDG 25 -- skipping" << std::endl;
+                    continue; // this is a Higgs that decayed to a single Higgs, we can ignore it (... Madgraph + Delphes)
+                }
+                if (size_daughters == 1 and mcparticles[ind_daugthers[db]].PDG != 25) {
+                    higgs_to_WW = 0;
+                    // std::cout << "INFO: Higgs should have 2 daughters but has " << size_daughters << std::endl;
+                    return higgs_to_WW; // if the Higgs does not have 2 daughters, it is not a Higgs to jets decay
+                }
+            }
+            // get PDG of daughters
+            for (int j = db; j < de; ++j) {
+                int ind_daugther = ind_daugthers[j];
+                daugthers_ids.push_back(mcparticles[ind_daugther].PDG);
+            }
+        }
+    }
+
+    // the pdgs of the daughters should be -24 and 24 (W+ and W-)
+    int pdg1 = daugthers_ids[0];
+    int pdg2 = daugthers_ids[1];
+    if (std::abs(pdg1) != 24 || std::abs(pdg2) != 24) {
+        // std::cout << "INFO: the two daughters of the Higgs be W+ and W- but found " << pdg1 << " and " << pdg2 << std::endl;
+        higgs_to_WW = 0; // if the daughters are not the same flavour, it is not a Higgs to WW decay
+        return higgs_to_WW;
+    }
+    // std::cout << "YEAY! Higgs daughters PDG: " << pdg1 << " and " << pdg2 << std::endl;
+    return higgs_to_WW; // return the absolute value of the PDG of the daughters
+}
 
 
  

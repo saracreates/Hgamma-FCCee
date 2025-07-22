@@ -49,14 +49,10 @@ prodTag     = "FCCee/winter2023/IDEA/"
 procDict = "FCCee_procDict_winter2023_IDEA.json"
 
 # additional/custom C++ functions, defined in header files (optional)
-includePaths = ["functions.h"]
-
-# Define the input dir (optional)
-#inputDir    = "outputs/FCCee/higgs/mH-recoil/mumu/stage1"
-#inputDir    = "/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data"
+includePaths = ["../functions.h"]
 
 #Optional: output directory, default is local running directory
-outputDir   =  os.path.join(config['outputDir'], str(ecm),'histmaker/recoil')
+outputDir   =  os.path.join(config['outputDir'], str(ecm),'histmaker/lvqq')
 print(outputDir)
 
 # optional: ncpus, default is 4, -1 uses all cores available
@@ -73,27 +69,23 @@ bins_a_n = (10, 0, 10) # 100 MeV bins
 bins_count = (10, 0, 10)
 
 
-##?| name of collections in EDM root files
+# name of collections in EDM root files
 collections = {
     "GenParticles": "Particle",
     "PFParticles": "ReconstructedParticles",
     "PFTracks": "EFlowTrack",
     "PFPhotons": "EFlowPhoton",
     "PFNeutralHadrons": "EFlowNeutralHadron",
-    # "TrackState": "EFlowTrack_1",
-    "TrackState": "_EFlowTrack_trackStates",
+    "TrackState": "EFlowTrack_1",
     "TrackerHits": "TrackerHits",
     "CalorimeterHits": "CalorimeterHits",
-    # "dNdx": "EFlowTrack_2",
-    "dNdx": "_EFlowTrack_dxQuantities",
+    "dNdx": "EFlowTrack_2",
     "PathLength": "EFlowTrack_L",
     "Bz": "magFieldBz",
-    "Electrons": "Electron",
-    "Muons": "Muon",
 }
 
 
-#cuts
+# cuts
 photon_iso_cone_radius_min, photon_iso_cone_radius_max = config['cuts']['photon_iso_cone_radius_range']
 photon_iso_threshold = config['cuts']['photon_iso_threshold']
 photon_energy_min, photon_energy_max = config['cuts']['photon_energy_range']
@@ -101,6 +93,43 @@ photon_cos_theta_max = config['cuts']['photon_cos_theta_max']
 recoil_mass_min, recoil_mass_max = config['cuts']['recoil_mass_range']
 signal_mass_min, signal_mass_max = config['cuts']['recoil_mass_signal_range']
 min_n_reco_no_gamma = config['cuts']['min_n_reco_no_gamma']
+
+# jet clustering and tagging
+
+## latest particle transformer model, trained on 9M jets in winter2023 samples
+model_name = "fccee_flavtagging_edm4hep_wc_v1"
+
+## model files needed for unit testing in CI
+url_model_dir = "https://fccsw.web.cern.ch/fccsw/testsamples/jet_flavour_tagging/winter2023/wc_pt_13_01_2022/"
+url_preproc = "{}/{}.json".format(url_model_dir, model_name)
+url_model = "{}/{}.onnx".format(url_model_dir, model_name)
+
+## model files locally stored on /eos
+model_dir = (
+    "/eos/experiment/fcc/ee/jet_flavour_tagging/winter2023/wc_pt_13_01_2022/"
+)
+local_preproc = "{}/{}.json".format(model_dir, model_name)
+local_model = "{}/{}.onnx".format(model_dir, model_name)
+
+## get local file, else download from url
+def get_file_path(url, filename):
+    if os.path.exists(filename):
+        return os.path.abspath(filename)
+    else:
+        urllib.request.urlretrieve(url, os.path.basename(url))
+        return os.path.basename(url)
+
+
+weaver_preproc = get_file_path(url_preproc, local_preproc)
+weaver_model = get_file_path(url_model, local_model)
+
+from addons.ONNXRuntime.jetFlavourHelper import JetFlavourHelper
+from addons.FastJet.jetClusteringHelper import (
+    ExclusiveJetClusteringHelper,
+)
+
+jetFlavourHelper = None
+jetClusteringHelper = None
 
 
 
@@ -112,22 +141,19 @@ def build_graph(df, dataset):
     results = []
     df = df.Define("weight", "1.0")
     weightsum = df.Sum("weight")
+
+    df = df.Alias("Particle0", "Particle#0.index") # index of the mother particles
+    df = df.Alias("Particle1", "Particle#1.index") # index of the daughter particles
    
 
     df = df.Alias("Photon0", "Photon#0.index")
-    df = df.Define(
-            "photons_all",
-            "FCCAnalyses::ReconstructedParticle::get(Photon0, ReconstructedParticles)",
-        )
+    df = df.Define("photons_all", "FCCAnalyses::ReconstructedParticle::get(Photon0, ReconstructedParticles)")
 
     df = df.Alias("Electron0", "Electron#0.index")
-    df = df.Define(
-            "electrons_all",
-            "FCCAnalyses::ReconstructedParticle::get(Electron0, ReconstructedParticles)",
-        )
+    df = df.Define("electrons_all", "FCCAnalyses::ReconstructedParticle::get(Electron0, ReconstructedParticles)")
 
-    
-
+    df = df.Alias("Muon0", "Muon#0.index")
+    df = df.Define("muons_all", "FCCAnalyses::ReconstructedParticle::get(Muon0, ReconstructedParticles)")
 
     df = df.Define("photons_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_all)") 
     df = df.Define("photons_n","FCCAnalyses::ReconstructedParticle::get_n(photons_all)")  #number of photons per event
@@ -138,16 +164,36 @@ def build_graph(df, dataset):
     df = df.Define("electrons_n","FCCAnalyses::ReconstructedParticle::get_n(electrons_all)")  #number of photons per event
     df = df.Define("electrons_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(electrons_all))")
 
+    # compute the muon isolation and store muons with an isolation cut of 0df = df.25 in a separate column muons_sel_iso
+    df = df.Define(
+        "muons_iso",
+        "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.1)(muons_all, ReconstructedParticles)",
+    )
+    df = df.Define(
+        "muons_sel_iso",
+        "FCCAnalyses::ZHfunctions::sel_iso(0.5)(muons_all, muons_iso)",
+    )
+    df = df.Define(
+        "muons_sel_q",
+        "FCCAnalyses::ReconstructedParticle::get_charge(muons_sel_iso)",
+    )
+    df = df.Define(
+        "electrons_iso",
+        "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.1)(electrons_all, ReconstructedParticles)",
+    )
+    df = df.Define(
+        "electrons_sel_iso",
+        "FCCAnalyses::ZHfunctions::sel_iso(0.5)(electrons_all, electrons_iso)",
+    )
+    df = df.Define(
+        "electrons_sel_q",
+        "FCCAnalyses::ReconstructedParticle::get_charge(electrons_sel_iso)",
+    )
 
-
-    # order the cos theta values, and return arrays, when filter require length 2 for cut!
-
-    # get cos theta from electrons
-    df = df.Define("electrons_ordered_cos_theta","FCCAnalyses::ZHfunctions::ee_costheta_max(electrons_cos_theta)")
-   
-    #print and check
-    #df = df.Define("photons_print", "FCCAnalyses::ZHfunctions::print_momentum(electrons_all)")
-    #results.append(df.Histo1D(("photons_print", "", 100, 0, 100), "photons_print"))
+    # plot iso values
+    bins_iso = (500, 0, 3)
+    results.append(df.Histo1D(("muons_iso", "", *bins_iso), "muons_iso"))
+    results.append(df.Histo1D(("electrons_iso", "", *bins_iso), "electrons_iso"))
 
 
     #########
@@ -161,10 +207,6 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("photons_p_cut_0", "", 130, 0, 130), "photons_p"))
     results.append(df.Histo1D(("photons_n_cut_0", "", *bins_a_n), "photons_n"))
     results.append(df.Histo1D(("photons_cos_theta_cut_0", "", 50, -1, 1), "photons_cos_theta"))
-
-    results.append(df.Histo1D(("electrons_p_baseline", "", 130, 0, 130), "electrons_p"))
-    results.append(df.Histo1D(("electrons_n_baseline", "", *bins_a_n), "electrons_n"))
-    results.append(df.Histo1D(("electrons_cos_theta", "", 50, -1, 1), "electrons_ordered_cos_theta"))
 
    
 
@@ -190,18 +232,10 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("photons_p_cut_1", "",  130, 0, 130), "photons_iso_p"))
     results.append(df.Histo1D(("photons_n_cut_1", "", *bins_a_n), "photons_iso_n"))
     results.append(df.Histo1D(("photons_cos_theta_cut_1", "", 50, -1, 1), "photons_iso_cos_theta"))
-    results.append(df.Histo1D(("electrons_cos_theta_cut_1", "", 50, -1, 1), "electrons_ordered_cos_theta"))
  
-    
 
     #sort in p  and select highest energetic one
     df = df.Define("iso_highest_p","FCCAnalyses::ZHfunctions::sort_by_energy(photons_sel_iso)")
-
-    #print and check
-    #df = df.Define("photons_print", "FCCAnalyses::ZHfunctions::print_momentum(iso_highest_p)")
-    #results.append(df.Histo1D(("photons_print", "", 100, 0, 100), "photons_print"))
-
-
 
     #energy cut
     df = df.Define("photons_boosted", f"FCCAnalyses::ReconstructedParticle::sel_p({photon_energy_min},{photon_energy_max})(iso_highest_p)") # looked okay from photons all
@@ -223,11 +257,9 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("photons_p_cut_2", "",  130, 0, 130), "photons_boosted_p"))
     results.append(df.Histo1D(("photons_n_cut_2", "", *bins_a_n), "photons_boosted_n"))
     results.append(df.Histo1D(("photons_cos_theta_cut_2", "", 50, -1, 1), "photons_boosted_cos_theta"))
-    results.append(df.Histo1D(("electrons_cos_theta_cut_2", "", 50, -1, 1), "electrons_ordered_cos_theta"))
- 
 
-    
-     #########
+
+    #########
     ### CUT 3: Cos Theta cut
     #########
     df = df.Filter(f"ROOT::VecOps::All(abs(photons_boosted_cos_theta) < {photon_cos_theta_max}) ") 
@@ -238,7 +270,6 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("photons_p_cut_3", "", 130, 0, 130), "photons_boosted_p"))
     results.append(df.Histo1D(("photons_n_cut_3", "", *bins_a_n), "photons_boosted_n"))
     results.append(df.Histo1D(("photons_cos_theta_cut_3", "", 50, -1, 1), "photons_boosted_cos_theta"))
-    results.append(df.Histo1D(("electrons_cos_theta_cut_3", "", 50, -1, 1), "electrons_ordered_cos_theta"))
 
 
     df = df.Define("recopart_no_gamma", "FCCAnalyses::ReconstructedParticle::remove(ReconstructedParticles, photons_boosted)",)
@@ -247,22 +278,7 @@ def build_graph(df, dataset):
  
     results.append(df.Histo1D(("recopart_no_gamma_n_cut_0", "", 60, 0, 60), "recopart_no_gamma_n"))
 
-    """
-    #########
-    ### CUT 4: Cos Theta cut on ee to reduce bhabhar
-    #########
-    df = df.Filter("electrons_ordered_cos_theta.size()<2 || (abs(electrons_ordered_cos_theta)[0]<0.8 && abs(electrons_ordered_cos_theta)[1]<0.8)") 
-    
-    df = df.Define("cut4", "4")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
- 
-    results.append(df.Histo1D(("photons_p_cut_4", "", 130, 0, 130), "photons_boosted_p"))
-    results.append(df.Histo1D(("photons_n_cut_4", "", *bins_a_n), "photons_boosted_n"))
-    results.append(df.Histo1D(("photons_cos_theta_cut_4", "", 50, -1, 1), "photons_boosted_cos_theta"))
-    results.append(df.Histo1D(("electrons_cos_theta_cut_4", "", 50, -1, 1), "electrons_ordered_cos_theta"))
-    """
-
-     # recoil plot
+    # recoil plot
     df = df.Define("gamma_recoil", "FCCAnalyses::ReconstructedParticle::recoilBuilder(240)(photons_boosted)") 
     df = df.Define("gamma_recoil_m", "FCCAnalyses::ReconstructedParticle::get_mass(gamma_recoil)[0]") # recoil mass
     results.append(df.Histo1D(("gamma_recoil_m_cut_3", "", 170, 80, 250), "gamma_recoil_m"))
@@ -294,7 +310,96 @@ def build_graph(df, dataset):
 
     results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 40, 110, 150), "gamma_recoil_m"))
     #results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 64, 116, 170), "gamma_recoil_m"))
-   
+
+
+    # NOTE: From here on, we add some extra cuts for H-> WW* -> lvqq 
+
+    # Until I have the data, I will cut the MC data to only use events with MC H -> WW
+    ########
+    ### Cut 6: Only use events with MC H -> WW
+    ########
+    df = df.Define("is_higgs_to_WW", "FCCAnalyses::ZHfunctions::get_higgs_to_WW(Particle, Particle1)")
+    df = df.Filter("is_higgs_to_WW == 1")
+    df = df.Define("cut6", "6")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
+
+    ##########
+    ### CUT 7: one isolated lepton
+    ##########
+    df = df.Define("num_isolated_leptons", "electrons_sel_iso.size() + muons_sel_iso.size()")
+    results.append(df.Histo1D(("num_isolated_leptons", "", 10, 0, 10), "num_isolated_leptons"))
+
+    df = df.Filter("num_isolated_leptons == 1")  # one isolated lepton
+    df = df.Define("cut7", "7")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
+
+
+    ##########
+    ### CUT 8: missing momentum 
+    ##########
+    df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
+    df = df.Define("miss_p", "FCCAnalyses::ReconstructedParticle::get_p(missP)[0]")
+    df = df.Define("miss_e", "FCCAnalyses::ReconstructedParticle::get_e(missP)[0]")
+    results.append(df.Histo1D(("miss_p", "", 100, 0, 200), "miss_p"))
+    results.append(df.Histo1D(("miss_e", "", 100, 0, 200), "miss_e"))
+
+
+    # cluster 2 jets
+
+    # create a collection of reco particles without the photon and without isolated leptons
+    df = df.Define("RecoParticles_no_gamma_no_mu", "FCCAnalyses::ReconstructedParticle::remove(recopart_no_gamma, muons_sel_iso)")
+    df = df.Define("RecoParticles_no_gamma_no_leptons", "FCCAnalyses::ReconstructedParticle::remove(RecoParticles_no_gamma_no_mu, electrons_sel_iso)")
+
+    global jetClusteringHelper
+    global jetFlavourHelper
+
+    collections_no_gamma_no_leptons = copy.deepcopy(collections)
+    collections_no_gamma_no_leptons["PFParticles"] = "RecoParticles_no_gamma_no_leptons"
+
+    jetClusteringHelper = ExclusiveJetClusteringHelper(collections_no_gamma_no_leptons["PFParticles"], 2, "N2")
+    df = jetClusteringHelper.define(df)
+
+    jetFlavourHelper = JetFlavourHelper(
+        collections_no_gamma_no_leptons,
+        jetClusteringHelper.jets,
+        jetClusteringHelper.constituents,
+    )
+    ## define observables for tagger
+    df = jetFlavourHelper.define(df)
+
+    ## tagger inference
+    df = jetFlavourHelper.inference(weaver_preproc, weaver_model, df)
+
+    df = df.Define("y23", "std::sqrt(JetClusteringUtils::get_exclusive_dmerge(_jet_N2, 2))")  # dmerge from 3 to 2
+    df = df.Define("y34", "std::sqrt(JetClusteringUtils::get_exclusive_dmerge(_jet_N2, 3))")  # dmerge from 4 to 3
+    results.append(df.Histo1D(("y23", "", 100, 0, 1), "y23"))
+
+    i = 2
+    for j in range(1, 3):
+        df = df.Define(f"jet{j}_nconst_N{i}", f"jet_nconst_N{i}[{j-1}]")
+
+
+    df = df.Define("jets_p4","JetConstituentsUtils::compute_tlv_jets({})".format(jetClusteringHelper.jets))
+    df = df.Define("m_jj","JetConstituentsUtils::InvariantMass(jets_p4[0], jets_p4[1])")
+    results.append(df.Histo1D(("m_jj", "", 100, 0, 200), "m_jj"))
+
+    ###########
+    ### CUT 9: two jets (maybe cut on y12?)
+    ###########
+
+
+    ###########
+    ### CUT 10: jet mass cut (W* mass)
+    ###########
+
+
+    ##########
+    ### CUT 11: recoil of photon plus qq jets must be in W mass range
+    ##########
+
+
+
+    """
     #########
     ### CUT 6: gamma recoil cut tight
     #########
@@ -305,26 +410,8 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
 
     results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 70, 80, 150), "gamma_recoil_m"))
+    """
+   
 
-   
-    #define further variables for plotting
-    #df = df.Define("photons_all_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_all)")
-    #df = df.Define("photons_boosted_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_boosted)")
-    #df = df.Define("photons_boosted_n","FCCAnalyses::ReconstructedParticle::get_n(photons_boosted)")  #number of photons per event
-    
-   
-    #select highest energetic photon
-
-    ########################
-    # Final histograms
-    ########################
-    #results.append(df.Histo1D(("photons_all_p", "", 100, 0, 100), "photons_all_p"))
-   # results.append(df.Histo1D(("photons_boosted_p", "", *bins_a_p), "photons_boosted_p"))
-    #results.append(df.Histo1D(("photons_n", "", *bins_a_n), "photons_n"))
-    #results.append(df.Histo1D(("photons_boosted_n", "", *bins_a_n), "photons_boosted_n"))
-    
-    #results.append(df.Histo1D(("zmumu_recoil_m", "", *bins_recoil), "zmumu_recoil_m"))   # see how recoil determined
-   
-    #need to select the highest energetic photon
 
     return results, weightsum
