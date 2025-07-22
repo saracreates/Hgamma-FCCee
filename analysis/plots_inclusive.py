@@ -10,7 +10,7 @@ config = load_config("config/config_240.yaml")
 
 # global parameters
 intLumi        = 1.
-intLumiLabel   = "L = 10.8 a b^{-1}"
+intLumiLabel   = "L = 10.8 a b^{-1}" # FIXME: use config['intLumi'] to set this dynamically
 ana_tex        = 'e^{+}e^{-} #rightarrow #gamma H'
 delphesVersion = '3.4.2'
 energy         = config['ecm']

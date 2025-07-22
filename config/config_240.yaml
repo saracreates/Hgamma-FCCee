@@ -1,5 +1,5 @@
 ecm: 240
-intLumi: 2700000  # 2.7 /ab
+intLumi: 10800000  # 10.8 /ab
 
 inputDirBase: "/eos/user/l/lherrman/FCC/data/HiggsGamma"
 outputDir: "outputs/"

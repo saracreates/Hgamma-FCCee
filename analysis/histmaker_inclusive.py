@@ -64,7 +64,7 @@ nCPUS       = -1
 
 # scale the histograms with the cross-section and integrated luminosity
 doScale = True
-intLumi = 2700000  # 2.7 /ab
+intLumi = config['intLumi']
 
 
 # define some binning for various histograms
