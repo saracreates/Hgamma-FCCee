@@ -14,10 +14,6 @@ config = load_config("config/config_240.yaml")
 print("Configuration:")
 print(config)
 
-config_WW = load_config("config/config_WW_lvqq_240.yaml")
-print("Configuration for WW:")
-print(config_WW)
-
 
 
 ecm = config['ecm']
@@ -56,7 +52,7 @@ procDict = "FCCee_procDict_winter2023_IDEA.json"
 includePaths = ["../functions.h"]
 
 #Optional: output directory, default is local running directory
-outputDir   =  os.path.join(config['outputDir'], str(ecm),'histmaker/', config_WW['outputDir_sub'])
+outputDir   =  os.path.join(config['outputDir'], str(ecm),'histmaker/qqlv')
 print(outputDir)
 
 # optional: ncpus, default is 4, -1 uses all cores available
@@ -382,12 +378,10 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("m_jj", "", 100, 0, 200), "m_jj"))
     
     ###########
-    ### CUT 7: jet mass cut (W* mass)
+    ### CUT 7: jet mass cut (W mass)
     ###########
 
-    m_jj_min, m_jj_max = config_WW['cuts']['m_jj_range']
-
-    df = df.Filter(f"{m_jj_min} < m_jj && m_jj < {m_jj_max}")  # W* mass cut
+    df = df.Filter("65 < m_jj && m_jj < 95")  # W mass cut
     df = df.Define("cut7", "7")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 
@@ -402,7 +396,7 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("miss_pT", "", 100, 0, 200), "miss_pT"))
     results.append(df.Histo1D(("miss_e", "", 100, 0, 200), "miss_e"))
 
-    df = df.Filter(f"miss_p > {config_WW['cuts']['p_miss']}")  # missing momentum cut
+    df = df.Filter("miss_p > 5")  # missing momentum cut
     df = df.Define("cut8", "8")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
@@ -427,9 +421,7 @@ def build_graph(df, dataset):
     df = df.Define("recoil_W_m", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_W)[0]")  # recoil mass of photon plus qq jets
     results.append(df.Histo1D(("recoil_W_m", "", 100, 0, 200), "recoil_W_m"))
 
-    recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range']
-
-    df = df.Filter(f"{recoil_gammaqq_min} < recoil_W_m && recoil_W_m < {recoil_gammaqq_max}")  # W mass range cut
+    df = df.Filter("8 < recoil_W_m && recoil_W_m < 65")  # W* mass range cut
     df = df.Define("cut9", "9")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
 
@@ -440,7 +432,7 @@ def build_graph(df, dataset):
     results.append(df.Histo1D((f"jet1_nconst_N2_cut10", "", 30, 0, 30), f"jet1_nconst_N2"))
     results.append(df.Histo1D((f"jet2_nconst_N2_cut10", "", 30, 0, 30), f"jet2_nconst_N2"))
 
-    df = df.Filter(f"jet1_nconst_N2 > {config_WW['cuts']['n_const_per_jet']} && jet2_nconst_N2 > {config_WW['cuts']['n_const_per_jet']}")  # at least 4 constituent in each jet
+    df = df.Filter("jet1_nconst_N2 > 4 && jet2_nconst_N2 > 4")  # at least 4 constituent in each jet
     df = df.Define("cut10", "10")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
 

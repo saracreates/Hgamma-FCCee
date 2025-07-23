@@ -8,8 +8,6 @@ def load_config(config_path):
 
 config = load_config("config/config_240.yaml")
 
-config_WW = load_config("config/config_WW_lvqq_240.yaml")
-
 # global parameters
 intLumi        = 1.
 intLumiLabel   = "L = 10.8 a b^{-1}" # FIXME: use config['intLumi'] to set this dynamically
@@ -19,8 +17,8 @@ energy         = config['ecm']
 collider       = 'FCC-ee'
 formats        = ['png','pdf']
 
-outdir         = os.path.join(config['outputDir'], str(energy),'plots/', config_WW['outputDir_sub']) 
-inputDir       = os.path.join(config['outputDir'], str(energy),'histmaker/', config_WW['outputDir_sub'])
+outdir         = os.path.join(config['outputDir'], str(energy),'plots/qqlv') 
+inputDir       = os.path.join(config['outputDir'], str(energy),'histmaker/qqlv')
 
 plotStatUnc    = True
 
@@ -71,8 +69,7 @@ hists2D = {}
 recoil_mass_min, recoil_mass_max = config['cuts']['recoil_mass_range']
 signal_mass_min, signal_mass_max = config['cuts']['recoil_mass_signal_range']
 
-m_jj_min, m_jj_max = config_WW['cuts']['m_jj_range']
-recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range']
+xtitle_addon = ""
 
 
 hists["cutFlow"] = {
@@ -85,7 +82,7 @@ hists["cutFlow"] = {
     "ymin":     1e4,
     "ymax":     1e11,
     #"xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5"],
-    "xtitle":   ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "p_{miss} > " + str(config_WW['cuts']['p_miss']), str(recoil_gammaqq_min) + "<m_{recoil, #gamma qq} < " + str(recoil_gammaqq_max), "#const per jet > " + str(config_WW['cuts']['n_const_per_jet']), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)], #"p_{miss} > 20","p_{T} > 10"
+    "xtitle":   ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", "15 < m_{qq} < 55", "p_{miss} > 20", "73 <m_{recoil, #gamma qq} < 90", "#const per jet > 4", str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)], #"p_{miss} > 20","p_{T} > 10"
     "ytitle":   "Events ",
 }
 

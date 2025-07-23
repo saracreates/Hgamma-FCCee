@@ -1,0 +1,6 @@
+outputDir_sub: "lvqq"
+cuts:
+  m_jj_range: [8, 55]  # W* mass range cut
+  p_miss: 20  # missing momentum cut
+  recoil_gammaqq_range: [73, 190]
+  n_const_per_jet: 4  # number of constituents per jet cut
