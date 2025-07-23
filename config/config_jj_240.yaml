@@ -1,0 +1,4 @@
+outputDir_sub: "exclusive_Hjj"
+cuts:
+  m_jj_range: [100, 135]  # Higgs
+  sum_jetscores_min: 1  # minimum sum of jet scores
