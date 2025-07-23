@@ -6,15 +6,15 @@ outputDir: "outputs/"
 
 processList:
   p8_ee_Hgamma:    { crossSection: 8.20481e-05,  fraction: 1}
-  # p8_ee_bbgamma:   { crossSection: 2.35,  fraction: 1}
-  # p8_ee_ccgamma:   { crossSection: 2.15,  fraction: 1}
-  # p8_ee_qqgamma:   { crossSection: 6.9, fraction: 1}
-  # p8_ee_eegamma:   { crossSection: 190,  fraction: 1}
-  # p8_ee_mumugamma: { crossSection: 0.8, fraction: 1}
-  # p8_ee_tautaugamma: { crossSection: 0.77, fraction: 1}
-  # p8_ee_WW:        {fraction: 0.1}
-  # p8_ee_ZZ:        {fraction: 0.01}
-  # p8_ee_ZH:        {crossSection: 0.2, fraction: 1} 
+  p8_ee_bbgamma:   { crossSection: 2.35,  fraction: 1}
+  p8_ee_ccgamma:   { crossSection: 2.15,  fraction: 1}
+  p8_ee_qqgamma:   { crossSection: 6.9, fraction: 1}
+  p8_ee_eegamma:   { crossSection: 190,  fraction: 1}
+  p8_ee_mumugamma: { crossSection: 0.8, fraction: 1}
+  p8_ee_tautaugamma: { crossSection: 0.77, fraction: 1}
+  p8_ee_WW:        {fraction: 0.01}
+  p8_ee_ZZ:        {fraction: 0.01}
+  p8_ee_ZH:        {crossSection: 0.2, fraction: 1} 
  
 
 cuts:
