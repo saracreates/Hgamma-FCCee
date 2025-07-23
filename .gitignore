@@ -6,7 +6,8 @@ outputs/
 # pycache
 extras/check_tagging_performance/__pycache__/
 analysis/__pycache__/
-analysis/exclusive_WW/__pycache__/
+analysis/exclusive_HWW/__pycache__/
+analysis/exclusive_Hjj/__pycache__/
 
 # dummy test folder
 test
