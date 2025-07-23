@@ -82,7 +82,7 @@ hists["cutFlow"] = {
     "ymin":     1e4,
     "ymax":     1e11,
     #"xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5"],
-    "xtitle":   ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", "15 < m_{qq} < 55", "p_{miss} > 20", "73 <m_{recoil, #gamma qq} < 90", "#const per jet > 4", str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)],
+    "xtitle":   ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", "15 < m_{qq} < 55", "p_{miss} > 20", "73 <m_{recoil, #gamma qq} < 90", "#const per jet > 4", str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)], #"p_{miss} > 20","p_{T} > 10"
     "ytitle":   "Events ",
 }
 

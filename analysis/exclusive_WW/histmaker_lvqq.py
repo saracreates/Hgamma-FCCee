@@ -245,7 +245,13 @@ def build_graph(df, dataset):
     df = df.Define("photons_boosted_n","FCCAnalyses::ReconstructedParticle::get_n(photons_boosted)") 
     df = df.Define("photons_boosted_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_boosted))")
 
-    
+    df = df.Define("recopart_no_gamma", "FCCAnalyses::ReconstructedParticle::remove(ReconstructedParticles, photons_boosted)",)
+    df = df.Define("recopart_no_gamma_n","FCCAnalyses::ReconstructedParticle::get_n(recopart_no_gamma)") 
+   
+ 
+    results.append(df.Histo1D(("recopart_no_gamma_n_cut_1", "", 60, 0, 60), "recopart_no_gamma_n"))
+
+
     #########
     ### CUT 2: Photons energy > 50
     #########
@@ -272,16 +278,11 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("photons_cos_theta_cut_3", "", 50, -1, 1), "photons_boosted_cos_theta"))
 
 
-    df = df.Define("recopart_no_gamma", "FCCAnalyses::ReconstructedParticle::remove(ReconstructedParticles, photons_boosted)",)
-    df = df.Define("recopart_no_gamma_n","FCCAnalyses::ReconstructedParticle::get_n(recopart_no_gamma)") 
-   
- 
-    results.append(df.Histo1D(("recopart_no_gamma_n_cut_0", "", 60, 0, 60), "recopart_no_gamma_n"))
-
     # recoil plot
     df = df.Define("gamma_recoil", "FCCAnalyses::ReconstructedParticle::recoilBuilder(240)(photons_boosted)") 
     df = df.Define("gamma_recoil_m", "FCCAnalyses::ReconstructedParticle::get_mass(gamma_recoil)[0]") # recoil mass
     results.append(df.Histo1D(("gamma_recoil_m_cut_3", "", 170, 80, 250), "gamma_recoil_m"))
+
     
     #########
     ### CUT 4: require at least 6 reconstructed particles (except gamma)
@@ -292,11 +293,8 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
  
     results.append(df.Histo1D(("recopart_no_gamma_n_cut_4", "", 60, 0, 60), "recopart_no_gamma_n"))
-    
-
-    
     results.append(df.Histo1D(("gamma_recoil_m_cut_4", "", 170, 80, 250), "gamma_recoil_m"))
-   
+
 
 
     #########
@@ -333,7 +331,12 @@ def build_graph(df, dataset):
     df = df.Define("cut6", "6")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
 
+    # have a look at the lepton
+    df = df.Define("lepton", "muons_sel_iso.size() == 1 ? muons_sel_iso[0] : electrons_sel_iso[0]")
+    df = df.Define("lepton_p", "FCCAnalyses::ReconstructedParticle::get_p(Vec_rp{lepton})[0]")
+    results.append(df.Histo1D(("lepton_p", "", 100, 0, 200), "lepton_p"))
 
+    
     # cluster 2 jets
 
     # create a collection of reco particles without the photon and without isolated leptons
@@ -373,12 +376,12 @@ def build_graph(df, dataset):
     df = df.Define("jets_p4","JetConstituentsUtils::compute_tlv_jets({})".format(jetClusteringHelper.jets))
     df = df.Define("m_jj","JetConstituentsUtils::InvariantMass(jets_p4[0], jets_p4[1])")
     results.append(df.Histo1D(("m_jj", "", 100, 0, 200), "m_jj"))
-
+    
     ###########
     ### CUT 7: jet mass cut (W* mass)
     ###########
 
-    df = df.Filter("15 < m_jj && m_jj < 55")  # W* mass cut
+    df = df.Filter("8 < m_jj && m_jj < 55")  # W* mass cut
     df = df.Define("cut7", "7")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 
@@ -387,13 +390,23 @@ def build_graph(df, dataset):
     ##########
     df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
     df = df.Define("miss_p", "FCCAnalyses::ReconstructedParticle::get_p(missP)[0]")
+    df = df.Define("miss_pT", "FCCAnalyses::ReconstructedParticle::get_pt(missP)[0]")
     df = df.Define("miss_e", "FCCAnalyses::ReconstructedParticle::get_e(missP)[0]")
     results.append(df.Histo1D(("miss_p", "", 100, 0, 200), "miss_p"))
+    results.append(df.Histo1D(("miss_pT", "", 100, 0, 200), "miss_pT"))
     results.append(df.Histo1D(("miss_e", "", 100, 0, 200), "miss_e"))
 
     df = df.Filter("miss_p > 20")  # missing momentum cut
     df = df.Define("cut8", "8")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
+
+    ########
+    ### CUT 8: missing transverse momentum
+    ########
+    # results.append(df.Histo1D(("miss_pT_cut_8", "", 100, 0, 200), "miss_pT"))
+    # df = df.Filter("miss_pT > 10")  # missing transverse momentum cut
+    # df = df.Define("cut8", "8")
+    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
 
     ##########
@@ -416,12 +429,13 @@ def build_graph(df, dataset):
     ### CUT 10: number of constituents in jets
     ########
 
-    results.append(df.Histo1D((f"jet1_nconst_N2_cut9", "", 30, 0, 30), f"jet1_nconst_N2"))
-    results.append(df.Histo1D((f"jet2_nconst_N2_cut9", "", 30, 0, 30), f"jet2_nconst_N2"))
+    results.append(df.Histo1D((f"jet1_nconst_N2_cut10", "", 30, 0, 30), f"jet1_nconst_N2"))
+    results.append(df.Histo1D((f"jet2_nconst_N2_cut10", "", 30, 0, 30), f"jet2_nconst_N2"))
 
     df = df.Filter("jet1_nconst_N2 > 4 && jet2_nconst_N2 > 4")  # at least 4 constituent in each jet
     df = df.Define("cut10", "10")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
+
 
     
     #########
@@ -433,9 +447,6 @@ def build_graph(df, dataset):
     df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}") 
     df = df.Define("cut11", "11")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
-
-    
-   
 
 
     return results, weightsum

@@ -12,7 +12,7 @@ processList:
   p8_ee_eegamma:   { crossSection: 190,  fraction: 1}
   p8_ee_mumugamma: { crossSection: 0.8, fraction: 1}
   p8_ee_tautaugamma: { crossSection: 0.77, fraction: 1}
-  p8_ee_WW:        {fraction: 0.01}  
+  p8_ee_WW:        {fraction: 0.05}
   p8_ee_ZZ:        {fraction: 0.01}
   p8_ee_ZH:        {crossSection: 0.2, fraction: 1} 
  
