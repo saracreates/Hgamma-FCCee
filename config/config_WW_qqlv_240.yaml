@@ -1,0 +1,6 @@
+outputDir_sub: "qqlv"
+cuts:
+  m_jj_range: [65, 87]  # W* mass range cut
+  p_miss: 5  # min missing momentum cut
+  recoil_gammaqq_range: [10, 55]
+  n_const_per_jet: 4  # number of constituents per jet cut
