@@ -39,19 +39,19 @@ ecm = config['ecm']
 processList = {}
 for key, val in config['processList'].items():
     # change signal file 
-    if key == f'p8_ee_Hgamma':
-        entry = {'fraction': float(val['fraction'])}
-        entry['inputDir'] = "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"
-        entry['crossSection'] = float(val['crossSection']) * 0.2137 # H-> WW BR
-        processList[f"mgp8_ee_ha_ecm{ecm}_hww"] = entry
-    else:
-        entry = {
-            'fraction': float(val['fraction']),
-        }
-        if 'crossSection' in val:
-            entry['crossSection'] = float(val['crossSection'])  # optional
-            entry['inputDir'] = os.path.join(config['inputDirBase'], str(ecm))
-        processList[f"{key}_ecm{ecm}"] = entry
+    # if key == f'p8_ee_Hgamma':
+    #     entry = {'fraction': float(val['fraction'])}
+    #     entry['inputDir'] = "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"
+    #     entry['crossSection'] = float(val['crossSection']) * 0.2137 # H-> WW BR
+    #     processList[f"mgp8_ee_ha_ecm{ecm}_hww"] = entry
+    # else:
+    entry = {
+        'fraction': float(val['fraction']),
+    }
+    if 'crossSection' in val:
+        entry['crossSection'] = float(val['crossSection'])  # optional
+        entry['inputDir'] = os.path.join(config['inputDirBase'], str(ecm))
+    processList[f"{key}_ecm{ecm}"] = entry
 
 print(processList)
 

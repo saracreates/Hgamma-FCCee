@@ -29,8 +29,14 @@ ecm = config['ecm']
 
 # list of processes (mandatory)
 processList = {}
-processList = {}
 for key, val in config['processList'].items():
+    # change signal file 
+    # if key == f'p8_ee_Hgamma':
+    #     entry = {'fraction': float(val['fraction'])}
+    #     entry['inputDir'] = "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"
+    #     entry['crossSection'] = float(val['crossSection']) * 0.062 # H-> tau tau BR
+    #     processList[f"mgp8_ee_ha_ecm{ecm}_htautau"] = entry
+    # else:
     entry = {
         'fraction': float(val['fraction']),
     }
@@ -266,31 +272,17 @@ def build_graph(df, dataset):
     df = df.Define("gamma_recoil", "FCCAnalyses::ReconstructedParticle::recoilBuilder(240)(photons_boosted)") 
     df = df.Define("gamma_recoil_m", "FCCAnalyses::ReconstructedParticle::get_mass(gamma_recoil)[0]") # recoil mass
     results.append(df.Histo1D(("gamma_recoil_m_cut_3", "", 170, 80, 250), "gamma_recoil_m"))
-    
-    #########
-    ### CUT 4: require at least 6 reconstructed particles (except gamma)
-    #########
-    df = df.Filter(f" recopart_no_gamma_n > {min_n_reco_no_gamma}") 
-    
-    df = df.Define("cut4", "4")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
- 
-    results.append(df.Histo1D(("recopart_no_gamma_n_cut_4", "", 60, 0, 60), "recopart_no_gamma_n"))
-    
-
-    
-    results.append(df.Histo1D(("gamma_recoil_m_cut_4", "", 170, 80, 250), "gamma_recoil_m"))
    
 
 
     #########
-    ### CUT 5: gamma recoil cut
+    ### CUT 4: gamma recoil cut
     #########
     df = df.Filter(f"{recoil_mass_min} < gamma_recoil_m && gamma_recoil_m < {recoil_mass_max}") 
     #df = df.Filter("115 < gamma_recoil_m && gamma_recoil_m < 170") 
 
-    df = df.Define("cut5", "5")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
+    df = df.Define("cut4", "4")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
 
     results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 40, 110, 150), "gamma_recoil_m"))
     #results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 64, 116, 170), "gamma_recoil_m"))
@@ -350,38 +342,38 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("miss_pT", "", 50, 0, 100), "miss_pT"))
 
     #########
-    ### Cut 6: sum of B-tagging scores > 1
+    ### Cut 5: sum of B-tagging scores > 1
     #########
     df = df.Filter("scoresum_flavor > {}".format(config_jj['cuts']['sum_jetscores_min']))  # minimum sum of jet scores
-    df = df.Define("cut6", "6")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
+    df = df.Define("cut5", "5")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
 
 
-    results.append(df.Histo1D(("m_jj_cut6", "", 100, 0, 200), "m_jj"))
+    results.append(df.Histo1D(("m_jj_cut5", "", 100, 0, 200), "m_jj"))
 
-    results.append(df.Histo1D(("miss_p_cut6", "", 50, 0, 100), "miss_p"))
-    results.append(df.Histo1D(("miss_pT_cut6", "", 50, 0, 100), "miss_pT"))
+    results.append(df.Histo1D(("miss_p_cut5", "", 50, 0, 100), "miss_p"))
+    results.append(df.Histo1D(("miss_pT_cut5", "", 50, 0, 100), "miss_pT"))
 
 
     ##########
-    ### CUT 7: Cut on pT
+    ### CUT 6: Cut on pT
     ##########
     df = df.Filter(f"miss_pT > {config_jj['cuts']['pT_miss_min']}")  # minimum pT of missing momentum
-    df = df.Define("cut7", "7")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
+    df = df.Define("cut6", "6")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
 
     results.append(df.Histo1D(("miss_p_cut7", "", 50, 0, 100), "miss_p"))
 
 
    
     #########
-    ### CUT 8: gamma recoil cut tight
+    ### CUT 7: gamma recoil cut tight
     #########
     results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
 
     df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}") 
-    df = df.Define("cut8", "8")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
+    df = df.Define("cut7", "7")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 
    
 

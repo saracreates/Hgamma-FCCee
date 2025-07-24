@@ -1,4 +1,8 @@
 outputDir_sub: "exclusive_Hjj"
+branching_ratios:
+  B: 0.580
+  G: 0.082
+  TAU: 0.062
 cuts:
-  m_jj_range: [100, 135]  # Higgs
-  sum_jetscores_min: 1  # minimum sum of jet scores
+  m_jj_range: {B: [100, 135], G: [118, 128]}  # Higgs
+  sum_jetscores_min: {B: 1.03, G: 1.27}  # minimum sum of jet. Best values: B: 1.03, G: 1.33, TAU: ? 

@@ -52,6 +52,7 @@ colors['Amumu'] = ROOT.kMagenta
 #procs['backgrounds'] =  {'WW':['p8_ee_WW_ecm240'], 'ZZ':['p8_ee_ZZ_ecm240']}
 procs = {}
 procs['signal'] = {'AH':[f"p8_ee_Hgamma_ecm{config['ecm']}"]}
+# procs['signal'] = {'AH':[f"mgp8_ee_ha_ecm{config['ecm']}_htautau"]}
 procs['backgrounds'] =  {
     'Aqq':[f"p8_ee_qqgamma_ecm{config['ecm']}"], 
     'Acc':[f"p8_ee_ccgamma_ecm{config['ecm']}"], 
@@ -96,7 +97,7 @@ hists["cutFlow"] = {
     "ymin":     1e4,
     "ymax":     1e11,
     #"xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5"],
-    "xtitle":   ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), str(sum_jetscores) + " < sum jet scores", "pT_miss >" + str(config_jj['cuts']['pT_miss_min']), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)],
+    "xtitle":   ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), str(sum_jetscores) + " < sum jet scores", "pT_miss >" + str(config_jj['cuts']['pT_miss_min']), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)],
     "ytitle":   "Events ",
 }
 

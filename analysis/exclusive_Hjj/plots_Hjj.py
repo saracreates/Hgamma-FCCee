@@ -82,8 +82,8 @@ hists2D = {}
 recoil_mass_min, recoil_mass_max = config['cuts']['recoil_mass_range']
 signal_mass_min, signal_mass_max = config['cuts']['recoil_mass_signal_range']
 
-m_jj_min, m_jj_max = config_jj['cuts']['m_jj_range']
-sum_jetscores = config_jj['cuts']['sum_jetscores_min']
+m_jj_min, m_jj_max = config_jj['cuts']['m_jj_range'][args.flavor]
+sum_jetscores = config_jj['cuts']['sum_jetscores_min'][args.flavor]
 
 
 hists["cutFlow"] = {

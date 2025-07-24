@@ -18,10 +18,7 @@ args, _ = parser.parse_known_args()  # <-- Ignore unknown args
 
 if args.flavor not in ["B", "G", "TAU"]:
     raise ValueError("Invalid flavor specified. Choose from: B, G, TAU")
-if args.flavor == "TAU":
-    print("WARNING: This is NOT the current Htautau analysis. Use 'histmaker_Htautau.py' instead!!!")
-
-
+    
 config = load_config("config/config_240.yaml")
 config_jj = load_config("config/config_jj_scoresum_scan.yaml")
 
@@ -55,7 +52,7 @@ prodTag     = "FCCee/winter2023/IDEA/"
 procDict = "FCCee_procDict_winter2023_IDEA.json"
 
 # additional/custom C++ functions, defined in header files (optional)
-includePaths = ["../functions.h"]
+includePaths = ["../../functions.h"]
 
 # Define the input dir (optional)
 #inputDir    = "outputs/FCCee/higgs/mH-recoil/mumu/stage1"
@@ -76,7 +73,7 @@ intLumi = config['intLumi']
 # define some binning for various histograms
 bins_a_p = (100, 0, 500) # 100 MeV bins
 bins_a_n = (10, 0, 10) # 100 MeV bins
-bins_count = (10, 0, 10)
+bins_count = (40, 0, 40)
 bins_score_sum = (100, 0, 2)
 
 

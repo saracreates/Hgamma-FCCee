@@ -8,6 +8,7 @@ extras/check_tagging_performance/__pycache__/
 analysis/__pycache__/
 analysis/exclusive_HWW/__pycache__/
 analysis/exclusive_Hjj/__pycache__/
+analysis/exclusive_Hjj/jettagscore_scan/__pycache__/
 
 # dummy test folder
 test

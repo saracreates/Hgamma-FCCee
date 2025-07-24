@@ -7,19 +7,17 @@ def load_config(config_path):
         return yaml.safe_load(f)
 
 # Set up argument parser
-parser = argparse.ArgumentParser(description="Run a specific analysis: H->jj with j=b,g,tau")
+parser = argparse.ArgumentParser(description="Run a specific analysis: H->jj with j=b,g")
 parser.add_argument(
     "--flavor", "-f",
     type=str,
     default="B",
-    help="Choose from: B, G, TAU"
+    help="Choose from: B, G"
 )
 args, _ = parser.parse_known_args()  # <-- Ignore unknown args
 
-if args.flavor not in ["B", "G", "TAU"]:
-    raise ValueError("Invalid flavor specified. Choose from: B, G, TAU")
-if args.flavor == "TAU":
-    print("WARNING: This is NOT the current Htautau analysis. Use 'histmaker_Htautau.py' instead!!!")
+if args.flavor not in ["B", "G"]:
+    raise ValueError("Invalid flavor specified. Choose from: B, G")
 
 
 config = load_config("config/config_240.yaml")
@@ -31,11 +29,19 @@ print(config)
 
 
 ecm = config['ecm']
+flavortag = args.flavor.lower() + args.flavor.lower() # bb or gg
+br_flavor = config_jj['branching_ratios'][args.flavor]  # branching ratio for H->XX, e.g. H->bb or H->gg
 
 # list of processes (mandatory)
 processList = {}
-processList = {}
 for key, val in config['processList'].items():
+    # change signal file 
+    # if key == f'p8_ee_Hgamma':
+    #     entry = {'fraction': float(val['fraction'])}
+    #     entry['inputDir'] = "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"
+    #     entry['crossSection'] = float(val['crossSection']) * br_flavor # H-> XX BR
+    #     processList[f"mgp8_ee_ha_ecm{ecm}_h{flavortag}"] = entry
+    # else:
     entry = {
         'fraction': float(val['fraction']),
     }
@@ -45,7 +51,6 @@ for key, val in config['processList'].items():
     processList[f"{key}_ecm{ecm}"] = entry
 
 print(processList)
-
 
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
@@ -357,7 +362,10 @@ def build_graph(df, dataset):
     #########
     ### Cut 6: sum of B-tagging scores > 1
     #########
-    df = df.Filter("scoresum_flavor > {}".format(config_jj['cuts']['sum_jetscores_min']))  # minimum sum of jet scores
+    dic_jetscores = config_jj['cuts']['sum_jetscores_min']
+    scoresum_min = dic_jetscores[args.flavor]
+    # print("Using minimum sum of jet scores for {}: {}".format(args.flavor, scoresum_min))
+    df = df.Filter("scoresum_flavor > {}".format(scoresum_min))  # minimum sum of jet scores
     df = df.Define("cut6", "6")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
 
@@ -371,7 +379,9 @@ def build_graph(df, dataset):
     ##########
     ### CUT 7: Cut on inv mass of the two jets (Higgs mass)
     ##########
-    df = df.Filter(f"{config_jj['cuts']['m_jj_range'][0]} < m_jj && m_jj < {config_jj['cuts']['m_jj_range'][1]}")  # Higgs mass range cut
+    mjj_min = config_jj['cuts']['m_jj_range'][args.flavor][0]
+    mjj_max = config_jj['cuts']['m_jj_range'][args.flavor][1]
+    df = df.Filter(f"{mjj_min} < m_jj && m_jj < {mjj_max}")  # Higgs mass range cut
     df = df.Define("cut7", "7")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 
