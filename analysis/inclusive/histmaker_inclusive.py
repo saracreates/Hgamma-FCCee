@@ -8,7 +8,6 @@ def load_config(config_path):
 
 
 
-
 config = load_config("config/config_240.yaml")
 
 print("Configuration:")
@@ -17,6 +16,7 @@ print(config)
 
 
 ecm = config['ecm']
+scaling_factor = config['scaling_factor']
 
 # list of processes (mandatory)
 processList = {}
@@ -76,6 +76,7 @@ bins_count = (10, 0, 10)
 ##?| name of collections in EDM root files
 collections = {
     "GenParticles": "Particle",
+    "MCRecoMap": "MCRecoAssociations",
     "PFParticles": "ReconstructedParticles",
     "PFTracks": "EFlowTrack",
     "PFPhotons": "EFlowPhoton",
@@ -112,10 +113,34 @@ def build_graph(df, dataset):
     results = []
     df = df.Define("weight", "1.0")
     weightsum = df.Sum("weight")
+
+    if config['apply_scaling']:
+        print("rescale photon momentum resolution")
+        ## define MC/Reco links, needed for smearing
+        df = (df.Alias("mc_reco_0", "{}#0.index".format(collections["MCRecoMap"])).Alias(
+                "mc_reco_1", "{}#1.index".format(collections["MCRecoMap"]))
+            # matching between the RecoParticles and the MCParticles:
+            .Define(
+                "reco_mc_index",
+                "ReconstructedParticle2MC::getRP2MC_index(mc_reco_0,mc_reco_1,{})".format(collections["PFParticles"]),
+            )
+            )
+    
+        #apply smearing
+        df = df.Define(
+            "smeared_PFParticles",
+            f'FCCAnalyses::SmearObjects::SmearedReconstructedParticle({scaling_factor}, 22, 1, false)('
+            + collections["PFParticles"] + ', reco_mc_index, ' + collections["GenParticles"] + ')')
    
 
-    df = df.Alias("Photon0", "Photon#0.index")
-    df = df.Define(
+        df = df.Alias("Photon0", "Photon#0.index")
+        df = df.Define(
+            "photons_all",
+            "FCCAnalyses::ReconstructedParticle::get(Photon0, smeared_PFParticles)",
+        )
+    else:
+        df = df.Alias("Photon0", "Photon#0.index")
+        df = df.Define(
             "photons_all",
             "FCCAnalyses::ReconstructedParticle::get(Photon0, ReconstructedParticles)",
         )
