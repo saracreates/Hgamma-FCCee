@@ -1,0 +1,4 @@
+outputDir_sub: "exclusive_Hjj"
+cuts:
+  sum_jetscores_min: 1  # minimum sum of jet scores
+  pT_miss_min: 5 # GeV   

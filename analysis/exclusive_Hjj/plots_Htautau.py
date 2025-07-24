@@ -12,13 +12,13 @@ parser = argparse.ArgumentParser(description="Run a specific analysis: H->jj wit
 parser.add_argument(
     "--flavor", "-f",
     type=str,
-    default="B",
+    default="TAU",
     help="Choose from: B, G, TAU"
 )
 args, _ = parser.parse_known_args()  
 
 config = load_config("config/config_240.yaml")
-config_jj = load_config("config/config_jj_240.yaml")
+config_jj = load_config("config/config_tautau_240.yaml")
 
 
 # global parameters
@@ -82,7 +82,7 @@ hists2D = {}
 recoil_mass_min, recoil_mass_max = config['cuts']['recoil_mass_range']
 signal_mass_min, signal_mass_max = config['cuts']['recoil_mass_signal_range']
 
-m_jj_min, m_jj_max = config_jj['cuts']['m_jj_range']
+# m_jj_min, m_jj_max = config_jj['cuts']['m_jj_range']
 sum_jetscores = config_jj['cuts']['sum_jetscores_min']
 
 
@@ -96,7 +96,7 @@ hists["cutFlow"] = {
     "ymin":     1e4,
     "ymax":     1e11,
     #"xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5"],
-    "xtitle":   ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), str(sum_jetscores) + " < sum jet scores", str(m_jj_min) + "< m_{jj} < " + str(m_jj_max), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)],
+    "xtitle":   ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), str(sum_jetscores) + " < sum jet scores", "pT_miss >" + str(config_jj['cuts']['pT_miss_min']), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)],
     "ytitle":   "Events ",
 }
 

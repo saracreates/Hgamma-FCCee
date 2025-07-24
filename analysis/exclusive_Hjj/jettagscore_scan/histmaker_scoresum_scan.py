@@ -23,7 +23,7 @@ if args.flavor == "TAU":
 
 
 config = load_config("config/config_240.yaml")
-config_jj = load_config("config/config_jj_240.yaml")
+config_jj = load_config("config/config_jj_scoresum_scan.yaml")
 
 print("Configuration:")
 print(config)
@@ -347,44 +347,17 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("scoresum_flavor", "", *bins_score_sum), "scoresum_flavor"))
 
 
-    # check missing momentum
-    df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
-    df = df.Define("miss_p", "FCCAnalyses::ReconstructedParticle::get_p(missP)[0]")
-    df = df.Define("miss_pT", "FCCAnalyses::ReconstructedParticle::get_pt(missP)[0]")
-    results.append(df.Histo1D(("miss_p", "", 50, 0, 100), "miss_p"))
-    results.append(df.Histo1D(("miss_pT", "", 50, 0, 100), "miss_pT"))
-
     #########
     ### Cut 6: sum of B-tagging scores > 1
     #########
-    df = df.Filter("scoresum_flavor > {}".format(config_jj['cuts']['sum_jetscores_min']))  # minimum sum of jet scores
-    df = df.Define("cut6", "6")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
+    jetscore_scans = config_jj['cuts']['sum_jetscores_scan']
+    for i, score in enumerate(jetscore_scans):
+        df = df.Filter("scoresum_flavor > {}".format(score))  # minimum sum of jet scores
+        df = df.Define("cut{}".format(i+6), str(i+6))
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut{}".format(i+6)))
 
 
-    results.append(df.Histo1D(("m_jj_cut6", "", 100, 0, 200), "m_jj"))
 
-    results.append(df.Histo1D(("miss_p_cut6", "", 50, 0, 100), "miss_p"))
-    results.append(df.Histo1D(("miss_pT_cut6", "", 50, 0, 100), "miss_pT"))
-
-
-    ##########
-    ### CUT 7: Cut on inv mass of the two jets (Higgs mass)
-    ##########
-    df = df.Filter(f"{config_jj['cuts']['m_jj_range'][0]} < m_jj && m_jj < {config_jj['cuts']['m_jj_range'][1]}")  # Higgs mass range cut
-    df = df.Define("cut7", "7")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
-
-
-   
-    #########
-    ### CUT 8: gamma recoil cut tight
-    #########
-    results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
-
-    df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}") 
-    df = df.Define("cut8", "8")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
    
 

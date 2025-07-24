@@ -11,19 +11,14 @@ parser = argparse.ArgumentParser(description="Run a specific analysis: H->jj wit
 parser.add_argument(
     "--flavor", "-f",
     type=str,
-    default="B",
+    default="TAU",
     help="Choose from: B, G, TAU"
 )
 args, _ = parser.parse_known_args()  # <-- Ignore unknown args
 
-if args.flavor not in ["B", "G", "TAU"]:
-    raise ValueError("Invalid flavor specified. Choose from: B, G, TAU")
-if args.flavor == "TAU":
-    print("WARNING: This is NOT the current Htautau analysis. Use 'histmaker_Htautau.py' instead!!!")
-
 
 config = load_config("config/config_240.yaml")
-config_jj = load_config("config/config_jj_240.yaml")
+config_jj = load_config("config/config_tautau_240.yaml")
 
 print("Configuration:")
 print(config)
@@ -369,11 +364,13 @@ def build_graph(df, dataset):
 
 
     ##########
-    ### CUT 7: Cut on inv mass of the two jets (Higgs mass)
+    ### CUT 7: Cut on pT
     ##########
-    df = df.Filter(f"{config_jj['cuts']['m_jj_range'][0]} < m_jj && m_jj < {config_jj['cuts']['m_jj_range'][1]}")  # Higgs mass range cut
+    df = df.Filter(f"miss_pT > {config_jj['cuts']['pT_miss_min']}")  # minimum pT of missing momentum
     df = df.Define("cut7", "7")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
+
+    results.append(df.Histo1D(("miss_p_cut7", "", 50, 0, 100), "miss_p"))
 
 
    
