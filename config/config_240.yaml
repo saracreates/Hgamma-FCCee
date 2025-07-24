@@ -1,5 +1,8 @@
 ecm: 240
 intLumi: 10800000  # 10.8 /ab
+apply_scaling: False  # rescale photon momentum resolution (default 3%)
+scaling_factor: 0.33
+
 
 inputDirBase: "/eos/user/l/lherrman/FCC/data/HiggsGamma"
 outputDir: "outputs/"

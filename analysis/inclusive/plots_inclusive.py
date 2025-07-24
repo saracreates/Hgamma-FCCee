@@ -8,6 +8,7 @@ def load_config(config_path):
 
 config = load_config("config/config_240.yaml")
 
+
 # global parameters
 intLumi        = 1.
 intLumiLabel   = "L = 10.8 a b^{-1}" # FIXME: use config['intLumi'] to set this dynamically
