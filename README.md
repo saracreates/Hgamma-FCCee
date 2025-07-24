@@ -1,6 +1,9 @@
 # $H\gamma$ analysis at FCC-ee
 
-We look at $e^+ e^- \rightarrow H \gamma$ at 160 GeV, 240 GeV and 365 GeV at FCC-ee. 
+We look at $e^+ e^- \rightarrow H \gamma$ at 160 GeV, 240 GeV and 365 GeV at FCC-ee and investigate following final state:
+- $H\gamma$: inclusive
+- $H(jj) \gamma$: $H \rightarrow bb$ and $gg$ and $\tau \tau$
+- $H(WW) \gamma$: with $W \rightarrow qq$ and $W \rightarrow \ell \nu$
 
 ## Installation
 
@@ -13,9 +16,11 @@ source ./setup.sh
 fccanalysis build -j 8
 ```
 
-## Example usage
+## Usage
 
 After sourcing FCCAnalyses, run the analyses with 
+
+### Inclusive study
 
 ```
 fccanalysis run analysis/inclusive/histmaker_inclusive.py
@@ -27,3 +32,25 @@ export PYTHONPATH=/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/extras:$PYTH
 export PATH=/cvmfs/sft.cern.ch/lcg/external/texlive/2020/bin/x86_64-linux:$PATH
 fccanalysis plots analysis/inclusive/plots_inclusive.py
 ```
+
+### $H \rightarrow WW$
+
+```
+fccanalysis run analysis/exclusive_HWW/histmaker_HWW.py  --config lvqq
+export PYTHONPATH=/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/extras:$PYTHONPATH
+export PATH=/cvmfs/sft.cern.ch/lcg/external/texlive/2020/bin/x86_64-linux:$PATH
+fccanalysis plots analysis/exclusive_HWW/plots_HWW.py --config lvqq
+```
+
+Choose `lvqq` for $W(\ell \nu) W*(qq)$ or `qqlv` for $W(qq)W(\ell \nu)$
+
+### $H \righarrow jj$
+
+```
+fccanalysis run analysis/exclusive_Hjj/histmaker_Hjj.py --flavor B
+export PYTHONPATH=/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/extras:$PYTHONPATH
+export PATH=/cvmfs/sft.cern.ch/lcg/external/texlive/2020/bin/x86_64-linux:$PATH
+fccanalysis plots analysis/exclusive_Hjj/plots_Hjj.py --flavor B
+```
+
+And choose the flavor of your choice. We did $b,g, \tau$. 
