@@ -542,8 +542,26 @@ float get_costheta(float theta) {
     return std::cos(theta);
 }
 
- 
- 
+Vec_f sorted_scores(float score1, float score2){
+    // sort scores in descending order
+    Vec_f scores;
+    scores.reserve(2);
+    scores.emplace_back(score1);
+    scores.emplace_back(score2);
+    std::sort(scores.begin(), scores.end(), std::greater<float>());
+    return scores;
+}
+
+Vec_rp get_rp_from_jets(TLorentzVector jet1, TLorentzVector jet2) {
+    // convert two jets to ReconstructedParticleData
+    Vec_rp result;
+    rp jet1_rp = return_rp_from_tlv(jet1);
+    rp jet2_rp = return_rp_from_tlv(jet2);
+
+    result.emplace_back(jet1_rp);
+    result.emplace_back(jet2_rp);
+    return result;
+}
 
 }}
 

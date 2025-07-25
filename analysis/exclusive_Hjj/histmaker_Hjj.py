@@ -386,6 +386,23 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 
 
+    ########
+    ### Cut 8: cut on cos theta of the two jets
+    ########
+
+    # Does not improve the analysis
+
+    # df = df.Define("jets_rp", "FCCAnalyses::ZHfunctions::get_rp_from_jets(jets_p4[0], jets_p4[1])")
+    # df = df.Define("jets_unboosted", "FCCAnalyses::ZHfunctions::unboost_WW(jets_rp, photons_boosted[0], {})".format(ecm))  # unboost the jets to the gamma rest frame
+    # df = df.Define("jets_theta", "FCCAnalyses::ReconstructedParticle::get_theta(jets_unboosted)")
+    # df = df.Define("jets_cos_theta", "cos(jets_theta)")
+    # results.append(df.Histo1D(("jets_cos_theta", "", 50, -1, 1), "jets_cos_theta"))
+
+    # jj_cos_theta_max = config_jj['cuts']['jj_cos_theta_max']
+    # df = df.Filter("abs(jets_cos_theta[0]) < {}".format(jj_cos_theta_max) + "&& abs(jets_cos_theta[1]) < {}".format(jj_cos_theta_max))  # cos(theta) cut on the two jets
+    # df = df.Define("cut8", "8")
+    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
+
    
     #########
     ### CUT 8: gamma recoil cut tight
