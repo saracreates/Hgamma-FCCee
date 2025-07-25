@@ -4,3 +4,4 @@ cuts:
   p_miss: 20  # min missing momentum cut
   recoil_gammaqq_range: [70, 90]
   n_const_per_jet: 4  # number of constituents per jet cut
+  WW_cos_theta_max: 0.95  # cos(theta_WW) cut

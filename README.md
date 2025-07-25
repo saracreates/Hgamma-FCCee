@@ -36,13 +36,13 @@ fccanalysis plots analysis/inclusive/plots_inclusive.py
 ### $H \rightarrow WW$
 
 ```
-fccanalysis run analysis/exclusive_HWW/histmaker_HWW.py  --config lvqq
+fccanalysis run analysis/exclusive_HWW/histmaker_HWW_lvqq.py  
 export PYTHONPATH=/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/extras:$PYTHONPATH
 export PATH=/cvmfs/sft.cern.ch/lcg/external/texlive/2020/bin/x86_64-linux:$PATH
-fccanalysis plots analysis/exclusive_HWW/plots_HWW.py --config lvqq
+fccanalysis plots analysis/exclusive_HWW/plots_HWW_lvqq.py 
 ```
 
-Choose `lvqq` for $W(\ell \nu) W*(qq)$ or `qqlv` for $W(qq)W(\ell \nu)$
+Choose `lvqq` for $W(\ell \nu) W*(qq)$ or `qqlv` for $W(qq)W(\ell \nu)$.
 
 ### $H \righarrow jj$
 
@@ -53,4 +53,4 @@ export PATH=/cvmfs/sft.cern.ch/lcg/external/texlive/2020/bin/x86_64-linux:$PATH
 fccanalysis plots analysis/exclusive_Hjj/plots_Hjj.py --flavor B
 ```
 
-And choose the flavor of your choice. We did $b,g, \tau$. 
+And choose a flavor from $b,g$. For $\tau$ there are files with `_Htautau`. 

@@ -455,15 +455,51 @@ def build_graph(df, dataset):
     df = df.Define("cut10", "10")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
 
+    ########
+    ### CUT 11: Angluar distribution of WW system
+    ########
 
-    
+    # Doesn't imporve the analysis!! 
+
+    # # get the W bosons
+    # df = df.Define("Ws", "FCCAnalyses::ZHfunctions::build_WW(jet1, jet2, lepton, missP)")
+    # df = df.Define("W_qq", "Ws[0]") 
+    # df = df.Define("W_lv", "Ws[1]")
+    # df = df.Define("W_qq_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{W_qq})[0]")
+    # df = df.Define("W_lv_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{W_lv})[0]")
+    # df = df.Define("W_qq_costheta", "FCCAnalyses::ZHfunctions::get_costheta(W_qq_theta)")
+    # df = df.Define("W_lv_costheta", "FCCAnalyses::ZHfunctions::get_costheta(W_lv_theta)")
+    # results.append(df.Histo1D(("W_qq_theta", "", 50, 0, 3.14), "W_qq_theta"))
+    # results.append(df.Histo1D(("W_lv_theta", "", 50, 0, 3.14), "W_lv_theta"))
+    # results.append(df.Histo1D(("W_qq_costheta", "", 50, -1, 1), "W_qq_costheta"))
+    # results.append(df.Histo1D(("W_lv_costheta", "", 50, -1, 1), "W_lv_costheta"))
+
+    # df = df.Define("WW_unboosted", "FCCAnalyses::ZHfunctions::unboost_WW(Ws, photon, {})".format(ecm))
+    # df = df.Define("W_qq_unboosted", "WW_unboosted[0]") 
+    # df = df.Define("W_lv_unboosted", "WW_unboosted[1]")
+    # df = df.Define("W_qq_unboosted_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{W_qq_unboosted})[0]")
+    # df = df.Define("W_lv_unboosted_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{W_lv_unboosted})[0]")
+    # df = df.Define("W_qq_unboosted_costheta", "FCCAnalyses::ZHfunctions::get_costheta(W_qq_unboosted_theta)")
+    # df = df.Define("W_lv_unboosted_costheta", "FCCAnalyses::ZHfunctions::get_costheta(W_lv_unboosted_theta)")
+    # results.append(df.Histo1D(("W_qq_unboosted_theta", "", 50, 0, 3.14), "W_qq_unboosted_theta"))
+    # results.append(df.Histo1D(("W_lv_unboosted_theta", "", 50, 0, 3.14), "W_lv_unboosted_theta"))
+    # results.append(df.Histo1D(("W_qq_unboosted_costheta", "", 50, -1, 1), "W_qq_unboosted_costheta"))
+    # results.append(df.Histo1D(("W_lv_unboosted_costheta", "", 50, -1, 1), "W_lv_unboosted_costheta"))
+
+    # # abs of both cos theta < 0.9
+    # costheta_mag_max = config_WW['cuts']['WW_cos_theta_max']
+    # df = df.Filter(f"abs(W_qq_costheta) < {costheta_mag_max} && abs(W_lv_costheta) < {costheta_mag_max}")
+    # df = df.Define("cut11", "11")
+    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+
+
     #########
     ### CUT 11: gamma recoil cut tight
     #########
-    #df = df.Filter("123.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
+    #df = df.Filter("13.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
     results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
 
-    df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}") 
+    df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
     df = df.Define("cut11", "11")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
