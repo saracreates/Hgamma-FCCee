@@ -39,19 +39,19 @@ ecm = config['ecm']
 processList = {}
 for key, val in config['processList'].items():
     # change signal file 
-    if key == f'p8_ee_Hgamma':
-        entry = {'fraction': float(val['fraction'])}
-        entry['inputDir'] = "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"
-        entry['crossSection'] = float(val['crossSection']) * 0.2137 # H-> WW BR
-        processList[f"mgp8_ee_ha_ecm{ecm}_hww"] = entry
-    else:
-        entry = {
-            'fraction': float(val['fraction']),
-        }
-        if 'crossSection' in val:
-            entry['crossSection'] = float(val['crossSection'])  # optional
-            entry['inputDir'] = os.path.join(config['inputDirBase'], str(ecm))
-        processList[f"{key}_ecm{ecm}"] = entry
+    # if key == f'p8_ee_Hgamma':
+    #     entry = {'fraction': float(val['fraction'])}
+    #     entry['inputDir'] = "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"
+    #     entry['crossSection'] = float(val['crossSection']) * 0.2137 # H-> WW BR
+    #     processList[f"mgp8_ee_ha_ecm{ecm}_hww"] = entry
+    # else:
+    entry = {
+        'fraction': float(val['fraction']),
+    }
+    if 'crossSection' in val:
+        entry['crossSection'] = float(val['crossSection'])  # optional
+        entry['inputDir'] = os.path.join(config['inputDirBase'], str(ecm))
+    processList[f"{key}_ecm{ecm}"] = entry
 
 print(processList)
 
@@ -67,7 +67,7 @@ procDict = "FCCee_procDict_winter2023_IDEA.json"
 includePaths = ["../functions.h"]
 
 #Optional: output directory, default is local running directory
-outputDir   =  os.path.join(config['outputDir'], str(ecm),'histmaker/', config_WW['outputDir_sub'])
+outputDir   =  os.path.join(config['outputDir'], str(ecm),'histmaker/', config_WW['outputDir_sub'] + '_test')
 print(outputDir)
 
 # optional: ncpus, default is 4, -1 uses all cores available
@@ -472,8 +472,24 @@ def build_graph(df, dataset):
     ### CUT 12: Angluar distribution of WW system
     ########
 
+    # get the W bosons
+    df = df.Define("Ws", "FCCAnalyses::ZHfunctions::build_WW(jet1, jet2, lepton, missP)")
+    df = df.Define("W_qq", "Ws[0]") 
+    df = df.Define("W_lv", "Ws[1]")
+    df = df.Define("W_qq_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{W_qq})[0]")
+    df = df.Define("W_lv_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{W_lv})[0]")
+    results.append(df.Histo1D(("W_qq_theta", "", 50, 0, 3.14), "W_qq_theta"))
+    results.append(df.Histo1D(("W_lv_theta", "", 50, 0, 3.14), "W_lv_theta"))
     # unboost the W (by photon momentum)
-    # photon -rp 
+
+    df = df.Define("WW_unboosted", "FCCAnalyses::ZHfunctions::unboost_WW(Ws, photon, {})".format(ecm))
+    df = df.Define("W_qq_unboosted", "WW_unboosted[0]") 
+    df = df.Define("W_lv_unboosted", "WW_unboosted[1]")
+    df = df.Define("W_qq_unboosted_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{W_qq_unboosted})[0]")
+    df = df.Define("W_lv_unboosted_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{W_lv_unboosted})[0]")
+    results.append(df.Histo1D(("W_qq_unboosted_theta", "", 50, 0, 3.14), "W_qq_unboosted_theta"))
+    results.append(df.Histo1D(("W_lv_unboosted_theta", "", 50, 0, 3.14), "W_lv_unboosted_theta"))
+    # photon - rp 
 
     # Look at cos(theta) of both W boson distributions
 

@@ -421,6 +421,7 @@ rp return_rp_from_tlv(TLorentzVector tlv) {
     rp_fcc.momentum.x = tlv.Px();
     rp_fcc.momentum.y = tlv.Py();
     rp_fcc.momentum.z = tlv.Pz();
+    // rp_fcc.energy = tlv.E();
     rp_fcc.mass = tlv.M();
     return rp_fcc;
 }
@@ -444,6 +445,112 @@ Vec_rp get_recoil_photon_and_jets(float ecm, const TLorentzVector &jet1, const T
     return result;
 }
 
+Vec_rp build_WW(TLorentzVector jet1, TLorentzVector jet2, rp lepton, Vec_rp missingParticle) {
+    // build the W bosons from two jets and a lepton/neutrino pair
+
+    TLorentzVector W_qq = jet1 + jet2;
+    std::cout << "jet1 energy: " << jet1.E() << std::endl;
+    std::cout << "jet2 energy: " << jet2.E() << std::endl;
+    rp W_qq_rp = return_rp_from_tlv(W_qq);
+
+    TLorentzVector lepton_tlv;
+    std::cout << "lepton energy: " << lepton.energy << std::endl;
+    lepton_tlv.SetPxPyPzE(lepton.momentum.x, lepton.momentum.y, lepton.momentum.z, lepton.energy);
+    if (missingParticle.size() != 1) {
+        std::cout << "ERROR: missingParticle should have exactly one entry" << std::endl;
+        exit(1);
+    }
+    rp neutrino = missingParticle[0];
+    TLorentzVector neutrino_tlv;
+    // check if neutrino.energy is the same as the magnitude of the momentum vector
+    float p_neutrino = std::sqrt(neutrino.momentum.x * neutrino.momentum.x + neutrino.momentum.y * neutrino.momentum.y + neutrino.momentum.z * neutrino.momentum.z); 
+    // if (neutrino.energy != p_neutrino) {
+    //     std::cout << "WARNING: neutrino E != sqrt(px^2 + py^2 + pz^2). Values: "<< neutrino.energy << " " << p_neutrino << std::endl;
+    // }
+    std::cout << "neutrino energy: " << neutrino.energy << std::endl;
+    std::cout << "neutrino energy via momentum: " << p_neutrino << std::endl;
+    neutrino_tlv.SetPxPyPzE(neutrino.momentum.x, neutrino.momentum.y, neutrino.momentum.z, p_neutrino); // neutrino mass is 0: E = sqrt(px^2 + py^2 + pz^2) + 0
+    TLorentzVector W_lnu = lepton_tlv + neutrino_tlv;
+    rp W_lnu_rp = return_rp_from_tlv(W_lnu);
+
+    // // print energies
+    // std::cout << "W_qq energy: " << W_qq.E() << std::endl;
+    // std::cout << "W_lnu energy: " << W_lnu.E() << std::endl;
+    // // print energies of rp
+    // std::cout << "W_qq_rp energy: " << W_qq_rp.energy << std::endl;
+    // std::cout << "W_lnu_rp energy: " << W_lnu_rp.energy << std::endl;
+    // // print mass of rp
+    // std::cout << "W_qq_rp mass: " << W_qq_rp.mass << std::endl;
+    // std::cout << "W_lnu_rp mass: " << W_lnu_rp.mass << std::endl;
+
+    Vec_rp result;
+    result.emplace_back(W_qq_rp);
+    result.emplace_back(W_lnu_rp);
+    return result;
+
+}
+
+Vec_rp unboost_WW(Vec_rp Ws, rp photon, int ecm){
+    // unboost the WW system with the photon so that the WW system is at rest
+
+    if (Ws.size() != 2) {
+        std::cout << "ERROR: unboost_W requires exactly two W bosons" << std::endl;
+        exit(1);
+    }
+
+    TLorentzVector W_qq_tlv;
+    int E_W_qq = std::sqrt(Ws[0].momentum.x * Ws[0].momentum.x + Ws[0].momentum.y * Ws[0].momentum.y + Ws[0].momentum.z * Ws[0].momentum.z + Ws[0].mass * Ws[0].mass);
+    W_qq_tlv.SetPxPyPzE(Ws[0].momentum.x, Ws[0].momentum.y, Ws[0].momentum.z, E_W_qq);
+    TLorentzVector W_lnu_tlv;
+    int E_W_lnu = std::sqrt(Ws[1].momentum.x * Ws[1].momentum.x + Ws[1].momentum.y * Ws[1].momentum.y + Ws[1].momentum.z * Ws[1].momentum.z + Ws[1].mass * Ws[1].mass);
+    W_lnu_tlv.SetPxPyPzE(Ws[1].momentum.x, Ws[1].momentum.y, Ws[1].momentum.z, E_W_lnu);
+
+    // print W_qq and W_lnu momentum
+    std::cout << "INFO: W_qq momentum (unboosted): " << W_qq_tlv.Px() << " " << W_qq_tlv.Py() << " " << W_qq_tlv.Pz() << " " << W_qq_tlv.E() << std::endl;
+    std::cout << "INFO: W_lnu momentum (unboosted): " << W_lnu_tlv.Px() << " " << W_lnu_tlv.Py() << " " << W_lnu_tlv.Pz() << " " << W_lnu_tlv.E() << std::endl;
+
+    // print photon momentum
+    // std::cout << "INFO: photon momentum: " << photon.momentum.x << " " << photon.momentum.y << " " << photon.momentum.z << std::endl;
+
+    // Sum of the two W momenta — this is the W+W− system
+    TLorentzVector WW_system = W_qq_tlv + W_lnu_tlv;
+
+    // print WW system four vector
+    std::cout << "INFO: WW system: " << WW_system.Px() << " " << WW_system.Py() << " " << WW_system.Pz() << " " << WW_system.E() << std::endl;
+
+    // photon system
+    TLorentzVector photon_sys_tlv;
+    photon_sys_tlv.SetPxPyPzE(-photon.momentum.x, -photon.momentum.y, -photon.momentum.z, ecm - photon.energy);
+    // print photon four vector
+    std::cout << "INFO: photon momentum (unboosted): " << photon_sys_tlv.Px() << " " << photon_sys_tlv.Py() << " " << photon_sys_tlv.Pz() << " " << photon_sys_tlv.E() << std::endl;
+
+    // Get the boost vector to go to the WW rest frame
+    TVector3 boost_to_WW_rest = WW_system.BoostVector(); // p/E = beta 
+    // print boost vector
+    std::cout << "INFO: boost vector to WW rest frame: " << boost_to_WW_rest.X() << " " << boost_to_WW_rest.Y() << " " << boost_to_WW_rest.Z() << std::endl;
+
+    TVector3 boost_to_photon_rest = photon_sys_tlv.BoostVector(); // p/E = beta
+    // print boost vector
+    std::cout << "INFO: boost vector to photon rest frame: " << boost_to_photon_rest.X() << " " << boost_to_photon_rest.Y() << " " << boost_to_photon_rest.Z() << std::endl;
+
+    // define Lorentz transformation
+    TLorentzRotation l;
+    l.Boost(-boost_to_WW_rest); // set beta: by which vector we boost
+    TLorentzVector W_qq_star = l * W_qq_tlv; // W_qq in the WW rest frame
+    TLorentzVector W_lnu_star = l * W_lnu_tlv; // W_lnu in the WW rest frame
+
+    // print W_qq and W_lnu momentum in the WW rest frame
+    std::cout << "INFO: W_qq momentum (boosted to WW rest frame): " << W_qq_star.Px() << " " << W_qq_star.Py() << " " << W_qq_star.Pz() << " " << W_qq_star.E() << std::endl;
+    std::cout << "INFO: W_lnu momentum (boosted to WW rest frame): " << W_lnu_star.Px() << " " << W_lnu_star.Py() << " " << W_lnu_star.Pz() << " " << W_lnu_star.E() << std::endl;
+
+    rp W_qq_rp = return_rp_from_tlv(W_qq_star);
+    rp W_lnu_rp = return_rp_from_tlv(W_lnu_star);
+    Vec_rp result;
+    result.emplace_back(W_qq_rp);
+    result.emplace_back(W_lnu_rp);
+    return result;
+
+}
 
  
  
