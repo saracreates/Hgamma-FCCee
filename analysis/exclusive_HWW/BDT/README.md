@@ -25,3 +25,18 @@ For a balanced dataset, we use the same amount of data for each class. So we use
 
 And train on ~30-35k events per class. 
 
+## Commands to train the BDT: 
+
+```
+# create training data
+fccanalysis run analysis/exclusive_HWW/BDT/preselection.py
+
+# train bdt
+python3 analysis/exclusive_HWW/BDT/train_bdt.py
+
+# evaluate the bdt
+python3 analysis/exclusive_HWW/BDT/evaluate_bdt.py
+```
+
+Now you can use the BDT score in the histmaker. 
+

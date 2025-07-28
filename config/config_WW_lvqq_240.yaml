@@ -1,7 +1,9 @@
 outputDir_sub: "lvqq"
+do_inference: True # use BDT score: HWW vs WW
 cuts:
   m_jj_range: [8, 55]  # W* mass range cut
   p_miss: 20  # min missing momentum cut
   recoil_gammaqq_range: [70, 90]
   n_const_per_jet: 4  # number of constituents per jet cut
   WW_cos_theta_max: 0.95  # cos(theta_WW) cut
+  mva_score_cut: 0.5  # BDT score cut

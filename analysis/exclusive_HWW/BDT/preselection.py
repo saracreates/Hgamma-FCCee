@@ -9,14 +9,15 @@ def load_config(config_path):
         return yaml.safe_load(f)
 
 config = load_config("config/config_240.yaml")
+config_WW = load_config("config/config_WW_lvqq_240.yaml")
 
 # Output directory
 outputDir   = "outputs/240/preselection/lvqq/trainingdata"
 inputDir = "/afs/cern.ch/work/s/saaumill/public/analyses/symlink_gammalvqq"
 processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-    'p8_ee_WW_ecm240': {'fraction': 0.5, 'crossSection': 16.4385, 'inputDir': inputDir}, # 16 pb
-    'mgp8_ee_ha_ecm240_hww':   {'fraction': 0.6, 'crossSection': 8.20481e-05* 0.2137, 'inputDir':inputDir}, 
+    'p8_ee_WW_ecm240': {'fraction': 0.1, 'crossSection': 16.4385, 'inputDir': inputDir}, # 16 pb
+    'mgp8_ee_ha_ecm240_hww':   {'fraction': 1, 'crossSection': 8.20481e-05* 0.2137, 'inputDir':inputDir}, 
 }
 
 
@@ -165,10 +166,7 @@ class RDFanalysis():
         #energy cut
         df = df.Define("photons_boosted", f"FCCAnalyses::ReconstructedParticle::sel_p({photon_energy_min},{photon_energy_max})(iso_highest_p)") # looked okay from photons all
         #df = df.Define("photons_boosted", "FCCAnalyses::ReconstructedParticle::sel_p(60,100)(iso_highest_p)")
-
-        df = df.Define("photons_boosted_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_boosted)") # is this correct?
-        df = df.Define("photons_boosted_n","FCCAnalyses::ReconstructedParticle::get_n(photons_boosted)") 
-        df = df.Define("photons_boosted_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_boosted))")
+        df = df.Define("photons_boosted_n","(float)FCCAnalyses::ReconstructedParticle::get_n(photons_boosted)") 
 
         df = df.Define("recopart_no_gamma", "FCCAnalyses::ReconstructedParticle::remove(ReconstructedParticles, photons_boosted)",)
         df = df.Define("recopart_no_gamma_n","FCCAnalyses::ReconstructedParticle::get_n(recopart_no_gamma)")
@@ -224,7 +222,7 @@ class RDFanalysis():
 
         i = 2
         for j in range(1, 3):
-            df = df.Define(f"jet{j}_nconst_N{i}", f"jet_nconst_N{i}[{j-1}]")
+            df = df.Define(f"jet{j}_nconst_N{i}", f"(float)jet_nconst_N{i}[{j-1}]")
 
 
         df = df.Define("jets_p4","JetConstituentsUtils::compute_tlv_jets({})".format(jetClusteringHelper.jets))
@@ -262,12 +260,16 @@ class RDFanalysis():
 
         df = df.Define("jet1", "jets_p4[0]")
         df = df.Define("jet2", "jets_p4[1]")
-        df = df.Define("photon", "photons_boosted[0]")  # only one photon after cuts
+        df = df.Define("photons_sorted", "FCCAnalyses::ZHfunctions::sort_rp_by_energy(photons_boosted)")
+        df = df.Define("photon_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_sorted)[0]")  # only one photon after cuts
+        df = df.Define("photon_pT", "FCCAnalyses::ReconstructedParticle::get_pt(photons_sorted)[0]")  # only one photon after cuts
+        df = df.Define("photon_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_sorted))[0]")
+        df = df.Define("photon", "photons_sorted[0]")  # only one photon after cuts
 
         df = df.Define("recoil_W", "FCCAnalyses::ZHfunctions::get_recoil_photon_and_jets(240.0, jet1, jet2, photon)")
         df = df.Define("recoil_W_m", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_W)[0]")  # recoil mass of photon plus qq jets
 
-        df = df.Define("Ws", "FCCAnalyses::ZHfunctions::build_WW(jet1, jet2, leptons[0], missP)")
+        df = df.Define("Ws", "FCCAnalyses::ZHfunctions::build_WW(jet1, jet2, lepton, missP)")
         df = df.Define("W_qq", "Ws[0]") 
         df = df.Define("W_lv", "Ws[1]")
 
@@ -298,11 +300,10 @@ class RDFanalysis():
 
     # define output branches to be saved
     def output():
-        branchList = ["photons_iso", "photons_iso_p", "photons_iso_n", "photons_iso_cos_theta",
-                      "photons_boosted_p", "photons_boosted_n", "photons_boosted_cos_theta", "recopart_no_gamma_n",
+        branchList = ["photon_p", "photons_boosted_n", "photon_cos_theta", "recopart_no_gamma_n",
                       "gamma_recoil_m", "num_isolated_leptons", "lepton_p", "lepton_pT", "y23", "y34",
                       "jet1_nconst_N2", "jet2_nconst_N2", "m_jj", "miss_p", "miss_pT", 
                       "recoil_W_m", "W_qq_unboosted_costheta", "W_lv_unboosted_costheta",
                       "jet1_costheta", "jet2_costheta", "jet1_cosphi", "jet2_cosphi",
-                      "W_qq_pT", "W_lv_pT",]
+                      "W_qq_pT", "W_lv_pT",] # isolation value photons?
         return branchList

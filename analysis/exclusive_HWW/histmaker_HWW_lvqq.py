@@ -1,6 +1,7 @@
 import os, copy
 import yaml
 import argparse
+from addons.TMVAHelper.TMVAHelper import TMVAHelperXGB
 
 def load_config(config_path):
     with open(config_path, "r") as f:
@@ -257,11 +258,11 @@ def build_graph(df, dataset):
     #df = df.Define("photons_boosted", "FCCAnalyses::ReconstructedParticle::sel_p(60,100)(iso_highest_p)")
 
     df = df.Define("photons_boosted_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_boosted)") # is this correct?
-    df = df.Define("photons_boosted_n","FCCAnalyses::ReconstructedParticle::get_n(photons_boosted)") 
+    df = df.Define("photons_boosted_n","(float)FCCAnalyses::ReconstructedParticle::get_n(photons_boosted)") 
     df = df.Define("photons_boosted_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_boosted))")
 
     df = df.Define("recopart_no_gamma", "FCCAnalyses::ReconstructedParticle::remove(ReconstructedParticles, photons_boosted)",)
-    df = df.Define("recopart_no_gamma_n","FCCAnalyses::ReconstructedParticle::get_n(recopart_no_gamma)") 
+    df = df.Define("recopart_no_gamma_n","(float)FCCAnalyses::ReconstructedParticle::get_n(recopart_no_gamma)") 
    
  
     results.append(df.Histo1D(("recopart_no_gamma_n_cut_1", "", 60, 0, 60), "recopart_no_gamma_n"))
@@ -349,6 +350,7 @@ def build_graph(df, dataset):
     # have a look at the lepton
     df = df.Define("lepton", "muons_sel_iso.size() == 1 ? muons_sel_iso[0] : electrons_sel_iso[0]")
     df = df.Define("lepton_p", "FCCAnalyses::ReconstructedParticle::get_p(Vec_rp{lepton})[0]")
+    df = df.Define("lepton_pT", "FCCAnalyses::ReconstructedParticle::get_pt(Vec_rp{lepton})[0]")
     results.append(df.Histo1D(("lepton_p", "", 100, 0, 200), "lepton_p"))
 
     
@@ -376,7 +378,7 @@ def build_graph(df, dataset):
     df = jetFlavourHelper.define(df)
 
     ## tagger inference
-    df = jetFlavourHelper.inference(weaver_preproc, weaver_model, df)
+    # df = jetFlavourHelper.inference(weaver_preproc, weaver_model, df)
 
     df = df.Define("y23", "std::sqrt(JetClusteringUtils::get_exclusive_dmerge(_jet_N2, 2))")  # dmerge from 3 to 2
     df = df.Define("y34", "std::sqrt(JetClusteringUtils::get_exclusive_dmerge(_jet_N2, 3))")  # dmerge from 4 to 3
@@ -384,7 +386,7 @@ def build_graph(df, dataset):
 
     i = 2
     for j in range(1, 3):
-        df = df.Define(f"jet{j}_nconst_N{i}", f"jet_nconst_N{i}[{j-1}]")
+        df = df.Define(f"jet{j}_nconst_N{i}", f"(float)jet_nconst_N{i}[{j-1}]")
         results.append(df.Histo1D((f"jet{j}_nconst_N{i}", "", 30, 0, 30), f"jet{j}_nconst_N{i}"))
 
 
@@ -493,15 +495,75 @@ def build_graph(df, dataset):
     # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
 
-    #########
-    ### CUT 11: gamma recoil cut tight
-    #########
-    #df = df.Filter("13.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
-    results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
+    do_inference = config_WW.get('do_inference', False)
+    if do_inference:
+        # build variables for the MVA
+        df = df.Define("Ws", "FCCAnalyses::ZHfunctions::build_WW(jet1, jet2, lepton, missP)")
+        df = df.Define("W_qq", "Ws[0]") 
+        df = df.Define("W_lv", "Ws[1]")
 
-    df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
-    df = df.Define("cut11", "11")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+        df = df.Define("WW_unboosted", "FCCAnalyses::ZHfunctions::unboost_WW(Ws, photon, {})".format(ecm))
+        df = df.Define("W_qq_unboosted", "WW_unboosted[0]") 
+        df = df.Define("W_lv_unboosted", "WW_unboosted[1]")
+        df = df.Define("W_qq_unboosted_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{W_qq_unboosted})[0]")
+        df = df.Define("W_lv_unboosted_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{W_lv_unboosted})[0]")
+        df = df.Define("W_qq_unboosted_costheta", "FCCAnalyses::ZHfunctions::get_costheta(W_qq_unboosted_theta)")
+        df = df.Define("W_lv_unboosted_costheta", "FCCAnalyses::ZHfunctions::get_costheta(W_lv_unboosted_theta)")
+
+        # cos theta j1
+        df = df.Define("jets_sorted_rp", "FCCAnalyses::ZHfunctions::get_rp_sorted_jets(jet1, jet2)")
+        df = df.Define("jets_sorted_theta", "FCCAnalyses::ReconstructedParticle::get_theta(jets_sorted_rp)")
+        df = df.Define("jets_sorted_phi", "FCCAnalyses::ReconstructedParticle::get_phi(jets_sorted_rp)")
+        df = df.Define("jet1_costheta", "FCCAnalyses::ZHfunctions::get_costheta(jets_sorted_theta[0])")
+        df = df.Define("jet2_costheta", "FCCAnalyses::ZHfunctions::get_costheta(jets_sorted_theta[1])")
+        df = df.Define("jet1_cosphi", "FCCAnalyses::ZHfunctions::get_costheta(jets_sorted_phi[0])")
+        df = df.Define("jet2_cosphi", "FCCAnalyses::ZHfunctions::get_costheta(jets_sorted_phi[1])")
+
+        # pT of W_qq
+        df = df.Define("W_qq_pT", "FCCAnalyses::ReconstructedParticle::get_pt(Ws)[0]")
+        df = df.Define("W_lv_pT", "FCCAnalyses::ReconstructedParticle::get_pt(Ws)[1]")
+
+
+
+        # inference with TMVAHelperXGB
+
+        tmva_helper = TMVAHelperXGB("outputs/240/BDT/lvqq/bdt_model_example.root", "bdt_model") # read the XGBoost training
+        df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
+        df = df.Define("mva_score_signal", "mva_score[0]")
+        df = df.Define("mva_score_bkg", "mva_score[1]")
+        bins_mva = (100, 0, 1)
+        results.append(df.Histo1D(("mva_score_signal", "", *bins_mva), "mva_score_signal"))
+        results.append(df.Histo1D(("mva_score_bkg", "", *bins_mva), "mva_score_bkg"))
+
+
+        ##########
+        ### CUT 11: MVA score cut
+        ##########
+        mva_cut_value = config_WW['cuts']['mva_score_cut']
+        df = df.Filter("mva_score_signal > {}".format(mva_cut_value))  # MVA score cut
+        df = df.Define("cut11", "11")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+
+
+        #########
+        ### CUT 12: gamma recoil cut tight
+        #########
+        #df = df.Filter("13.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
+        results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
+
+        df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
+        df = df.Define("cut12", "12")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
+    else:
+        #########
+        ### CUT 11: gamma recoil cut tight
+        #########
+        #df = df.Filter("13.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
+        results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
+
+        df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
+        df = df.Define("cut11", "11")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
 
     return results, weightsum

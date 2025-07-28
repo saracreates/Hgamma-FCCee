@@ -36,7 +36,7 @@ collider       = 'FCC-ee'
 formats        = ['png','pdf']
 
 outdir         =  "outputs/240/preselection/plots"
-inputDir       =  "outputs/240/preselection/lvqq/"
+inputDir       =  "outputs/240/preselection/lvqq/check/"
 
 plotStatUnc    = True
 
