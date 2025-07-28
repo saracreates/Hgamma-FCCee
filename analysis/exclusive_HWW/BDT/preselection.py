@@ -188,6 +188,7 @@ class RDFanalysis():
         ########
         ### CUT 4: One isolated lepton
         ########
+        df = df.Define("num_isolated_leptons", "electrons_sel_iso.size() + muons_sel_iso.size()")
         df = df.Filter("num_isolated_leptons == 1")  # one isolated lepton
 
 
@@ -246,7 +247,6 @@ class RDFanalysis():
         df = df.Define("gamma_recoil", "FCCAnalyses::ReconstructedParticle::recoilBuilder(240)(photons_boosted)") 
         df = df.Define("gamma_recoil_m", "FCCAnalyses::ReconstructedParticle::get_mass(gamma_recoil)[0]") # recoil mass
 
-        df = df.Define("num_isolated_leptons", "electrons_sel_iso.size() + muons_sel_iso.size()")
         # df = df.Define("leptons", "FCCAnalyses::ZHfunctions::get_leptons(electrons_sel_iso, muons_sel_iso)")
         # df = df.Define("leptons_sorted", "FCCAnalyses::ZHfunctions::sort_by_energy(leptons)")
         # df = df.Define("lepton_p", "FCCAnalyses::ReconstructedParticle::get_p(leptons_sorted)[0]")
