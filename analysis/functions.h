@@ -563,6 +563,47 @@ Vec_rp get_rp_from_jets(TLorentzVector jet1, TLorentzVector jet2) {
     return result;
 }
 
+Vec_rp get_rp_sorted_jets(TLorentzVector jet1, TLorentzVector jet2) {
+    // convert two jets to ReconstructedParticleData and sort them by energy
+    Vec_rp result = get_rp_from_jets(jet1, jet2);
+
+    auto get_energy = [](const rp &p) {
+        return std::sqrt(p.momentum.x * p.momentum.x + p.momentum.y * p.momentum.y + p.momentum.z * p.momentum.z + p.mass * p.mass);
+    };
+
+    std::sort(result.begin(), result.end(), [&](const rp &a, const rp &b) {
+        return get_energy(a) > get_energy(b);
+    });
+
+    return result;
+}
+
+Vec_rp get_leptons(Vec_rp electrons, Vec_rp muons){
+    // combine electrons and muons into a single vector of leptons
+    Vec_rp leptons;
+    leptons.reserve(electrons.size() + muons.size());
+    leptons.insert(leptons.end(), electrons.begin(), electrons.end());
+    leptons.insert(leptons.end(), muons.begin(), muons.end());
+    return leptons;
+}
+
+Vec_rp sort_rp_by_energy(Vec_rp particles) {
+    // sort ReconstructedParticleData by energy
+    Vec_rp sorted = particles; // make a copy
+
+    auto get_energy = [](const rp &p) {
+        return std::sqrt(p.momentum.x * p.momentum.x + p.momentum.y * p.momentum.y + p.momentum.z * p.momentum.z + p.mass * p.mass);
+    };
+
+    std::sort(sorted.begin(), sorted.end(), [&](const rp &a, const rp &b) {
+        std::cout << "E def a.energy: " << a.energy << " or by mass " << get_energy(a) << std::endl;
+        return get_energy(a) > get_energy(b);
+    });
+
+    return sorted;
+}
+
+
 }}
 
 #endif
