@@ -35,20 +35,21 @@ br_flavor = config_jj['branching_ratios'][args.flavor]  # branching ratio for H-
 # list of processes (mandatory)
 processList = {}
 for key, val in config['processList'].items():
-    # change signal file 
-    # if key == f'p8_ee_Hgamma':
-    #     entry = {'fraction': float(val['fraction'])}
-    #     entry['inputDir'] = "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"
-    #     entry['crossSection'] = float(val['crossSection']) * br_flavor # H-> XX BR
-    #     processList[f"mgp8_ee_ha_ecm{ecm}_h{flavortag}"] = entry
-    # else:
-    entry = {
-        'fraction': float(val['fraction']),
-    }
-    if 'crossSection' in val:
-        entry['crossSection'] = float(val['crossSection'])  # optional
-        entry['inputDir'] = os.path.join(config['inputDirBase'], str(ecm))
-    processList[f"{key}_ecm{ecm}"] = entry
+    if key == 'mgp8_ee_ha':
+        entry = {
+            'crossSection': float(val['crossSection']) * br_flavor,  # H-> XX BR
+            'fraction': float(val['fraction']),
+        }
+        processList[f"{key}_ecm{ecm}_h{flavortag}"] = entry
+    else:
+        entry = {
+            'fraction': float(val['fraction']),
+        }
+        if 'crossSection' in val:
+            entry['crossSection'] = float(val['crossSection'])  # optional
+        if 'inputDir' in val:
+            entry['inputDir'] = os.path.join(val['inputDir'], str(ecm))
+        processList[f"{key}_ecm{ecm}"] = entry
 
 print(processList)
 

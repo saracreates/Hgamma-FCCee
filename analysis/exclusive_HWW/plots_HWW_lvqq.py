@@ -56,17 +56,19 @@ colors['Amumu'] = ROOT.kMagenta
 #procs['signal'] = {'ZH':['wzp6_ee_mumuH_ecm240']}
 #procs['backgrounds'] =  {'WW':['p8_ee_WW_ecm240'], 'ZZ':['p8_ee_ZZ_ecm240']}
 procs = {}
-# procs['signal'] = {'AH':[f"mgp8_ee_ha_ecm{config['ecm']}_hww"]}
-procs['signal'] = {'AH':[f"p8_ee_Hgamma_ecm{config['ecm']}"]}
+procs['signal'] = {'AH':[f"mgp8_ee_ha_ecm{config['ecm']}_hww"]}
+# procs['signal'] = {'AH':[f"p8_ee_Hgamma_ecm{config['ecm']}"]}
+
+
 procs['backgrounds'] =  {
     'Aqq':[f"p8_ee_qqgamma_ecm{config['ecm']}"], 
-    'Acc':[f"p8_ee_ccgamma_ecm{config['ecm']}"], 
-    'Abb':[f"p8_ee_bbgamma_ecm{config['ecm']}"], 
+    'Acc':[f"wzp6_ee_cca_ecm{config['ecm']}"], 
+    'Abb':[f"wzp6_ee_bba_ecm{config['ecm']}"], 
     'Atautau':[f"p8_ee_tautaugamma_ecm{config['ecm']}"], 
     'Amumu':[f"p8_ee_mumugamma_ecm{config['ecm']}"], 
     'Aee':[f"p8_ee_eegamma_ecm{config['ecm']}"], 
     'WW':[f"p8_ee_WW_ecm{config['ecm']}"], 
-    'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"]}
+    'ZZ':[f"mgp8_ee_zh_ecm{config['ecm']}"]}
 
 legend = {}
 legend['AH'] = '#gamma H'
@@ -93,10 +95,18 @@ recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range
 WW_cos_theta_max = config_WW['cuts']['WW_cos_theta_max']
 do_inference = config_WW['do_inference']
 
-xtitle = ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "p_{miss} > " + str(config_WW['cuts']['p_miss']), str(recoil_gammaqq_min) + "<m_{recoil, #gamma qq} < " + str(recoil_gammaqq_max), "#const per jet > " + str(config_WW['cuts']['n_const_per_jet']), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)] #"p_{miss} > 20","p_{T} > 10"
+xtitle = ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "pT_{miss} > " + str(config_WW['cuts']['pT_miss']), str(recoil_gammaqq_min) + "<m_{recoil, #gamma qq} < " + str(recoil_gammaqq_max), "#const per jet > " + str(config_WW['cuts']['n_const_per_jet']), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)] #"p_{miss} > 20","p_{T} > 10"
 
 if do_inference:
     xtitle.insert(-1, "BDT score > " + str(config_WW['cuts']['mva_score_cut']))
+    
+    # BDT scan
+    
+    # remove last element
+    # xtitle.pop(-1)
+    # # append BDT score cut scan 
+    # for mva_cut_value in config_WW['cuts']['mva_score_cut']:
+    #     xtitle.append(f"BDT score > {mva_cut_value}")
 
 
 
@@ -123,6 +133,6 @@ hists["gamma_recoil_m_tight_cut"] = {
     "xmax":     150,
     "xtitle":   "Recoil (GeV)",
     "ytitle":   "Events ",
-    "scaleSig": 100,
+    "scaleSig": 10,
     "density": False
 }

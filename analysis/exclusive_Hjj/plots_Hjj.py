@@ -51,14 +51,17 @@ colors['Amumu'] = ROOT.kMagenta
 #procs['signal'] = {'ZH':['wzp6_ee_mumuH_ecm240']}
 #procs['backgrounds'] =  {'WW':['p8_ee_WW_ecm240'], 'ZZ':['p8_ee_ZZ_ecm240']}
 procs = {}
-procs['signal'] = {'AH':[f"p8_ee_Hgamma_ecm{config['ecm']}"]}
+procs['signal'] = {'AH':[f"mgp8_ee_ha_ecm{config['ecm']}_h{args.flavor.lower() + args.flavor.lower()}"]}
+# procs['signal'] = {'AH':[f"p8_ee_Hgamma_ecm{config['ecm']}"]}
+
+
 procs['backgrounds'] =  {
-    'Aqq':[f"p8_ee_qqgamma_ecm{config['ecm']}"], 
-    'Acc':[f"p8_ee_ccgamma_ecm{config['ecm']}"], 
-    'Abb':[f"p8_ee_bbgamma_ecm{config['ecm']}"], 
-    'Atautau':[f"p8_ee_tautaugamma_ecm{config['ecm']}"], 
-    'Amumu':[f"p8_ee_mumugamma_ecm{config['ecm']}"], 
-    'Aee':[f"p8_ee_eegamma_ecm{config['ecm']}"], 
+    'Aqq':[f"wzp6_ee_qqa_ecm{config['ecm']}"], 
+    'Acc':[f"wzp6_ee_cca_ecm{config['ecm']}"], 
+    'Abb':[f"wzp6_ee_bba_ecm{config['ecm']}"], 
+    'Atautau':[f"wzp6_ee_tautaua_ecm{config['ecm']}"], 
+    'Amumu':[f"wzp6_ee_mumua_ecm{config['ecm']}"], 
+    'Aee':[f"wzp6_ee_eea_ecm{config['ecm']}"], 
     'WW':[f"p8_ee_WW_ecm{config['ecm']}"], 
     'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"]}
 

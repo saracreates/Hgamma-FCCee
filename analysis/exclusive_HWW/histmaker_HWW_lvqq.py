@@ -36,26 +36,30 @@ print(config_WW)
 
 ecm = config['ecm']
 
+
 # list of processes (mandatory)
 processList = {}
 for key, val in config['processList'].items():
-    # change signal file 
-    # if key == f'p8_ee_Hgamma':
-    #     entry = {'fraction': float(val['fraction'])}
-    #     entry['inputDir'] = "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"
-    #     entry['crossSection'] = float(val['crossSection']) * 0.2137 # H-> WW BR
-    #     processList[f"mgp8_ee_ha_ecm{ecm}_hww"] = entry
-    # else:
-    entry = {
-        'fraction': float(val['fraction']),
-    }
-    if 'crossSection' in val:
-        entry['crossSection'] = float(val['crossSection'])  # optional
-        entry['inputDir'] = os.path.join(config['inputDirBase'], str(ecm))
-    processList[f"{key}_ecm{ecm}"] = entry
+    if key == 'mgp8_ee_ha':
+        frac = float(val['fraction'])
+        if config_WW['do_inference']:
+            frac = 0.7 # only use data that was not trained on 
+        entry = {
+            'fraction': frac,
+            'crossSection': float(val['crossSection']) * 0.2137,  # H-> WW BR
+        }
+        processList[f"{key}_ecm{ecm}_hww"] = entry
+    else:
+        entry = {
+            'fraction': float(val['fraction']),
+        }
+        if 'crossSection' in val:
+            entry['crossSection'] = float(val['crossSection'])  # optional
+        if 'inputDir' in val:
+            entry['inputDir'] = os.path.join(val['inputDir'], str(ecm))
+        processList[f"{key}_ecm{ecm}"] = entry
 
 print(processList)
-
 
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
@@ -82,7 +86,7 @@ intLumi = config['intLumi']
 # define some binning for various histograms
 bins_a_p = (100, 0, 500) # 100 MeV bins
 bins_a_n = (10, 0, 10) # 100 MeV bins
-bins_count = (20, 0, 20)
+bins_count = (40, 0, 40)
 
 
 # name of collections in EDM root files
@@ -415,7 +419,8 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("miss_pT", "", 100, 0, 200), "miss_pT"))
     results.append(df.Histo1D(("miss_e", "", 100, 0, 200), "miss_e"))
 
-    df = df.Filter(f"miss_p > {config_WW['cuts']['p_miss']}")  # missing momentum cut
+    # df = df.Filter(f"miss_p > {config_WW['cuts']['p_miss']}")  # missing momentum cut
+    df = df.Filter(f"miss_pT > {config_WW['cuts']['pT_miss']}")  # missing transverse momentum cut
     df = df.Define("cut8", "8")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
@@ -552,11 +557,20 @@ def build_graph(df, dataset):
         df = df.Define("cut11", "11")
         results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
+        # do a scan
+        # mva_cut_values = config_WW['cuts']['mva_score_cut']
+        # for i, mva_cut_value in enumerate(mva_cut_values):
+        #     df_cut = df.Filter("mva_score_signal > {}".format(mva_cut_value))
+        #     df_cut = df_cut.Define(f"cut{i+11}", f"{i+11}")
+        #     results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+11}"))
+            
+        #     if mva_cut_value == 0.99:
+        #         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
+
 
         #########
         ### CUT 12: gamma recoil cut tight
         #########
-        #df = df.Filter("13.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
 
         df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
