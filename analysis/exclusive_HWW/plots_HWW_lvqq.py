@@ -61,14 +61,14 @@ procs['signal'] = {'AH':[f"mgp8_ee_ha_ecm{config['ecm']}_hww"]}
 
 
 procs['backgrounds'] =  {
-    'Aqq':[f"p8_ee_qqgamma_ecm{config['ecm']}"], 
+    'Aqq':[f"wzp6_ee_qqa_ecm{config['ecm']}"], 
     'Acc':[f"wzp6_ee_cca_ecm{config['ecm']}"], 
     'Abb':[f"wzp6_ee_bba_ecm{config['ecm']}"], 
-    'Atautau':[f"p8_ee_tautaugamma_ecm{config['ecm']}"], 
-    'Amumu':[f"p8_ee_mumugamma_ecm{config['ecm']}"], 
-    'Aee':[f"p8_ee_eegamma_ecm{config['ecm']}"], 
+    'Atautau':[f"wzp6_ee_tautaua_ecm{config['ecm']}"], 
+    'Amumu':[f"wzp6_ee_mumua_ecm{config['ecm']}"], 
+    'Aee':[f"wzp6_ee_eea_ecm{config['ecm']}"], 
     'WW':[f"p8_ee_WW_ecm{config['ecm']}"], 
-    'ZZ':[f"mgp8_ee_zh_ecm{config['ecm']}"]}
+    'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"]}
 
 legend = {}
 legend['AH'] = '#gamma H'
