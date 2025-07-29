@@ -37,8 +37,8 @@ ecm = config['ecm']
 
 processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-    'p8_ee_WW_ecm240': {'fraction': 0.1, 'crossSection': 16.4385, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/analyses/symlink_gammalvqq"}, # 16 pb
-    'mgp8_ee_ha_ecm240_hww':   {'fraction': 0.1, 'crossSection': 8.20481e-05* 0.2137, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA"}, 
+    'p8_ee_WW_ecm240': {'fraction': 0.01, 'crossSection': 16.4385, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/analyses/symlink_gammalvqq"}, # 16 pb
+    'mgp8_ee_ha_ecm240_hww':   {'fraction': 0.01, 'crossSection': 8.20481e-05* 0.2137, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA"}, 
 }
 
 print(processList)
@@ -55,7 +55,7 @@ procDict = "FCCee_procDict_winter2023_IDEA.json"
 includePaths = ["./../../functions.h"]
 
 #Optional: output directory, default is local running directory
-outputDir   = "outputs/240/preselection/lvqq/"
+outputDir   = "outputs/240/preselection/lvqq/check/"
 print(outputDir)
 
 # optional: ncpus, default is 4, -1 uses all cores available

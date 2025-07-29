@@ -498,6 +498,14 @@ def build_graph(df, dataset):
     do_inference = config_WW.get('do_inference', False)
     if do_inference:
         # build variables for the MVA
+
+        # photon
+        df = df.Define("photons_sorted", "FCCAnalyses::ZHfunctions::sort_rp_by_energy(photons_boosted)")
+        df = df.Define("photon_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_sorted)[0]")  # only one photon after cuts
+        df = df.Define("photon_pT", "FCCAnalyses::ReconstructedParticle::get_pt(photons_sorted)[0]")  # only one photon after cuts
+        df = df.Define("photon_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_sorted))[0]")
+
+        # W bosons
         df = df.Define("Ws", "FCCAnalyses::ZHfunctions::build_WW(jet1, jet2, lepton, missP)")
         df = df.Define("W_qq", "Ws[0]") 
         df = df.Define("W_lv", "Ws[1]")

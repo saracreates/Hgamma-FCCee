@@ -16,7 +16,7 @@ outputDir   = "outputs/240/preselection/lvqq/trainingdata"
 inputDir = "/afs/cern.ch/work/s/saaumill/public/analyses/symlink_gammalvqq"
 processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-    'p8_ee_WW_ecm240': {'fraction': 0.1, 'crossSection': 16.4385, 'inputDir': inputDir}, # 16 pb
+    'p8_ee_WW_ecm240': {'fraction': 1, 'crossSection': 16.4385, 'inputDir': inputDir}, # 16 pb
     'mgp8_ee_ha_ecm240_hww':   {'fraction': 1, 'crossSection': 8.20481e-05* 0.2137, 'inputDir':inputDir}, 
 }
 
@@ -167,6 +167,7 @@ class RDFanalysis():
         df = df.Define("photons_boosted", f"FCCAnalyses::ReconstructedParticle::sel_p({photon_energy_min},{photon_energy_max})(iso_highest_p)") # looked okay from photons all
         #df = df.Define("photons_boosted", "FCCAnalyses::ReconstructedParticle::sel_p(60,100)(iso_highest_p)")
         df = df.Define("photons_boosted_n","(float)FCCAnalyses::ReconstructedParticle::get_n(photons_boosted)") 
+        df = df.Define("photons_boosted_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_boosted))")
 
         df = df.Define("recopart_no_gamma", "FCCAnalyses::ReconstructedParticle::remove(ReconstructedParticles, photons_boosted)",)
         df = df.Define("recopart_no_gamma_n","FCCAnalyses::ReconstructedParticle::get_n(recopart_no_gamma)")
