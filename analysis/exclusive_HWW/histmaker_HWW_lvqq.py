@@ -86,7 +86,7 @@ intLumi = config['intLumi']
 # define some binning for various histograms
 bins_a_p = (100, 0, 500) # 100 MeV bins
 bins_a_n = (10, 0, 10) # 100 MeV bins
-bins_count = (40, 0, 40)
+bins_count = (45, 0, 45)
 
 
 # name of collections in EDM root files
@@ -558,11 +558,11 @@ def build_graph(df, dataset):
         results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
         # do a scan
-        # mva_cut_values = config_WW['cuts']['mva_score_cut']
-        # for i, mva_cut_value in enumerate(mva_cut_values):
-        #     df_cut = df.Filter("mva_score_signal > {}".format(mva_cut_value))
-        #     df_cut = df_cut.Define(f"cut{i+11}", f"{i+11}")
-        #     results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+11}"))
+        mva_cut_values = config_WW['cuts']['mva_score_cut']
+        for i, mva_cut_value in enumerate(mva_cut_values):
+            df_cut = df.Filter("mva_score_signal > {}".format(mva_cut_value))
+            df_cut = df_cut.Define(f"cut{i+11}", f"{i+11}")
+            results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+11}"))
             
         #     if mva_cut_value == 0.99:
         #         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
@@ -571,11 +571,11 @@ def build_graph(df, dataset):
         #########
         ### CUT 12: gamma recoil cut tight
         #########
-        results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
+        # results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
 
-        df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
-        df = df.Define("cut12", "12")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
+        # df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
+        # df = df.Define("cut12", "12")
+        # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
     else:
         #########
         ### CUT 11: gamma recoil cut tight
