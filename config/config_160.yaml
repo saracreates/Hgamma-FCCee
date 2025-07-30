@@ -1,9 +1,9 @@
-ecm: 365
-intLumi: 2700000  # 2.7 /ab
+ecm: 160
+intLumi: 19200000  # 19.2 /ab
 apply_scaling: False  # rescale photon momentum resolution (default 3%)
-scaling_factor: 0.33
+scaling_factor: 0.33 # for rescaling the photon momentum resolution
 
-inputDirBase: "/eos/user/l/lherrman/FCC/data/HiggsGamma"
+inputDirBase: "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA"
 outputDir: "outputs/"
 
 processList:
@@ -19,11 +19,10 @@ processList:
   p8_ee_ZZ:        {fraction: 0.1}
   # ZH ?
  
-
 cuts:
   photon_iso_cone_radius_range: [0.01, 0.5]
   photon_iso_threshold: 0.2
-  photon_energy_range: [60, 100]
+  photon_energy_range: [60, 100] # why not 80 - 93? 
   photon_cos_theta_max: 0.9
   recoil_mass_range: [110, 150]
   recoil_mass_signal_range: [123.5, 126.5]

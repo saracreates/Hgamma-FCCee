@@ -7,8 +7,20 @@ def load_config(config_path):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
-config = load_config("config/config_240.yaml")
-config_WW = load_config("config/config_WW_lvqq_240.yaml")
+# Set up argument parser
+parser = argparse.ArgumentParser(description="Run analysis for H->WW(lv)W(qq).")
+parser.add_argument(
+    "--energy", "-e",
+    type=int,
+    default=240,
+    help="Choose from: 160, 240, 365. Default: 240"
+)
+args, _ = parser.parse_known_args()  # <-- Ignore unknown args
+
+print("Loading configuration for energy:", args.energy)
+
+config = load_config(f"config/config_{args.energy}.yaml")
+config_WW = load_config(f"config/config_WW_lvqq_{args.energy}.yaml")
 
 # global parameters
 intLumi        = 1.
@@ -78,7 +90,6 @@ signal_mass_min, signal_mass_max = config['cuts']['recoil_mass_signal_range']
 
 m_jj_min, m_jj_max = config_WW['cuts']['m_jj_range']
 recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range']
-WW_cos_theta_max = config_WW['cuts']['WW_cos_theta_max']
 do_inference = config_WW['do_inference']
 
 xtitle = ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "pT_{miss} > " + str(config_WW['cuts']['pT_miss']), str(recoil_gammaqq_min) + "<m_{recoil, #gamma qq} < " + str(recoil_gammaqq_max), "#const per jet > " + str(config_WW['cuts']['n_const_per_jet']), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)] #"p_{miss} > 20","p_{T} > 10"

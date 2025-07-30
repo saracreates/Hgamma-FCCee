@@ -8,17 +8,17 @@ outputDir: "outputs/"
 
 processList:
   # p8_ee_Hgamma:    { crossSection: 8.20481e-05,  fraction: 1, inputDir: "/eos/user/l/lherrman/FCC/data/HiggsGamma"}
-  mgp8_ee_ha:    { crossSection: 8.20481e-05,  fraction: 1}
-  wzp6_ee_bba:   { crossSection: 2.35,  fraction: 1}
-  wzp6_ee_cca:   { crossSection: 2.15,  fraction: 1}
-  wzp6_ee_qqa:   { crossSection: 6.9, fraction: 1}
-  wzp6_ee_eea: { crossSection: 190,  fraction: 1}
-  wzp6_ee_mumua: { crossSection: 0.8, fraction: 1}
-  wzp6_ee_tautaua: { crossSection: 0.77, fraction: 1}
+  mgp8_ee_ha:    {fraction: 1}
+  wzp6_ee_bba:   {fraction: 1}
+  wzp6_ee_cca:   {fraction: 1}
+  wzp6_ee_qqa:   {fraction: 1}
+  wzp6_ee_eea:   {fraction: 1}
+  wzp6_ee_mumua: {fraction: 1}
+  wzp6_ee_tautaua: {fraction: 1}
   p8_ee_WW:        {fraction: 0.5} # do NOT increase highter than 0.5 for HWW if you use the BDT!
   p8_ee_ZZ:        {fraction: 0.1}
-  mgp8_ee_zh:      {crossSection: 0.2, fraction: 1}
- 
+  mgp8_ee_zh:      {fraction: 1}
+
 cuts:
   photon_iso_cone_radius_range: [0.01, 0.5]
   photon_iso_threshold: 0.2

@@ -7,8 +7,20 @@ def load_config(config_path):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
-config = load_config("config/config_240.yaml")
-config_WW = load_config("config/config_WW_lvqq_240.yaml")
+# Set up argument parser
+parser = argparse.ArgumentParser(description="Run analysis for H->WW(lv)W(qq).")
+parser.add_argument(
+    "--energy", "-e",
+    type=int,
+    default=240,
+    help="Choose from: 160, 240, 365. Default: 240"
+)
+args, _ = parser.parse_known_args()  # <-- Ignore unknown args
+
+print("Loading configuration for energy:", args.energy)
+
+config = load_config(f"config/config_{args.energy}.yaml")
+config_WW = load_config(f"config/config_WW_lvqq_{args.energy}.yaml")
 
 print("Configuration:")
 print(config)
@@ -27,7 +39,7 @@ for key, val in config['processList'].items():
             frac = 0.7 # only use data that was not trained on 
         entry = {
             'fraction': frac,
-            'crossSection': float(val['crossSection']) * 0.2137,  # H-> WW BR
+            # 'crossSection': float(val['crossSection']) * 0.2137,  # H-> WW BR
         }
         processList[f"{key}_ecm{ecm}_hww"] = entry
     else:
