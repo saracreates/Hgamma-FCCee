@@ -552,15 +552,15 @@ def build_graph(df, dataset):
         ##########
         ### CUT 11: MVA score cut
         ##########
-        mva_cut_value = config_WW['cuts']['mva_score_cut']
-        df = df.Filter("mva_score_signal > {}".format(mva_cut_value))  # MVA score cut
-        df = df.Define("cut11", "11")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+        # mva_cut_value = config_WW['cuts']['mva_score_cut']
+        # df = df.Filter("mva_score_signal > {}".format(mva_cut_value))  # MVA score cut
+        # df = df.Define("cut11", "11")
+        # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
         # do a scan
         mva_cut_values = config_WW['cuts']['mva_score_cut']
         for i, mva_cut_value in enumerate(mva_cut_values):
-            df_cut = df.Filter("mva_score_signal > {}".format(mva_cut_value))
+            df_cut = df.Filter("mva_score_signal > 0.9 && mva_score_signal < {}".format(mva_cut_value))
             df_cut = df_cut.Define(f"cut{i+11}", f"{i+11}")
             results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+11}"))
             
