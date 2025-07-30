@@ -7,6 +7,20 @@ def load_config(config_path):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
+# Set up argument parser
+parser = argparse.ArgumentParser(description="Run two bin analysis for H->WW(lv)W(qq).")
+parser.add_argument(
+    "--bins", "-b",
+    type=int,
+    default=1,
+    help="Choose from: 1 (0.9-0.997), 2 (0.997-1) for the two bin analysis"
+)
+args, _ = parser.parse_known_args()  # <-- Ignore unknown args
+
+# check args
+if args.bins not in [1, 2]:
+    raise ValueError("Invalid bin option. Choose from: 1, 2")
+
 config = load_config("config/config_240.yaml")
 config_WW = load_config("config/config_WW_lvqq_240.yaml")
 
@@ -19,8 +33,8 @@ energy         = config['ecm']
 collider       = 'FCC-ee'
 formats        = ['png','pdf']
 
-outdir         = os.path.join(config['outputDir'], str(energy),'plots/', config_WW['outputDir_sub']) 
-inputDir       = os.path.join(config['outputDir'], str(energy),'histmaker/', config_WW['outputDir_sub'])
+outdir         = os.path.join(config['outputDir'], str(energy),'plots/', config_WW['outputDir_sub'][args.bins-1]) 
+inputDir       = os.path.join(config['outputDir'], str(energy),'histmaker/', config_WW['outputDir_sub'][args.bins-1])
 
 plotStatUnc    = True
 
@@ -84,7 +98,8 @@ do_inference = config_WW['do_inference']
 xtitle = ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "pT_{miss} > " + str(config_WW['cuts']['pT_miss']), str(recoil_gammaqq_min) + "<m_{recoil, #gamma qq} < " + str(recoil_gammaqq_max), "#const per jet > " + str(config_WW['cuts']['n_const_per_jet']), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)] #"p_{miss} > 20","p_{T} > 10"
 
 if do_inference:
-    xtitle.insert(-1, "BDT score > " + str(config_WW['cuts']['mva_score_cut']))
+    bdt_min, bdt_max = config_WW['cuts']['mva_score_cut'][args.bins-1]
+    xtitle.insert(-1, f"{bdt_min} < BDT score < {bdt_max}")
     
     # BDT scan
     

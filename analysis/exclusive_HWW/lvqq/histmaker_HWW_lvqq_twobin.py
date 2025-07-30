@@ -25,6 +25,10 @@ parser.add_argument(
 )
 args, _ = parser.parse_known_args()  # <-- Ignore unknown args
 
+# check args
+if args.bins not in [1, 2]:
+    raise ValueError("Invalid bin option. Choose from: 1, 2")
+
 config = load_config("config/config_240.yaml")
 config_WW = load_config("config/config_WW_lvqq_twobin_240.yaml")
 
@@ -476,7 +480,7 @@ def build_graph(df, dataset):
         ##########
         ### CUT 11: MVA score cut
         ##########
-        which_bin  = extract_bin(args.bins)  # bin1 or bin2
+        which_bin  = extract_bin(config_WW['outputDir_sub'][args.bins-1])  # bin1 or bin2
         mva_cut_value_min, mva_cut_value_max = config_WW['cuts']['mva_score_cut'][which_bin]
         df = df.Filter("mva_score_signal > {}".format(mva_cut_value_min) + "&& mva_score_signal < {}".format(mva_cut_value_max))  # MVA score cut
         df = df.Define("cut11", "11")
