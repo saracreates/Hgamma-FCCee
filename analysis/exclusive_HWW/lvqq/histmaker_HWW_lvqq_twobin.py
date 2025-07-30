@@ -2,13 +2,31 @@ import os, copy
 import yaml
 import argparse
 from addons.TMVAHelper.TMVAHelper import TMVAHelperXGB
+import re
+
+def extract_bin(label):
+    match = re.search(r'bin[12]', label)
+    if match:
+        return match.group()
+    else:
+        raise ValueError("Label does not contain 'bin1' or 'bin2': {}".format(label))
 
 def load_config(config_path):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
+# Set up argument parser
+parser = argparse.ArgumentParser(description="Run two bin analysis for H->WW(lv)W(qq).")
+parser.add_argument(
+    "--bins", "-b",
+    type=int,
+    default=1,
+    help="Choose from: 1 (0.9-0.997), 2 (0.997-1) for the two bin analysis"
+)
+args, _ = parser.parse_known_args()  # <-- Ignore unknown args
+
 config = load_config("config/config_240.yaml")
-config_WW = load_config("config/config_WW_lvqq_240.yaml")
+config_WW = load_config("config/config_WW_lvqq_twobin_240.yaml")
 
 print("Configuration:")
 print(config)
@@ -53,7 +71,7 @@ procDict = "FCCee_procDict_winter2023_IDEA.json"
 includePaths = ["../../functions.h"]
 
 #Optional: output directory, default is local running directory
-outputDir   =  os.path.join(config['outputDir'], str(ecm),'histmaker/', config_WW['outputDir_sub'])
+outputDir   =  os.path.join(config['outputDir'], str(ecm),'histmaker/', config_WW['outputDir_sub'][args.bins-1])
 print(outputDir)
 
 # optional: ncpus, default is 4, -1 uses all cores available
@@ -458,8 +476,9 @@ def build_graph(df, dataset):
         ##########
         ### CUT 11: MVA score cut
         ##########
-        mva_cut_value = config_WW['cuts']['mva_score_cut']
-        df = df.Filter("mva_score_signal > {}".format(mva_cut_value))  # MVA score cut
+        which_bin  = extract_bin(args.bins)  # bin1 or bin2
+        mva_cut_value_min, mva_cut_value_max = config_WW['cuts']['mva_score_cut'][which_bin]
+        df = df.Filter("mva_score_signal > {}".format(mva_cut_value_min) + "&& mva_score_signal < {}".format(mva_cut_value_max))  # MVA score cut
         df = df.Define("cut11", "11")
         results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 

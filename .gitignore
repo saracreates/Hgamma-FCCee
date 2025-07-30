@@ -10,6 +10,7 @@ analysis/exclusive_HWW/__pycache__/
 analysis/exclusive_Hjj/__pycache__/
 analysis/exclusive_Hjj/jettagscore_scan/__pycache__/
 analysis/exclusive_HWW/BDT/__pycache__/
+analysis/exclusive_HWW/lvqq/__pycache__
 
 # dummy test folder
 test
