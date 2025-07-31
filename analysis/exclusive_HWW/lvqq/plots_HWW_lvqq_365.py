@@ -2,47 +2,37 @@ import ROOT
 import os
 import yaml
 import argparse
-import re
 
 def load_config(config_path):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
-def extract_bin(label):
-    match = re.search(r'bin[12]', label)
-    if match:
-        return match.group()
-    else:
-        raise ValueError("Label does not contain 'bin1' or 'bin2': {}".format(label))
-
 # Set up argument parser
-parser = argparse.ArgumentParser(description="Run two bin analysis for H->WW(lv)W(qq).")
+parser = argparse.ArgumentParser(description="Run analysis for H->WW(lv)W(qq).")
 parser.add_argument(
-    "--bins", "-b",
+    "--energy", "-e",
     type=int,
-    default=1,
-    help="Choose from: 1 (0.9-0.997), 2 (0.997-1) for the two bin analysis"
+    default=365,
+    help="Choose from: 160, 240, 365. Default: 365"
 )
 args, _ = parser.parse_known_args()  # <-- Ignore unknown args
 
-# check args
-if args.bins not in [1, 2]:
-    raise ValueError("Invalid bin option. Choose from: 1, 2")
+print("Loading configuration for energy:", args.energy)
 
-config = load_config("config/config_240.yaml")
-config_WW = load_config("config/config_WW_lvqq_twobin_240.yaml")
+config = load_config(f"config/config_{args.energy}.yaml")
+config_WW = load_config(f"config/config_WW_lvqq_{args.energy}.yaml")
 
 # global parameters
 intLumi        = 1.
-intLumiLabel   = "L = 10.8 a b^{-1}" # FIXME: use config['intLumi'] to set this dynamically
+intLumiLabel   = f"L = 10.8 a b^{-1}" # FIXME: use config['intLumi'] to set this dynamically
 ana_tex        = 'e^{+}e^{-} #rightarrow #gamma H'
 delphesVersion = '3.4.2'
 energy         = config['ecm']
 collider       = 'FCC-ee'
 formats        = ['png','pdf']
 
-outdir         = os.path.join(config['outputDir'], str(energy),'plots/', config_WW['outputDir_sub'][args.bins-1]) 
-inputDir       = os.path.join(config['outputDir'], str(energy),'histmaker/', config_WW['outputDir_sub'][args.bins-1])
+outdir         = os.path.join(config['outputDir'], str(energy),'plots/', config_WW['outputDir_sub']) 
+inputDir       = os.path.join(config['outputDir'], str(energy),'histmaker/', config_WW['outputDir_sub'])
 
 plotStatUnc    = True
 
@@ -101,12 +91,21 @@ signal_mass_min, signal_mass_max = config['cuts']['recoil_mass_signal_range']
 m_jj_min, m_jj_max = config_WW['cuts']['m_jj_range']
 recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range']
 do_inference = config_WW['do_inference']
+lepton_pT_min = config_WW['cuts'].get('lepton_pT_min', 0)
 
-xtitle = ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "pT_{miss} > " + str(config_WW['cuts']['pT_miss']), str(recoil_gammaqq_min) + "<m_{recoil, #gamma qq} < " + str(recoil_gammaqq_max), "#const per jet > " + str(config_WW['cuts']['n_const_per_jet']), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)] #"p_{miss} > 20","p_{T} > 10"
+xtitle = ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "pT_{miss} > " + str(config_WW['cuts']['pT_miss']), "#const per jet > " + str(config_WW['cuts']['n_const_per_jet']), "lepton pT > " + str(lepton_pT_min), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)] #"p_{miss} > 20","p_{T} > 10"
 
 if do_inference:
-    bdt_min, bdt_max = config_WW['cuts']['mva_score_cut'][extract_bin(config_WW['outputDir_sub'][args.bins-1])]
-    xtitle.insert(-1, f"{bdt_min} < BDT score < {bdt_max}")
+    xtitle.insert(-1, "BDT score > " + str(config_WW['cuts']['mva_score_cut']))
+    
+    # BDT scan
+    
+    # # remove last element
+    # xtitle.pop(-1)
+    # # append BDT score cut scan 
+    # for mva_cut_value in config_WW['cuts']['mva_score_cut']:
+    #     xtitle.append(f"BDT score > {mva_cut_value}")
+
 
 
 hists["cutFlow"] = {

@@ -1,8 +1,9 @@
 outputDir_sub: "lvqq" # "lvqq_x1_scan"
-do_inference: True # use BDT score: HWW vs WW
+do_inference: False # use BDT score: HWW vs WW
 cuts:
-  m_jj_range: [8, 55]  # W* mass range cut
-  pT_miss: 15
+  m_jj_range: [8, 50]  # W* mass range cut
+  pT_miss: 18
   recoil_gammaqq_range: [70, 90]
   n_const_per_jet: 4  # number of constituents per jet cut
   mva_score_cut: 0.99  # BDT score cut, 0.99 is the best, do 0.9-0.997 and 0.997-1 for the two bin analysis
+  lepton_pT_min: 10

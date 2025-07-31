@@ -12,8 +12,8 @@ parser = argparse.ArgumentParser(description="Run analysis for H->WW(lv)W(qq).")
 parser.add_argument(
     "--energy", "-e",
     type=int,
-    default=240,
-    help="Choose from: 160, 240, 365. Default: 240"
+    default=365,
+    help="Choose from: 160, 240, 365. Default: 365"
 )
 args, _ = parser.parse_known_args()  # <-- Ignore unknown args
 
@@ -403,20 +403,20 @@ def build_graph(df, dataset):
 
     recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range']
 
-    df = df.Filter(f"{recoil_gammaqq_min} < recoil_W_m && recoil_W_m < {recoil_gammaqq_max}")  # W mass range cut
-    df = df.Define("cut9", "9")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
+    # df = df.Filter(f"{recoil_gammaqq_min} < recoil_W_m && recoil_W_m < {recoil_gammaqq_max}")  # W mass range cut
+    # df = df.Define("cut9", "9")
+    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
 
     ########
-    ### CUT 10: number of constituents in jets
+    ### CUT 9: number of constituents in jets
     ########
 
     results.append(df.Histo1D((f"jet1_nconst_N2", "", 30, 0, 30), f"jet1_nconst_N2"))
     results.append(df.Histo1D((f"jet2_nconst_N2", "", 30, 0, 30), f"jet2_nconst_N2"))
 
     df = df.Filter(f"jet1_nconst_N2 > {config_WW['cuts']['n_const_per_jet']} && jet2_nconst_N2 > {config_WW['cuts']['n_const_per_jet']}")  # at least 4 constituent in each jet
-    df = df.Define("cut10", "10")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
+    df = df.Define("cut9", "9")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
 
 
 
@@ -498,6 +498,24 @@ def build_graph(df, dataset):
         df = df.Define("cut12", "12")
         results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
     else:
+
+        # plot some histograms 
+        results.append(df.Histo1D(("photons_cos_theta_cut8", "", 200, -1, 1), "photons_boosted_cos_theta"))
+        results.append(df.Histo1D(("recoil_W_m_cut8", "", 100, 0, 200), "recoil_W_m"))
+        # photon momentum
+        results.append(df.Histo1D(("photons_boosted_p_cut8", "", 80, int(photon_energy_min), int(photon_energy_max)), "photons_boosted_p"))
+        results.append(df.Histo1D(("lepton_p_cut8", "", 100, 0, 100), "lepton_p"))
+        results.append(df.Histo1D(("lepton_pT_cut8", "", 100, 0, 100), "lepton_pT"))
+        results.append(df.Histo1D(("miss_pT_cut8", "", 100, 0, 200), "miss_pT"))
+
+        ##########
+        ### CUT 10: lepton momentum cut
+        ##########
+        df = df.Filter("lepton_pT > " + str(config_WW['cuts']['lepton_pT_min']))  # lepton momentum cut
+        df = df.Define("cut10", "10")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
+
+
         #########
         ### CUT 11: gamma recoil cut tight
         #########

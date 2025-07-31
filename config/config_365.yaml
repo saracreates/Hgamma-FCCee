@@ -1,5 +1,5 @@
 ecm: 365
-intLumi: 2700000  # 2.7 /ab
+intLumi: 3120000  # 2.7 /ab + 0.42 /ab = 3.12 /ab
 apply_scaling: False  # rescale photon momentum resolution (default 3%)
 scaling_factor: 0.33
 
@@ -15,16 +15,16 @@ processList:
   wzp6_ee_eea:   {fraction: 1}
   wzp6_ee_mumua: {fraction: 1}
   wzp6_ee_tautaua: {fraction: 1}
-  p8_ee_WW:        {fraction: 0.1} # do NOT increase highter than 0.5 for HWW if you use the BDT!
-  p8_ee_ZZ:        {fraction: 0.1}
+  p8_ee_WW:        {fraction: 0.5} # do NOT increase highter than 0.5 for HWW if you use the BDT!
+  p8_ee_ZZ:        {fraction: 1}
   # ZH ?
  
 
 cuts:
   photon_iso_cone_radius_range: [0.01, 0.5]
   photon_iso_threshold: 0.2
-  photon_energy_range: [140, 180] # p(gamma) = 160 GeV
-  photon_cos_theta_max: 0.9
+  photon_energy_range: [158, 163] # p(gamma) = 160 GeV
+  photon_cos_theta_max: 0.99
   recoil_mass_range: [110, 150]
   recoil_mass_signal_range: [123.5, 126.5]
   min_n_reco_no_gamma: 5

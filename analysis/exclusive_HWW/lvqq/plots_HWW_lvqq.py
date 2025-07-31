@@ -24,7 +24,7 @@ config_WW = load_config(f"config/config_WW_lvqq_{args.energy}.yaml")
 
 # global parameters
 intLumi        = 1.
-intLumiLabel   = "L = 10.8 a b^{-1}" # FIXME: use config['intLumi'] to set this dynamically
+intLumiLabel   = f"L = 10.8 a b^{-1}" # FIXME: use config['intLumi'] to set this dynamically
 ana_tex        = 'e^{+}e^{-} #rightarrow #gamma H'
 delphesVersion = '3.4.2'
 energy         = config['ecm']
