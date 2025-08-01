@@ -8,9 +8,17 @@ import argparse
 from sklearn.metrics import confusion_matrix
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--input", type=str, default="outputs/240/BDT/lvqq/bdt_model_example.pkl", help="Input pkl file")
-parser.add_argument("-o", "--outDir", type=str, default="outputs/240/BDT/lvqq/plots_training", help="Output directory")
+parser.add_argument(
+    "--energy", "-e",
+    type=int,
+    default=240,
+    help="Choose from: 160, 240, 365. Default: 240"
+)
+
 args = parser.parse_args()
+
+input_bdt = f"outputs/{args.energy}/BDT/lvqq/bdt_model_example.pkl"
+outDir = f"outputs/{args.energy}/BDT/lvqq/plots_training"
 
 
 def plot_roc():
@@ -135,9 +143,8 @@ def plot_confusion_matrix():
 
 
 if __name__ == "__main__":
-    outDir = args.outDir
 
-    res = pickle.load(open(args.input, "rb"))
+    res = pickle.load(open(input_bdt, "rb"))
     bdt = res['model']
     train_data = res['train_data']
     test_data = res['test_data']

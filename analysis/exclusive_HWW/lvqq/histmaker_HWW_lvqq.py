@@ -419,6 +419,15 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
 
 
+    # plot some histograms 
+    results.append(df.Histo1D(("photons_cos_theta_cut10", "", 200, -1, 1), "photons_boosted_cos_theta"))
+    results.append(df.Histo1D(("recoil_W_m_cut10", "", 100, 0, 200), "recoil_W_m"))
+    results.append(df.Histo1D(("photons_boosted_p_cut10", "", 80, int(photon_energy_min), int(photon_energy_max)), "photons_boosted_p"))
+    results.append(df.Histo1D(("lepton_p_cut10", "", 100, 0, 100), "lepton_p"))
+    results.append(df.Histo1D(("lepton_pT_cut10", "", 100, 0, 100), "lepton_pT"))
+    results.append(df.Histo1D(("miss_pT_cut10", "", 100, 0, 200), "miss_pT"))
+
+
 
 
     do_inference = config_WW.get('do_inference', False)

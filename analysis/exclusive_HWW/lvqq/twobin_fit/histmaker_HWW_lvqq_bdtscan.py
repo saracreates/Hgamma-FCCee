@@ -2,38 +2,41 @@ import os, copy
 import yaml
 import argparse
 from addons.TMVAHelper.TMVAHelper import TMVAHelperXGB
-import re
-
-def extract_bin(label):
-    match = re.search(r'bin[12]', label)
-    if match:
-        return match.group()
-    else:
-        raise ValueError("Label does not contain 'bin1' or 'bin2': {}".format(label))
 
 def load_config(config_path):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
 # Set up argument parser
-parser = argparse.ArgumentParser(description="Run two bin analysis for H->WW(lv)W(qq).")
+parser = argparse.ArgumentParser(description="Run analysis for H->WW(lv)W(qq).")
 parser.add_argument(
-    "--bins", "-b",
+    "--energy", "-e",
+    type=int,
+    default=365,
+    help="Choose from: 160, 240, 365. Default: 365"
+)
+parser.add_argument(
+    "--scan", "-s",
     type=int,
     default=1,
-    help="Choose from: 1 (0.9-0.997), 2 (0.997-1) for the two bin analysis"
+    help="Run 0.99-x (1) or x-1 (2) scan. Default: 1"
 )
 args, _ = parser.parse_known_args()  # <-- Ignore unknown args
 
-# check args
-if args.bins not in [1, 2]:
-    raise ValueError("Invalid bin option. Choose from: 1, 2")
+if args.energy not in [160, 240, 365]:
+    raise ValueError("Energy must be one of: 160, 240, 365.")
+if args.scan not in [1, 2]:
+    raise ValueError("Scan must be either 1 (0.99-x) or 2 (x-1).")
 
-config = load_config("config/config_240.yaml")
-config_WW = load_config("config/config_WW_lvqq_twobin_240.yaml")
+print("Loading configuration for energy:", args.energy)
 
-if config_WW['do_scan'] == True:
-    raise ValueError("This script is only for evaluating the BDT scan, set do_scan to False in the config file.")
+config = load_config(f"config/config_{args.energy}.yaml")
+config_WW = load_config(f"config/config_WW_lvqq_{args.energy}.yaml")
+
+if config_WW['do_scan'] == False:
+    raise ValueError("This script is only for the BDT scan, set do_scan to True in the config file.")
+
+scan_outputdir = config_WW['scan']['outputDir_sub'][args.scan - 1] 
 
 print("Configuration:")
 print(config)
@@ -47,12 +50,14 @@ ecm = config['ecm']
 processList = {}
 for key, val in config['processList'].items():
     if key == 'mgp8_ee_ha':
-        frac = float(val['fraction'])
+        frac = float(val['fraction']) 
+        br_WW = 0.215  # branching ratio for H->WW
+        xsec = {'160': 2.127e-5 * br_WW, '240': 8.773e-5 * br_WW, '365': 2.975e-5 * br_WW}.get(str(ecm), 0)
         if config_WW['do_inference']:
             frac = 0.7 # only use data that was not trained on 
         entry = {
             'fraction': frac,
-            'crossSection': float(val['crossSection']) * 0.2137,  # H-> WW BR
+            'crossSection': xsec
         }
         processList[f"{key}_ecm{ecm}_hww"] = entry
     else:
@@ -78,7 +83,7 @@ procDict = "FCCee_procDict_winter2023_IDEA.json"
 includePaths = ["../../functions.h"]
 
 #Optional: output directory, default is local running directory
-outputDir   =  os.path.join(config['outputDir'], str(ecm),'histmaker/', config_WW['outputDir_sub'][args.bins-1])
+outputDir   =  os.path.join(config['outputDir'], str(ecm),'histmaker/', config_WW['outputDir_sub'])
 print(outputDir)
 
 # optional: ncpus, default is 4, -1 uses all cores available
@@ -259,14 +264,15 @@ def build_graph(df, dataset):
     df = df.Define("recopart_no_gamma_n","(float)FCCAnalyses::ReconstructedParticle::get_n(recopart_no_gamma)") 
  
     # recoil plot
-    df = df.Define("gamma_recoil", "FCCAnalyses::ReconstructedParticle::recoilBuilder(240)(photons_boosted)") 
+    df = df.Define("gamma_recoil", f"FCCAnalyses::ReconstructedParticle::recoilBuilder({ecm})(photons_boosted)") 
     df = df.Define("gamma_recoil_m", "FCCAnalyses::ReconstructedParticle::get_mass(gamma_recoil)[0]") # recoil mass
+    results.append(df.Histo1D(("gamma_recoil_m_cut1", "", 250, 0, 250), "gamma_recoil_m"))
 
 
     #########
     ### CUT 2: Photons energy 
     #########
-    results.append(df.Histo1D(("photons_boosted_p", "", 80, 60, 100), "photons_boosted_p"))
+    results.append(df.Histo1D(("photons_boosted_p", "", 80, int(photon_energy_min), int(photon_energy_max)), "photons_boosted_p"))
     
     df = df.Filter("photons_boosted.size()>0 ")  
     df = df.Define("cut2", "2")
@@ -294,7 +300,7 @@ def build_graph(df, dataset):
     #########
     ### CUT 5: gamma recoil cut
     #########
-    results.append(df.Histo1D(("gamma_recoil_m", "", 170, 80, 250), "gamma_recoil_m"))
+    results.append(df.Histo1D(("gamma_recoil_m", "", 250, 0, 250), "gamma_recoil_m"))
 
     df = df.Filter(f"{recoil_mass_min} < gamma_recoil_m && gamma_recoil_m < {recoil_mass_max}") 
     df = df.Define("cut5", "5")
@@ -377,7 +383,7 @@ def build_graph(df, dataset):
     ##########
     ### CUT 8: missing momentum 
     ##########
-    df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
+    df = df.Define("missP", f"FCCAnalyses::ZHfunctions::missingParticle({int(ecm)}, ReconstructedParticles)")
     df = df.Define("miss_p", "FCCAnalyses::ReconstructedParticle::get_p(missP)[0]")
     df = df.Define("miss_pT", "FCCAnalyses::ReconstructedParticle::get_pt(missP)[0]")
     df = df.Define("miss_e", "FCCAnalyses::ReconstructedParticle::get_e(missP)[0]")
@@ -407,7 +413,7 @@ def build_graph(df, dataset):
     df = df.Define("jet2", "jets_p4[1]")
     df = df.Define("photon", "photons_boosted[0]")  # only one photon after cuts
 
-    df = df.Define("recoil_W", "FCCAnalyses::ZHfunctions::get_recoil_photon_and_jets(240.0, jet1, jet2, photon)")
+    df = df.Define("recoil_W", f"FCCAnalyses::ZHfunctions::get_recoil_photon_and_jets({int(ecm)}, jet1, jet2, photon)")
     df = df.Define("recoil_W_m", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_W)[0]")  # recoil mass of photon plus qq jets
     results.append(df.Histo1D(("recoil_W_m", "", 100, 0, 200), "recoil_W_m"))
 
@@ -433,7 +439,9 @@ def build_graph(df, dataset):
 
     do_inference = config_WW.get('do_inference', False)
     if do_inference:
-        # build variables for the MVA
+        ##########
+        ### BDT inference
+        ##########
 
         # photon
         df = df.Define("photons_sorted", "FCCAnalyses::ZHfunctions::sort_rp_by_energy(photons_boosted)")
@@ -471,7 +479,7 @@ def build_graph(df, dataset):
 
         # inference with TMVAHelperXGB
 
-        tmva_helper = TMVAHelperXGB("outputs/240/BDT/lvqq/bdt_model_example.root", "bdt_model") # read the XGBoost training
+        tmva_helper = TMVAHelperXGB(f"outputs/{int(ecm)}/BDT/lvqq/bdt_model_example.root", "bdt_model") # read the XGBoost training
         df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
         df = df.Define("mva_score_signal", "mva_score[0]")
         df = df.Define("mva_score_bkg", "mva_score[1]")
@@ -481,43 +489,26 @@ def build_graph(df, dataset):
 
 
         ##########
-        ### CUT 11: MVA score cut
+        ### SCAN: MVA score cut
         ##########
-        which_bin  = extract_bin(config_WW['outputDir_sub'][args.bins-1])  # bin1 or bin2
-        mva_cut_value_min, mva_cut_value_max = config_WW['cuts']['mva_score_cut'][which_bin]
-        df = df.Filter("mva_score_signal > {}".format(mva_cut_value_min) + "&& mva_score_signal < {}".format(mva_cut_value_max))  # MVA score cut
-        df = df.Define("cut11", "11")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+
 
         # do a scan
-        # mva_cut_values = config_WW['cuts']['mva_score_cut']
-        # for i, mva_cut_value in enumerate(mva_cut_values):
-        #     df_cut = df.Filter("mva_score_signal > 0.9 && mva_score_signal < {}".format(mva_cut_value))
-        #     df_cut = df_cut.Define(f"cut{i+11}", f"{i+11}")
-        #     results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+11}"))
-            
-        #     if mva_cut_value == 0.99:
-        #         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
+        mva_cut_values = config_WW['cuts']['mva_score_cut']
+        for i, mva_cut_value in enumerate(mva_cut_values):
+            if args.scan == 1:
+                mva_cut_low = mva_cut_value
+                mva_cut_high = 1.0
+            elif args.scan == 2:
+                mva_cut_low = 0.99
+                mva_cut_high = mva_cut_value
+            else:
+                raise ValueError("Invalid scan option. Use 1 for 0.99-x or 2 for x-1.")
+            df_cut = df.Filter("mva_score_signal >= {} && mva_score_signal <= {}".format(mva_cut_low, mva_cut_high))
+            df_cut = df_cut.Define(f"cut{i+11}", f"{i+11}")
+            results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+11}"))
 
 
-        #########
-        ### CUT 12: gamma recoil cut tight
-        #########
-        results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
-
-        df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
-        df = df.Define("cut12", "12")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
-    else:
-        #########
-        ### CUT 11: gamma recoil cut tight
-        #########
-        #df = df.Filter("13.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
-        results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
-
-        df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
-        df = df.Define("cut11", "11")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
 
     return results, weightsum

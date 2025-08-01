@@ -420,6 +420,24 @@ def build_graph(df, dataset):
 
 
 
+    # plot some histograms 
+    results.append(df.Histo1D(("photons_cos_theta_cut8", "", 200, -1, 1), "photons_boosted_cos_theta"))
+    results.append(df.Histo1D(("recoil_W_m_cut8", "", 100, 0, 200), "recoil_W_m"))
+    # photon momentum
+    results.append(df.Histo1D(("photons_boosted_p_cut8", "", 80, int(photon_energy_min), int(photon_energy_max)), "photons_boosted_p"))
+    results.append(df.Histo1D(("lepton_p_cut8", "", 100, 0, 100), "lepton_p"))
+    results.append(df.Histo1D(("lepton_pT_cut8", "", 100, 0, 100), "lepton_pT"))
+    results.append(df.Histo1D(("miss_pT_cut8", "", 100, 0, 200), "miss_pT"))
+
+    ##########
+    ### CUT 10: lepton momentum cut
+    ##########
+    df = df.Filter("lepton_pT > " + str(config_WW['cuts']['lepton_pT_min']))  # lepton momentum cut
+    df = df.Define("cut10", "10")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
+
+
+
 
     do_inference = config_WW.get('do_inference', False)
     if do_inference:
@@ -481,12 +499,10 @@ def build_graph(df, dataset):
         # do a scan
         # mva_cut_values = config_WW['cuts']['mva_score_cut']
         # for i, mva_cut_value in enumerate(mva_cut_values):
-        #     df_cut = df.Filter("mva_score_signal > 0.9 && mva_score_signal < {}".format(mva_cut_value))
+        #     df_cut = df.Filter("mva_score_signal > {}".format(mva_cut_value))
         #     df_cut = df_cut.Define(f"cut{i+11}", f"{i+11}")
         #     results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+11}"))
             
-        #     if mva_cut_value == 0.99:
-        #         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
 
 
         #########
@@ -498,22 +514,6 @@ def build_graph(df, dataset):
         df = df.Define("cut12", "12")
         results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
     else:
-
-        # plot some histograms 
-        results.append(df.Histo1D(("photons_cos_theta_cut8", "", 200, -1, 1), "photons_boosted_cos_theta"))
-        results.append(df.Histo1D(("recoil_W_m_cut8", "", 100, 0, 200), "recoil_W_m"))
-        # photon momentum
-        results.append(df.Histo1D(("photons_boosted_p_cut8", "", 80, int(photon_energy_min), int(photon_energy_max)), "photons_boosted_p"))
-        results.append(df.Histo1D(("lepton_p_cut8", "", 100, 0, 100), "lepton_p"))
-        results.append(df.Histo1D(("lepton_pT_cut8", "", 100, 0, 100), "lepton_pT"))
-        results.append(df.Histo1D(("miss_pT_cut8", "", 100, 0, 200), "miss_pT"))
-
-        ##########
-        ### CUT 10: lepton momentum cut
-        ##########
-        df = df.Filter("lepton_pT > " + str(config_WW['cuts']['lepton_pT_min']))  # lepton momentum cut
-        df = df.Define("cut10", "10")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
 
 
         #########

@@ -2,22 +2,39 @@
 from addons.TMVAHelper.TMVAHelper import TMVAHelperXGB
 import os, copy
 import yaml
-# import argparse
+import argparse
 
 def load_config(config_path):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
-config = load_config("config/config_240.yaml")
-config_WW = load_config("config/config_WW_lvqq_240.yaml")
+# Set up argument parser
+parser = argparse.ArgumentParser(description="Run analysis for H->WW(lv)W(qq).")
+parser.add_argument(
+    "--energy", "-e",
+    type=int,
+    default=240,
+    help="Choose from: 160, 240, 365. Default: 240"
+)
+args, _ = parser.parse_known_args()  # <-- Ignore unknown args
+
+config = load_config(f"config/config_{args.energy}.yaml")
+config_WW = load_config(f"config/config_WW_lvqq_{args.energy}.yaml")
+
+print("Configuration loaded for energy:", args.energy)
+
+ecm = config['ecm']
+
+print("Setting up analysis for ecm =", ecm)
 
 # Output directory
-outputDir   = "outputs/240/preselection/lvqq/trainingdata"
+outputDir   = f"outputs/{ecm}/preselection/lvqq/trainingdata"
 inputDir = "/afs/cern.ch/work/s/saaumill/public/analyses/symlink_gammalvqq"
+xsec = {'240': [16.4385, 8.773e-05* 0.2137], '365': [10.7165, 2.975e-05* 0.2137]} # cross sections for 240 and 365 GeV for p8_ee_WW and mgp8_ee_ha_ecm240_hww
 processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-    'p8_ee_WW_ecm240': {'fraction': 1, 'crossSection': 16.4385, 'inputDir': inputDir}, # 16 pb
-    'mgp8_ee_ha_ecm240_hww':   {'fraction': 1, 'crossSection': 8.20481e-05* 0.2137, 'inputDir':inputDir}, 
+    f'p8_ee_WW_ecm{ecm}': {'fraction': 1, 'crossSection': 16.4385, 'inputDir': inputDir}, # 16 pb
+    f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 1, 'crossSection': 8.20481e-05* 0.2137, 'inputDir':inputDir}, 
 }
 
 
@@ -28,7 +45,7 @@ prodTag     = "FCCee/winter2023/IDEA/"
 procDict = "FCCee_procDict_winter2023_IDEA.json"
 
 # Additional/custom C++ functions, defined in header files
-includePaths = ["./../../functions.h"]
+includePaths = ["./../../../functions.h"]
 
 
 ## latest particle transformer model, trained on 9M jets in winter2023 samples
@@ -75,7 +92,6 @@ photon_iso_threshold = config['cuts']['photon_iso_threshold']
 photon_energy_min, photon_energy_max = config['cuts']['photon_energy_range']
 photon_cos_theta_max = config['cuts']['photon_cos_theta_max']
 
-ecm = config['ecm']
 
 # name of collections in EDM root files
 collections = {
@@ -243,7 +259,7 @@ class RDFanalysis():
         ### Building variables
         #########
 
-        df = df.Define("gamma_recoil", "FCCAnalyses::ReconstructedParticle::recoilBuilder(240)(photons_boosted)") 
+        df = df.Define("gamma_recoil", f"FCCAnalyses::ReconstructedParticle::recoilBuilder({ecm})(photons_boosted)") 
         df = df.Define("gamma_recoil_m", "FCCAnalyses::ReconstructedParticle::get_mass(gamma_recoil)[0]") # recoil mass
 
         # df = df.Define("leptons", "FCCAnalyses::ZHfunctions::get_leptons(electrons_sel_iso, muons_sel_iso)")
@@ -254,7 +270,7 @@ class RDFanalysis():
         df = df.Define("lepton_p", "FCCAnalyses::ReconstructedParticle::get_p(Vec_rp{lepton})[0]")
         df = df.Define("lepton_pT", "FCCAnalyses::ReconstructedParticle::get_pt(Vec_rp{lepton})[0]")
 
-        df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
+        df = df.Define("missP", f"FCCAnalyses::ZHfunctions::missingParticle({ecm}.0, ReconstructedParticles)")
         df = df.Define("miss_p", "FCCAnalyses::ReconstructedParticle::get_p(missP)[0]")
         df = df.Define("miss_pT", "FCCAnalyses::ReconstructedParticle::get_pt(missP)[0]")
         df = df.Define("miss_e", "FCCAnalyses::ReconstructedParticle::get_e(missP)[0]")
@@ -267,7 +283,7 @@ class RDFanalysis():
         df = df.Define("photon_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_sorted))[0]")
         df = df.Define("photon", "photons_sorted[0]")  # only one photon after cuts
 
-        df = df.Define("recoil_W", "FCCAnalyses::ZHfunctions::get_recoil_photon_and_jets(240.0, jet1, jet2, photon)")
+        df = df.Define("recoil_W", f"FCCAnalyses::ZHfunctions::get_recoil_photon_and_jets({ecm}, jet1, jet2, photon)")
         df = df.Define("recoil_W_m", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_W)[0]")  # recoil mass of photon plus qq jets
 
         df = df.Define("Ws", "FCCAnalyses::ZHfunctions::build_WW(jet1, jet2, lepton, missP)")

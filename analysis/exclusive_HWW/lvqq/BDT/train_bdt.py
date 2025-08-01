@@ -6,10 +6,22 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, roc_auc_score
 import ROOT
 import pickle
+import argparse
 
 
 ROOT.gROOT.SetBatch(True)
 # e.g. https://root.cern/doc/master/tmva101__Training_8py.html
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--energy", "-e",
+    type=int,
+    default=240,
+    help="Choose from: 160, 240, 365. Default: 240"
+)
+
+args = parser.parse_args()
 
 def load_process(fIn, variables, target=0, weight_sf=1.):
 
@@ -39,12 +51,9 @@ variables = ["photon_p", "photons_boosted_n", "photon_cos_theta", "recopart_no_g
                 "W_qq_pT", "W_lv_pT",]
 weight_sf = 1e9
 
-path = "outputs/240/preselection/lvqq/trainingdata/"
-sig_df = load_process(path + "mgp8_ee_ha_ecm240_hww.root", variables, weight_sf=weight_sf, target=1)
-bkg = load_process(path + "p8_ee_WW_ecm240.root", variables, weight_sf=weight_sf) 
-
-
-
+path = f"outputs/{args.energy}/preselection/lvqq/trainingdata/"
+sig_df = load_process(path + f"mgp8_ee_ha_ecm{args.energy}_hww.root", variables, weight_sf=weight_sf, target=1)
+bkg = load_process(path + f"p8_ee_WW_ecm{args.energy}.root", variables, weight_sf=weight_sf)
 
 # Concatenate the dataframes into a single dataframe
 data = pd.concat([sig_df, bkg], ignore_index=True)
@@ -92,7 +101,7 @@ bdt.fit(train_data, train_labels, verbose=True, eval_set=eval_set, sample_weight
 
 # export model (to ROOT and pkl)
 print("Export model")
-fOutName = "outputs/240/BDT/lvqq/bdt_model_example.root"
+fOutName = f"outputs/{args.energy}/BDT/lvqq/bdt_model_example.root"
 ROOT.TMVA.Experimental.SaveXGBoost(bdt, "bdt_model", fOutName, num_inputs=len(variables))
 
 # append the variables
@@ -110,4 +119,4 @@ save['test_data'] = test_data
 save['train_labels'] = train_labels
 save['test_labels'] = test_labels
 save['variables'] = variables
-pickle.dump(save, open("outputs/240/BDT/lvqq/bdt_model_example.pkl", "wb"))
+pickle.dump(save, open(f"outputs/{args.energy}/BDT/lvqq/bdt_model_example.pkl", "wb"))
