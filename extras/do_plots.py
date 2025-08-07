@@ -920,7 +920,10 @@ def extract_cutflow_data(param, hist_name, hist_cfg, hsignal, hbackgrounds):
             process_yields[b] = f"{round_to_significant(yield_val)} ({efficiency:.1f})%"
 
         if total_signal_yield > 0:
-            prec_value = 100.0 * np.sqrt(total_signal_yield + total_background_yield) / total_signal_yield
+            # formula for precision: sqrt((S + B) / S) only valid for S + B, see https://www.pp.rhul.ac.uk/~cowan/stat/medsig/medsigNote.pdf 
+            # prec_value_old = 100.0 * np.sqrt(total_signal_yield + total_background_yield) / total_signal_yield
+            prec_value = 100.0 * (1/(np.sqrt(2 * ((total_signal_yield + total_background_yield)* np.log(1 + (total_signal_yield/total_background_yield))-total_signal_yield))))
+            # print(f"Precision for {label}. \t \t Old calculation: {prec_value_old:.1f}%, \t new calculation: {prec_value:.1f}%")
             prec_str = f"{prec_value:.1f}%"
         else:
             prec_str = "inf"
