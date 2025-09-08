@@ -54,3 +54,39 @@ fccanalysis plots analysis/exclusive_Hjj/plots_Hjj.py --flavor B
 ```
 
 And choose a flavor from $b,g$. For $\tau$ there are files with `_Htautau`. 
+
+## Perform a Likelihood fit with Combine
+
+We use [Combine](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/) for the profile likelihood fits. The datacards used can be found in `extras/combine`.
+
+To set it up the first time do:
+```
+source /cvmfs/cms.cern.ch/cmsset_default.sh
+cmssw-cc7
+export SCRAM_ARCH="slc7_amd64_gcc700"
+cmsrel CMSSW_10_6_19_patch2
+cd CMSSW_10_6_19_patch2/src/
+cmsenv 
+git clone -o bendavid -b tensorflowfit git@github.com:bendavid/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit 
+cd HiggsAnalysis/CombinedLimit 
+scram b -j 8 
+```
+
+Every time after, set up the envirnoment with
+
+```
+source /cvmfs/cms.cern.ch/cmsset_default.sh
+cmssw-cc7
+cd CMSSW_10_6_19_patch2/src/
+cmsenv 
+cd HiggsAnalysis/CombinedLimit 
+scram b -j 8 
+```
+
+To run the fit:
+
+```
+text2hdf5.py mydatacard.txt -o ws_datacard.hdf5
+combinetf.py ws_datacard.hdf5 -o fit_output.root -t -1 --expectSignal=1 --doImpacts
+```
+

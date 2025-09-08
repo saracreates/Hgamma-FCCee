@@ -1,0 +1,32 @@
+imax *
+jmax *
+kmax *
+---------------
+shapes HWW * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/365/histmaker/lvqq/mgp8_ee_ha_ecm365_hww.root gamma_recoil_m_tight_cut
+shapes bba * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/365/histmaker/lvqq/wzp6_ee_bba_ecm365.root gamma_recoil_m_tight_cut
+shapes cca * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/365/histmaker/lvqq/wzp6_ee_cca_ecm365.root gamma_recoil_m_tight_cut
+shapes qqa * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/365/histmaker/lvqq/wzp6_ee_qqa_ecm365.root gamma_recoil_m_tight_cut
+shapes eea * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/365/histmaker/lvqq/wzp6_ee_eea_ecm365.root gamma_recoil_m_tight_cut
+shapes mumua * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/365/histmaker/lvqq/wzp6_ee_mumua_ecm365.root gamma_recoil_m_tight_cut
+shapes tautaua * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/365/histmaker/lvqq/wzp6_ee_tautaua_ecm365.root gamma_recoil_m_tight_cut
+shapes WW * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/365/histmaker/lvqq/p8_ee_WW_ecm365.root gamma_recoil_m_tight_cut
+shapes ZZ * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/365/histmaker/lvqq/p8_ee_ZZ_ecm365.root gamma_recoil_m_tight_cut
+shapes data_obs * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/365/histmaker/lvqq/mgp8_ee_ha_ecm365_hww.root gamma_recoil_m_tight_cut
+---------------
+---------------
+#bin            bin1
+observation     -1
+------------------------------
+bin          bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1
+process      HWW bba cca qqa eea mumua tautaua WW ZZ
+process      0 1 2 3 4 5 6 7 8
+rate         -1 -1 -1 -1 -1 -1 -1 -1 -1
+--------------------------------
+bba_norm lnN - 1.05 - - - - - - - 
+cca_norm lnN - - 1.05 - - - - - - 
+qqa_norm lnN - - - 1.05 - - - - - 
+eea_norm lnN - - - - 1.05 - - - - 
+mumua_norm lnN - - - - - 1.05 - - - 
+tautaua_norm lnN - - - - - - 1.05 - - 
+WW_norm lnN - - - - - - - 1.05 - 
+ZZ_norm lnN - - - - - - - - 1.05 

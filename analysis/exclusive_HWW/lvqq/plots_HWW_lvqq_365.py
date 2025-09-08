@@ -47,6 +47,7 @@ colors['Aee'] = ROOT.kViolet+3
 colors['Atautau'] = ROOT.kOrange
 colors['Amumu'] = ROOT.kMagenta
 colors['ZH'] = ROOT.kGray+2
+colors['WWA'] = ROOT.kPink+9
 
 #procs = {}
 #procs['signal'] = {'ZH':['wzp6_ee_mumuH_ecm240']}
@@ -64,6 +65,7 @@ procs['backgrounds'] =  {
     'Amumu':[f"wzp6_ee_mumua_ecm{config['ecm']}"], 
     'Aee':[f"wzp6_ee_eea_ecm{config['ecm']}"], 
     'WW':[f"p8_ee_WW_ecm{config['ecm']}"], 
+    'WWA':[f"wzp6_ee_WWa_ecm{config['ecm']}"],
     'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"],
     'ZH':[f"mgp8_ee_zh_ecm{config['ecm']}"]
 }  
@@ -79,6 +81,7 @@ legend['Aee'] = '#gamma e^{+} e^{-}'
 legend['Atautau'] = '#gamma #tau^{+} #tau^{-}'
 legend['Amumu'] = '#gamma #mu^{+} #mu^{-}'
 legend['ZH'] = 'ZH'
+legend['WWA'] = 'WWA'
 
 
 hists = {}

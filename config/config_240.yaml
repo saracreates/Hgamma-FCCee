@@ -18,6 +18,7 @@ processList:
   p8_ee_WW:        {fraction: 0.5} # do NOT increase highter than 0.5 for HWW if you use the BDT!
   p8_ee_ZZ:        {fraction: 1}
   mgp8_ee_zh:      {fraction: 1}
+  # wzp6_ee_WWa: {fraction: 0.5} # dataset vanishes...
 
 cuts:
   photon_iso_cone_radius_range: [0.01, 0.5]
