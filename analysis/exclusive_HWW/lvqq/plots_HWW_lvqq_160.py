@@ -12,8 +12,8 @@ parser = argparse.ArgumentParser(description="Run analysis for H->WW(lv)W(qq).")
 parser.add_argument(
     "--energy", "-e",
     type=int,
-    default=365,
-    help="Choose from: 160, 240, 365. Default: 365"
+    default=160,
+    help="Choose from: 160, 240, 365. Default: 160"
 )
 args, _ = parser.parse_known_args()  # <-- Ignore unknown args
 
@@ -91,22 +91,19 @@ signal_mass_min, signal_mass_max = config['cuts']['recoil_mass_signal_range']
 m_jj_min, m_jj_max = config_WW['cuts']['m_jj_range']
 recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range']
 do_inference = config_WW['do_inference']
-lepton_pT_min = config_WW['cuts'].get('lepton_pT_min', 0)
 
-xtitle = ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "pT_{miss} > " + str(config_WW['cuts']['pT_miss']), "Num const per jet > " + str(config_WW['cuts']['n_const_per_jet']), "lepton pT > " + str(lepton_pT_min), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)] #"p_{miss} > 20","p_{T} > 10"
+xtitle = ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "pT_{miss} > " + str(config_WW['cuts']['pT_miss']), str(recoil_gammaqq_min) + "<m_{recoil, #gamma qq} < " + str(recoil_gammaqq_max), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)] #"p_{miss} > 20","p_{T} > 10"
 
 if do_inference:
     xtitle.insert(-1, "BDT score > " + str(config_WW['cuts']['mva_score_cut']))
     
     # BDT scan
     
-    # remove last element
+    # # remove last element
     # xtitle.pop(-1)
     # # append BDT score cut scan 
     # for mva_cut_value in config_WW['cuts']['mva_score_cut']:
     #     xtitle.append(f"BDT score > {mva_cut_value}")
-
-    # xtitle.append(str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max))
 
 
 
@@ -131,6 +128,19 @@ hists["gamma_recoil_m_tight_cut"] = {
     "stack":    True,
     "xmin":     110,
     "xmax":     150,
+    "xtitle":   "Recoil (GeV)",
+    "ytitle":   "Events ",
+    "scaleSig": 10,
+    "density": False
+}
+
+hists["gamma_recoil_m_very_tight_cut"] = {
+    "input":   "gamma_recoil_m_very_tight_cut",
+    "output":   "gamma_recoil_m_very_tight_cut",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     120,
+    "xmax":     135,
     "xtitle":   "Recoil (GeV)",
     "ytitle":   "Events ",
     "scaleSig": 10,

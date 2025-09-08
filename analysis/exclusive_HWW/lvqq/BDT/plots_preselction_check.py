@@ -8,23 +8,23 @@ def load_config(config_path):
         return yaml.safe_load(f)
 
 # Set up argument parser
-parser = argparse.ArgumentParser(description="Run a specific analysis: W(lv)W(qq) or W(qq)W(lv).")
+parser = argparse.ArgumentParser(description="Run analysis for H->WW(lv)W(qq).")
 parser.add_argument(
-    "--config", "-c",
-    type=str,
-    default="lvqq",
-    help="Choose from: qqlv, lvqq"
+    "--energy", "-e",
+    type=int,
+    default=240,
+    help="Choose from: 160, 240, 365. Default: 240"
 )
 args, _ = parser.parse_known_args()  # <-- Ignore unknown args
 
-config = load_config("config/config_240.yaml")
-if args.config == "qqlv":
-    config_WW = load_config("config/config_WW_qqlv_240.yaml")
-elif args.config == "lvqq":
-    config_WW = load_config("config/config_WW_lvqq_240.yaml")
-else: 
-    raise ValueError("Invalid config option. Choose from: qqlv, lvqq")
+config = load_config(f"config/config_{args.energy}.yaml")
+config_WW = load_config(f"config/config_WW_lvqq_{args.energy}.yaml")
 
+print("Configuration loaded for energy:", args.energy)
+
+ecm = config['ecm']
+
+print("Setting up analysis for ecm =", ecm)
 
 # global parameters
 intLumi        = 1.
@@ -35,8 +35,8 @@ energy         = config['ecm']
 collider       = 'FCC-ee'
 formats        = ['png','pdf']
 
-outdir         =  "outputs/240/preselection/plots"
-inputDir       =  "outputs/240/preselection/lvqq/check/"
+outdir         =  f"outputs/{ecm}/preselection/plots"
+inputDir       =  f"outputs/{ecm}/preselection/lvqq/check/"
 
 plotStatUnc    = True
 
@@ -90,7 +90,7 @@ signal_mass_min, signal_mass_max = config['cuts']['recoil_mass_signal_range']
 
 m_jj_min, m_jj_max = config_WW['cuts']['m_jj_range']
 recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range']
-WW_cos_theta_max = config_WW['cuts']['WW_cos_theta_max']
+# WW_cos_theta_max = config_WW['cuts']['WW_cos_theta_max']
 
 
 hists["cutFlow"] = {

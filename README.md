@@ -48,7 +48,7 @@ Choose `lvqq` for $W(\ell \nu) W*(qq)$ or `qqlv` for $W(qq)W(\ell \nu)$.
 
 ```
 fccanalysis run analysis/exclusive_Hjj/histmaker_Hjj.py --flavor B
-export PYTHONPATH=/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/extras:$PYTHONPATH
+export PYTHONPATH=/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/extras:$PYTHONPATH
 export PATH=/cvmfs/sft.cern.ch/lcg/external/texlive/2020/bin/x86_64-linux:$PATH
 fccanalysis plots analysis/exclusive_Hjj/plots_Hjj.py --flavor B
 ```
