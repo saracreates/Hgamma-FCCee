@@ -31,7 +31,7 @@ def generate_datacard(process_paths, output_file, hist_name, uncertainty="1.05")
 
 
 ### ALTER SCRIPT HERE
-ecm = 160 # 160, 240 or 365
+ecm = 240 # 160, 240 or 365
 data_path = f"/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/{ecm}/histmaker/lvqq/"
 
 # ONLY if needed - change user defined settings
@@ -60,7 +60,8 @@ if ecm == 240:
     # Add ZH as bkg
     process_paths["ZH"] = data_path + f"mgp8_ee_zh_ecm{ecm}.root"
     # change lvqq to lvqq_fullstat in data path
-    data_path = data_path.replace("lvqq", "lvqq_fullstat")
+    # data_path = data_path.replace("lvqq", "lvqq_fullstat")
+    cardname = cardname.replace("Hgamma_HWW", "Hgamma_HWW_newBDT") # change name of the output datacard
 
 # calls main function
 generate_datacard(process_paths, cardname, hist_name, uncertainty)

@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser(description="Run a specific analysis: W(lv)W(qq
 parser.add_argument(
     "--config", "-c",
     type=str,
-    default="lvqq",
+    default="qqlv",
     help="Choose from: qqlv, lvqq"
 )
 args, _ = parser.parse_known_args()  # <-- Ignore unknown args

@@ -361,7 +361,7 @@ def build_graph(df, dataset):
     df = jetFlavourHelper.define(df)
 
     ## tagger inference
-    df = jetFlavourHelper.inference(weaver_preproc, weaver_model, df)
+    # df = jetFlavourHelper.inference(weaver_preproc, weaver_model, df)
 
     df = df.Define("y23", "std::sqrt(JetClusteringUtils::get_exclusive_dmerge(_jet_N2, 2))")  # dmerge from 3 to 2
     df = df.Define("y34", "std::sqrt(JetClusteringUtils::get_exclusive_dmerge(_jet_N2, 3))")  # dmerge from 4 to 3

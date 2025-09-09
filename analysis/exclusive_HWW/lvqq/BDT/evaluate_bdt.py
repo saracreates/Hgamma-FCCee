@@ -95,6 +95,10 @@ def plot_importance():
     plt.savefig(f"{outDir}/importance.pdf")
     plt.close()
 
+    # Print the five most important parameters
+    print("Top 5 most important variables:")
+    print(importance_df.sort_values(by="Importance", ascending=False).head(5))
+
 def plot_losses():
     
     train_losses = bdt.evals_result()['validation_0']['logloss']

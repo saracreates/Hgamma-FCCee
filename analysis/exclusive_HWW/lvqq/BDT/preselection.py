@@ -37,6 +37,12 @@ if int(ecm) == 160: # xsec not online yet
         f'p8_ee_WW_ecm{ecm}': {'fraction': 1, 'inputDir': inputDir}, 
         f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 1, 'crossSection': 2.127e-5 * 0.2137, 'inputDir': inputDir}, 
     }
+# try out tigher cut on p photon for 240 GeV, less bkg data left, so use smaller fraction of signal events
+elif int(ecm) == 240:
+    processList = {
+        f'p8_ee_WW_ecm{ecm}': {'fraction': 1, 'crossSection': xsec[str(ecm)][0], 'inputDir': inputDir}, 
+        f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 0.333, 'crossSection': xsec[str(ecm)][1], 'inputDir':inputDir}, 
+    }
 else:
     processList = {
         # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 

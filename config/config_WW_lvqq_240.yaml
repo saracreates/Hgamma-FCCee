@@ -1,8 +1,9 @@
-outputDir_sub: "lvqq_fullstat"
+outputDir_sub: "lvqq" # "lvqq_fullstat"
 do_inference: True # use BDT score: HWW vs WW
 cuts:
   m_jj_range: [8, 55]  # W* mass range cut
   pT_miss: 15
   recoil_gammaqq_range: [70, 90]
   n_const_per_jet: 4  # number of constituents per jet cut
-  mva_score_cut: 0.99  # BDT score cut, 0.99 is the best, do 0.9-0.997 and 0.997-1 for the two bin analysis
+  # mva_score_cut: 0.99  # BDT score cut, 0.99 is the best, do 0.9-0.997 and 0.997-1 for the two bin analysis
+  mva_score_cut: 0.97 # best for BDT with tighter p preselection [0.9, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.985, 0.99, 0.991, 0.992, 0.993, 0.94, 0.995, 0.996, 0.997, 0.998, 0.999] # for the shape analysis
