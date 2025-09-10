@@ -32,10 +32,11 @@ def generate_datacard(process_paths, output_file, hist_name, uncertainty="1.05")
 
 ### ALTER SCRIPT HERE
 ecm = 240 # 160, 240 or 365
-data_path = f"/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/{ecm}/histmaker/lvqq/"
+proc = "qqlv" # qqlv or lvqq
+data_path = f"/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/{ecm}/histmaker/{proc}/"
 
 # ONLY if needed - change user defined settings
-cardname = f"datacard_Hgamma_HWW_{ecm}ecm.txt" # name of the output datacard
+cardname = f"datacard_Hgamma_HWW_{proc}_{ecm}ecm.txt" # name of the output datacard
 uncertainty = "1.01" # systematic uncertainty to apply to all backgrounds (except data_obs and signal)
 if ecm == 160:
     hist_name = "gamma_recoil_m_very_tight_cut" # name of the histogram you want to fit on
