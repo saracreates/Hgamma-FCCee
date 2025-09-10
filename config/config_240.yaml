@@ -23,8 +23,7 @@ processList:
 cuts:
   photon_iso_cone_radius_range: [0.01, 0.5]
   photon_iso_threshold: 0.2
-  # photon_energy_range: [80, 90] # p(gamma) = 87.4 GeV
-  photon_energy_range: [60, 100] # "old" energy range
+  photon_energy_range: [80, 90] # p(gamma) = 87.4 GeV
   photon_cos_theta_max: 0.9
   recoil_mass_range: [110, 150]
   recoil_mass_signal_range: [123.5, 126.5]
