@@ -2,6 +2,11 @@ import ROOT
 import os
 import yaml
 import argparse
+import json
+
+def load_colors(json_path):
+    with open(json_path, "r") as f:
+        return json.load(f)
 
 def load_config(config_path):
     with open(config_path, "r") as f:
@@ -40,17 +45,11 @@ inputDir       = os.path.join(config['outputDir'], str(energy),'histmaker/', con
 
 plotStatUnc    = True
 
+# load colors from json
+colors_dic = load_colors("extras/colors.json")
 colors = {}
-colors['AH'] = ROOT.kRed
-colors['Acc'] = ROOT.kBlue+1
-colors['Aqq'] = ROOT.kGreen+2
-colors['Abb'] = ROOT.kYellow+3
-colors['WW'] = ROOT.kCyan
-colors['ZZ'] = ROOT.kAzure-9
-colors['Aee'] = ROOT.kViolet+3
-colors['Atautau'] = ROOT.kOrange
-colors['Amumu'] = ROOT.kMagenta
-colors['ZH'] = ROOT.kGray+2
+for key, value in colors_dic.items():
+    colors[key] = ROOT.TColor.GetColor(value)
 
 
 procs = {}
