@@ -8,23 +8,23 @@ def load_config(config_path):
         return yaml.safe_load(f)
 
 # Set up argument parser
-parser = argparse.ArgumentParser(description="Run a specific analysis: W(lv)W(qq) or W(qq)W(lv).")
+parser = argparse.ArgumentParser(description="Run analysis for H->WW(lv)W(qq).")
 parser.add_argument(
-    "--config", "-c",
-    type=str,
-    default="qqlv",
-    help="Choose from: qqlv, lvqq"
+    "--energy", "-e",
+    type=int,
+    default=240,
+    help="Choose from: 160, 240, 365. Default: 240"
 )
 args, _ = parser.parse_known_args()  # <-- Ignore unknown args
 
-config = load_config("config/config_240.yaml")
-if args.config == "qqlv":
-    config_WW = load_config("config/config_WW_qqlv_240.yaml")
-elif args.config == "lvqq":
-    config_WW = load_config("config/config_WW_lvqq_240.yaml")
-else: 
-    raise ValueError("Invalid config option. Choose from: qqlv, lvqq")
+config = load_config(f"config/config_{args.energy}.yaml")
+config_WW = load_config(f"config/config_WW_qqlv_{args.energy}.yaml")
 
+print("Configuration loaded for energy:", args.energy)
+
+ecm = config['ecm']
+
+print("Setting up analysis for ecm =", ecm)
 
 # global parameters
 intLumi        = 1.
@@ -35,8 +35,8 @@ energy         = config['ecm']
 collider       = 'FCC-ee'
 formats        = ['png','pdf']
 
-outdir         = os.path.join(config['outputDir'], str(energy),'plots/', config_WW['outputDir_sub']) 
-inputDir       = os.path.join(config['outputDir'], str(energy),'histmaker/', config_WW['outputDir_sub'])
+outdir         =  f"outputs/{ecm}/preselection/qqlv/plots"
+inputDir       =  f"outputs/{ecm}/preselection/qqlv/check/"
 
 plotStatUnc    = True
 
@@ -56,8 +56,8 @@ colors['Amumu'] = ROOT.kMagenta
 #procs['signal'] = {'ZH':['wzp6_ee_mumuH_ecm240']}
 #procs['backgrounds'] =  {'WW':['p8_ee_WW_ecm240'], 'ZZ':['p8_ee_ZZ_ecm240']}
 procs = {}
-# procs['signal'] = {'AH':[f"mgp8_ee_ha_ecm{config['ecm']}_hww"]}
-procs['signal'] = {'AH':[f"p8_ee_Hgamma_ecm{config['ecm']}"]}
+procs['signal'] = {'AH':[f"mgp8_ee_ha_ecm{config['ecm']}_hww"]}
+#procs['signal'] = {'AH':[f"p8_ee_Hgamma_ecm{config['ecm']}"]}
 procs['backgrounds'] =  {
     'Aqq':[f"p8_ee_qqgamma_ecm{config['ecm']}"], 
     'Acc':[f"p8_ee_ccgamma_ecm{config['ecm']}"], 
@@ -90,7 +90,7 @@ signal_mass_min, signal_mass_max = config['cuts']['recoil_mass_signal_range']
 
 m_jj_min, m_jj_max = config_WW['cuts']['m_jj_range']
 recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range']
-WW_cos_theta_max = config_WW['cuts']['WW_cos_theta_max']
+# WW_cos_theta_max = config_WW['cuts']['WW_cos_theta_max']
 
 
 hists["cutFlow"] = {
@@ -103,7 +103,7 @@ hists["cutFlow"] = {
     "ymin":     1e4,
     "ymax":     1e11,
     #"xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5"],
-    "xtitle":   ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "p_{T, miss} > " + str(config_WW['cuts']['pT_miss']), str(recoil_gammaqq_min) + "<m_{recoil, #gamma qq} < " + str(recoil_gammaqq_max), "Num const per jet > " + str(config_WW['cuts']['n_const_per_jet']), "|cos(#theta)_{W}|<" + str(WW_cos_theta_max), "p_{T, lep}>"+ str(config_WW['cuts']['pT_lepton']), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)], #"p_{miss} > 20","p_{T} > 10"
+    "xtitle":   ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']),  "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), ], #"p_{miss} > 20","p_{T} > 10"
     "ytitle":   "Events ",
 }
 
