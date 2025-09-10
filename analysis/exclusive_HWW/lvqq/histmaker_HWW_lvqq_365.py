@@ -509,6 +509,7 @@ def build_graph(df, dataset):
         ### CUT 12: gamma recoil cut tight
         #########
         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
+        results.append(df.Histo1D(("gamma_recoil_m_last_cut", "", 40, 110, 150), "gamma_recoil_m"))
 
         df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
         df = df.Define("cut12", "12")
@@ -521,6 +522,7 @@ def build_graph(df, dataset):
         #########
         #df = df.Filter("13.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
+        results.append(df.Histo1D(("gamma_recoil_m_last_cut", "", 40, 110, 150), "gamma_recoil_m"))
 
         df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
         df = df.Define("cut11", "11")

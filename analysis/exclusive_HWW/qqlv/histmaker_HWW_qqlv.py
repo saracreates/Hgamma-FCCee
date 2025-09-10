@@ -491,10 +491,59 @@ def build_graph(df, dataset):
 
 
 
+    do_inference = config_WW.get('do_inference', False)
+    if do_inference:
+        # build variables for the MVA
+
+        # cos theta j1
+        df = df.Define("jets_sorted_phi", "FCCAnalyses::ReconstructedParticle::get_phi(jets_sorted_rp)")
+        df = df.Define("jet1_cosphi", "FCCAnalyses::ZHfunctions::get_costheta(jets_sorted_phi[0])")
+        df = df.Define("jet2_cosphi", "FCCAnalyses::ZHfunctions::get_costheta(jets_sorted_phi[1])")
+
+
+        # inference with TMVAHelperXGB
+
+        tmva_helper = TMVAHelperXGB(f"outputs/{int(ecm)}/BDT/lvqq/bdt_model_example.root", "bdt_model") # read the XGBoost training
+        df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
+        df = df.Define("mva_score_signal", "mva_score[0]")
+        df = df.Define("mva_score_bkg", "mva_score[1]")
+        bins_mva = (100, 0, 1)
+        results.append(df.Histo1D(("mva_score_signal", "", *bins_mva), "mva_score_signal"))
+        results.append(df.Histo1D(("mva_score_bkg", "", *bins_mva), "mva_score_bkg"))
+
+
+        ##########
+        ### CUT 13: MVA score cut
+        ##########
+        # mva_cut_value = config_WW['cuts']['mva_score_cut']
+        # df = df.Filter("mva_score_signal > {}".format(mva_cut_value))  # MVA score cut
+        # df = df.Define("cut13", "13")
+        # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut13"))
+
+        # do a scan
+        mva_cut_values = config_WW['cuts']['mva_score_cut']
+        for i, mva_cut_value in enumerate(mva_cut_values):
+            df_cut = df.Filter("mva_score_signal > {}".format(mva_cut_value))
+            df_cut = df_cut.Define(f"cut{i+13}", f"{i+13}")
+            results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+13}"))
+
+        #########
+        ### CUT 14: gamma recoil cut tight
+        #########
+        results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
+        results.append(df.Histo1D(("gamma_recoil_m_last_cut", "", 40, 110, 150), "gamma_recoil_m"))
+
+        # df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
+        # df = df.Define("cut14", "14")
+        # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut14"))
+
+
+
     #########
     ### CUT 13: gamma recoil cut tight
     #########
     results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
+    results.append(df.Histo1D(("gamma_recoil_m_last_cut", "", 40, 110, 150), "gamma_recoil_m"))
 
     df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
     df = df.Define("cut13", "13")

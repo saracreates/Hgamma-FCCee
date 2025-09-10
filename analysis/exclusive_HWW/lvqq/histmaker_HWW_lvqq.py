@@ -469,8 +469,9 @@ def build_graph(df, dataset):
 
 
         # inference with TMVAHelperXGB
-
-        tmva_helper = TMVAHelperXGB(f"outputs/{int(ecm)}/BDT/lvqq/bdt_model_example.root", "bdt_model") # read the XGBoost training
+        bdt_name = config_WW['BDT']
+        tmva_helper = TMVAHelperXGB(f"outputs/{int(ecm)}/BDT/lvqq/{bdt_name}.root", "bdt_model") # read the XGBoost training
+        
         df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
         df = df.Define("mva_score_signal", "mva_score[0]")
         df = df.Define("mva_score_bkg", "mva_score[1]")
@@ -500,6 +501,7 @@ def build_graph(df, dataset):
         ### CUT 12: gamma recoil cut tight
         #########
         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
+        results.append(df.Histo1D(("gamma_recoil_m_last_cut", "", 40, 110, 150), "gamma_recoil_m"))
 
         df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
         df = df.Define("cut12", "12")
@@ -510,6 +512,7 @@ def build_graph(df, dataset):
         #########
         #df = df.Filter("13.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
+        results.append(df.Histo1D(("gamma_recoil_m_last_cut", "", 40, 110, 150), "gamma_recoil_m"))
 
         df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
         df = df.Define("cut11", "11")

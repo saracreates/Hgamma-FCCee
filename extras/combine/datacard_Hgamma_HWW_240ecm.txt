@@ -2,17 +2,17 @@ imax *
 jmax *
 kmax *
 ---------------
-shapes HWW * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/mgp8_ee_ha_ecm240_hww.root gamma_recoil_m_tight_cut
-shapes bba * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/wzp6_ee_bba_ecm240.root gamma_recoil_m_tight_cut
-shapes cca * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/wzp6_ee_cca_ecm240.root gamma_recoil_m_tight_cut
-shapes qqa * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/wzp6_ee_qqa_ecm240.root gamma_recoil_m_tight_cut
-shapes eea * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/wzp6_ee_eea_ecm240.root gamma_recoil_m_tight_cut
-shapes mumua * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/wzp6_ee_mumua_ecm240.root gamma_recoil_m_tight_cut
-shapes tautaua * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/wzp6_ee_tautaua_ecm240.root gamma_recoil_m_tight_cut
-shapes WW * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/p8_ee_WW_ecm240.root gamma_recoil_m_tight_cut
-shapes ZZ * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/p8_ee_ZZ_ecm240.root gamma_recoil_m_tight_cut
-shapes data_obs * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/mgp8_ee_ha_ecm240_hww.root gamma_recoil_m_tight_cut
-shapes ZH * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/mgp8_ee_zh_ecm240.root gamma_recoil_m_tight_cut
+shapes HWW * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq_fullstat/mgp8_ee_ha_ecm240_hww.root gamma_recoil_m_last_cut
+shapes bba * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq_fullstat/wzp6_ee_bba_ecm240.root gamma_recoil_m_last_cut
+shapes cca * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq_fullstat/wzp6_ee_cca_ecm240.root gamma_recoil_m_last_cut
+shapes qqa * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq_fullstat/wzp6_ee_qqa_ecm240.root gamma_recoil_m_last_cut
+shapes eea * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq_fullstat/wzp6_ee_eea_ecm240.root gamma_recoil_m_last_cut
+shapes mumua * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq_fullstat/wzp6_ee_mumua_ecm240.root gamma_recoil_m_last_cut
+shapes tautaua * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq_fullstat/wzp6_ee_tautaua_ecm240.root gamma_recoil_m_last_cut
+shapes WW * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq_fullstat/p8_ee_WW_ecm240.root gamma_recoil_m_last_cut
+shapes ZZ * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq_fullstat/p8_ee_ZZ_ecm240.root gamma_recoil_m_last_cut
+shapes data_obs * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq_fullstat/mgp8_ee_ha_ecm240_hww.root gamma_recoil_m_last_cut
+shapes ZH * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq_fullstat/mgp8_ee_zh_ecm240.root gamma_recoil_m_last_cut
 ---------------
 ---------------
 #bin            bin1

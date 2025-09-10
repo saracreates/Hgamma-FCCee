@@ -65,7 +65,7 @@ procs['backgrounds'] =  {
     'Amumu':[f"wzp6_ee_mumua_ecm{config['ecm']}"], 
     'Aee':[f"wzp6_ee_eea_ecm{config['ecm']}"], 
     'WW':[f"p8_ee_WW_ecm{config['ecm']}"], 
-    'WWA':[f"wzp6_ee_WWa_ecm{config['ecm']}"],
+    # 'WWA':[f"wzp6_ee_WWa_ecm{config['ecm']}"],
     'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"],
     'ZH':[f"mgp8_ee_zh_ecm{config['ecm']}"]
 }  
@@ -127,6 +127,19 @@ hists["cutFlow"] = {
 hists["gamma_recoil_m_tight_cut"] = {
     "input":   "gamma_recoil_m_tight_cut",
     "output":   "gamma_recoil_m_tight_cut",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     110,
+    "xmax":     150,
+    "xtitle":   "Recoil (GeV)",
+    "ytitle":   "Events ",
+    "scaleSig": 10,
+    "density": False
+}
+
+hists["gamma_recoil_m_last_cut"] = {
+    "input":   "gamma_recoil_m_last_cut",
+    "output":   "gamma_recoil_m_last_cut",
     "logy":     False,
     "stack":    True,
     "xmin":     110,

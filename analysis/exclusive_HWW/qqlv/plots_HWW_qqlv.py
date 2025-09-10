@@ -50,23 +50,25 @@ colors['ZZ'] = ROOT.kAzure-9
 colors['Aee'] = ROOT.kViolet+3
 colors['Atautau'] = ROOT.kOrange
 colors['Amumu'] = ROOT.kMagenta
-#colors['ZH'] = ROOT.kGray+2
+colors['ZH'] = ROOT.kGray+2
 
-#procs = {}
-#procs['signal'] = {'ZH':['wzp6_ee_mumuH_ecm240']}
-#procs['backgrounds'] =  {'WW':['p8_ee_WW_ecm240'], 'ZZ':['p8_ee_ZZ_ecm240']}
+
 procs = {}
-# procs['signal'] = {'AH':[f"mgp8_ee_ha_ecm{config['ecm']}_hww"]}
-procs['signal'] = {'AH':[f"p8_ee_Hgamma_ecm{config['ecm']}"]}
+procs['signal'] = {'AH':[f"mgp8_ee_ha_ecm{config['ecm']}_hww"]}
+# procs['signal'] = {'AH':[f"p8_ee_Hgamma_ecm{config['ecm']}"]}
+
 procs['backgrounds'] =  {
-    'Aqq':[f"p8_ee_qqgamma_ecm{config['ecm']}"], 
-    'Acc':[f"p8_ee_ccgamma_ecm{config['ecm']}"], 
-    'Abb':[f"p8_ee_bbgamma_ecm{config['ecm']}"], 
-    'Atautau':[f"p8_ee_tautaugamma_ecm{config['ecm']}"], 
-    'Amumu':[f"p8_ee_mumugamma_ecm{config['ecm']}"], 
-    'Aee':[f"p8_ee_eegamma_ecm{config['ecm']}"], 
+    'Aqq':[f"wzp6_ee_qqa_ecm{config['ecm']}"], 
+    'Acc':[f"wzp6_ee_cca_ecm{config['ecm']}"], 
+    'Abb':[f"wzp6_ee_bba_ecm{config['ecm']}"], 
+    'Atautau':[f"wzp6_ee_tautaua_ecm{config['ecm']}"], 
+    'Amumu':[f"wzp6_ee_mumua_ecm{config['ecm']}"], 
+    'Aee':[f"wzp6_ee_eea_ecm{config['ecm']}"], 
     'WW':[f"p8_ee_WW_ecm{config['ecm']}"], 
-    'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"]}
+    'WWA':[f"wzp6_ee_WWa_ecm{config['ecm']}"],
+    'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"],
+    'ZH':[f"mgp8_ee_zh_ecm{config['ecm']}"]
+}  
 
 legend = {}
 legend['AH'] = '#gamma H'
@@ -78,7 +80,7 @@ legend['ZZ'] = 'ZZ'
 legend['Aee'] = '#gamma e^{+} e^{-}'
 legend['Atautau'] = '#gamma #tau^{+} #tau^{-}'
 legend['Amumu'] = '#gamma #mu^{+} #mu^{-}'
-#legend['ZH'] = 'ZH'
+legend['ZH'] = 'ZH'
 
 
 hists = {}
@@ -91,6 +93,18 @@ signal_mass_min, signal_mass_max = config['cuts']['recoil_mass_signal_range']
 m_jj_min, m_jj_max = config_WW['cuts']['m_jj_range']
 recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range']
 WW_cos_theta_max = config_WW['cuts']['WW_cos_theta_max']
+do_inference = config_WW['do_inference']
+
+if do_inference:
+    # xtitle.insert(-1, "BDT score > " + str(config_WW['cuts']['mva_score_cut']))
+    
+    # BDT scan
+    
+    # remove last element
+    xtitle.pop(-1)
+    # append BDT score cut scan 
+    for mva_cut_value in config_WW['cuts']['mva_score_cut']:
+        xtitle.append(f"BDT score > {mva_cut_value}")
 
 
 hists["cutFlow"] = {
