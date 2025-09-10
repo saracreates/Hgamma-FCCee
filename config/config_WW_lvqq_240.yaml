@@ -5,5 +5,6 @@ cuts:
   pT_miss: 15
   recoil_gammaqq_range: [70, 90]
   n_const_per_jet: 4  # number of constituents per jet cut
+  lepton_pT_min: 10
   mva_score_cut: 0.97 # best for BDT with tighter p preselection [0.9, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.985, 0.99, 0.991, 0.992, 0.993, 0.94, 0.995, 0.996, 0.997, 0.998, 0.999] # for the shape analysis
 BDT: "bdt_model_example" 

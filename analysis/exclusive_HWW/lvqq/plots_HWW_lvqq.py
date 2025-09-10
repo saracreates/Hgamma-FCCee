@@ -2,10 +2,15 @@ import ROOT
 import os
 import yaml
 import argparse
+import json
 
 def load_config(config_path):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
+
+def load_colors(json_path):
+    with open(json_path, "r") as f:
+        return json.load(f)
 
 # Set up argument parser
 parser = argparse.ArgumentParser(description="Run analysis for H->WW(lv)W(qq).")
@@ -36,22 +41,13 @@ inputDir       = os.path.join(config['outputDir'], str(energy),'histmaker/', con
 
 plotStatUnc    = True
 
+# load colors from json
+colors_dic = load_colors("extras/colors.json")
 colors = {}
-colors['AH'] = ROOT.kRed
-colors['Acc'] = ROOT.kBlue+1
-colors['Aqq'] = ROOT.kGreen+2
-colors['Abb'] = ROOT.kYellow+3
-colors['WW'] = ROOT.kCyan
-colors['ZZ'] = ROOT.kAzure-9
-colors['Aee'] = ROOT.kViolet+3
-colors['Atautau'] = ROOT.kOrange
-colors['Amumu'] = ROOT.kMagenta
-colors['ZH'] = ROOT.kGray+2
-colors['WWA'] = ROOT.kPink+9
+for key, value in colors_dic.items():
+    colors[key] = ROOT.TColor.GetColor(value)
 
-#procs = {}
-#procs['signal'] = {'ZH':['wzp6_ee_mumuH_ecm240']}
-#procs['backgrounds'] =  {'WW':['p8_ee_WW_ecm240'], 'ZZ':['p8_ee_ZZ_ecm240']}
+
 procs = {}
 procs['signal'] = {'AH':[f"mgp8_ee_ha_ecm{config['ecm']}_hww"]}
 # procs['signal'] = {'AH':[f"p8_ee_Hgamma_ecm{config['ecm']}"]}
@@ -93,9 +89,10 @@ signal_mass_min, signal_mass_max = config['cuts']['recoil_mass_signal_range']
 
 m_jj_min, m_jj_max = config_WW['cuts']['m_jj_range']
 recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range']
+lepton_pT_min = config_WW['cuts'].get('lepton_pT_min', 0)
 do_inference = config_WW['do_inference']
 
-xtitle = ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "pT_{miss} > " + str(config_WW['cuts']['pT_miss']), str(recoil_gammaqq_min) + "<m_{recoil, #gamma qq} < " + str(recoil_gammaqq_max), "Num const per jet > " + str(config_WW['cuts']['n_const_per_jet']), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)] #"p_{miss} > 20","p_{T} > 10"
+xtitle = ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "pT_{miss} > " + str(config_WW['cuts']['pT_miss']), str(recoil_gammaqq_min) + "<m_{recoil, #gamma qq} < " + str(recoil_gammaqq_max), "Num const per jet > " + str(config_WW['cuts']['n_const_per_jet']), "lepton pT > " + str(lepton_pT_min), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)] #"p_{miss} > 20","p_{T} > 10"
 
 if do_inference:
     xtitle.insert(-1, "BDT score > " + str(config_WW['cuts']['mva_score_cut']))

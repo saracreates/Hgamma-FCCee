@@ -36,17 +36,13 @@ data_path = f"/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/
 
 # ONLY if needed - change user defined settings
 cardname = f"datacard_Hgamma_HWW_{ecm}ecm.txt" # name of the output datacard
+uncertainty = "1.01" # systematic uncertainty to apply to all backgrounds (except data_obs and signal)
 if ecm == 160:
     hist_name = "gamma_recoil_m_very_tight_cut" # name of the histogram you want to fit on
 else: 
     # hist_name = "gamma_recoil_m_tight_cut" # 0.5 GeV bins
     hist_name = "gamma_recoil_m_last_cut" # 1 GeV bins
-uncertainty = "1.01" # systematic uncertainty to apply to all backgrounds (except data_obs and signal)
 
-if ecm==240: 
-    # change lvqq to lvqq_fullstat in data path
-    # data_path = data_path.replace("lvqq", "lvqq_fullstat")
-    cardname = cardname.replace("Hgamma_HWW", "Hgamma_HWW_newBDT") # change name of the output datacard
 
 process_paths = {
     "HWW": data_path + f"mgp8_ee_ha_ecm{ecm}_hww.root", # signal!
