@@ -1,0 +1,10 @@
+outputDir_sub: "qqlv"
+do_inference: False
+cuts:
+  m_jj_range: [65, 87]  # W mass range cut
+  pT_miss: 6  # min missing transverse momentum cut
+  recoil_gammaqq_range: [10, 55]
+  n_const_per_jet: 4  # number of constituents per jet cut
+  pT_lepton: 7  # min lepton pT cut
+  mva_score_cut: 0.99 # [0.9, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.985, 0.99, 0.991, 0.992, 0.993, 0.94, 0.995, 0.996, 0.997, 0.998, 0.999] # for the shape analysis
+

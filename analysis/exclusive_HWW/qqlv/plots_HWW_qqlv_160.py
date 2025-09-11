@@ -88,11 +88,10 @@ recoil_mass_min, recoil_mass_max = config['cuts']['recoil_mass_range']
 signal_mass_min, signal_mass_max = config['cuts']['recoil_mass_signal_range']
 
 m_jj_min, m_jj_max = config_WW['cuts']['m_jj_range']
-recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range']
-WW_cos_theta_max = config_WW['cuts']['WW_cos_theta_max']
+# recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range']
 do_inference = config_WW['do_inference']
 
-xtitle = ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "p_{T, miss} > " + str(config_WW['cuts']['pT_miss']), str(recoil_gammaqq_min) + "<m_{recoil, #gamma qq} < " + str(recoil_gammaqq_max), "Num const per jet > " + str(config_WW['cuts']['n_const_per_jet']), "|cos(#theta)_{W}|<" + str(WW_cos_theta_max), "p_{T, lep}>"+ str(config_WW['cuts']['pT_lepton']), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)]
+xtitle = ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "Num const per jet > " + str(config_WW['cuts']['n_const_per_jet']),  str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)] # "|cos(#theta)_{W}|<" + str(WW_cos_theta_max), str(recoil_gammaqq_min) + "<m_{recoil, #gamma qq} < " + str(recoil_gammaqq_max), "p_{T, lep}>"+ str(config_WW['cuts']['pT_lepton']), "p_{T, miss} > " + str(config_WW['cuts']['pT_miss']),
 
 if do_inference:
     xtitle.insert(-1, "BDT score > " + str(config_WW['cuts']['mva_score_cut']))
@@ -131,5 +130,18 @@ hists["gamma_recoil_m_tight_cut"] = {
     "xtitle":   "Recoil (GeV)",
     "ytitle":   "Events ",
     "scaleSig": 100,
+    "density": False
+}
+
+hists["gamma_recoil_m_very_tight_cut"] = {
+    "input":   "gamma_recoil_m_very_tight_cut",
+    "output":   "gamma_recoil_m_very_tight_cut",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     123, # 120
+    "xmax":     130, # 135
+    "xtitle":   "Recoil (GeV)",
+    "ytitle":   "Events ",
+    "scaleSig": 10,
     "density": False
 }

@@ -8,7 +8,7 @@ outputDir: "outputs/"
 
 processList:
   # p8_ee_Hgamma:    { crossSection: 8.20481e-05,  fraction: 1, inputDir: "/eos/user/l/lherrman/FCC/data/HiggsGamma"}
-  mgp8_ee_ha:    {fraction: 1}
+  mgp8_ee_ha:    {fraction: 0.5}
   wzp6_ee_bba:   {fraction: 1}
   wzp6_ee_cca:   {fraction: 1}
   wzp6_ee_qqa:   {fraction: 1}

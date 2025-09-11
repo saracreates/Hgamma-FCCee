@@ -17,8 +17,8 @@ parser = argparse.ArgumentParser(description="Run analysis for H->WW(lv)W(qq).")
 parser.add_argument(
     "--energy", "-e",
     type=int,
-    default=240,
-    help="Choose from: 160, 240, 365. Default: 240"
+    default=365,
+    help="Choose from: 160, 240, 365. Default: 160"
 )
 args, _ = parser.parse_known_args()  # <-- Ignore unknown args
 
