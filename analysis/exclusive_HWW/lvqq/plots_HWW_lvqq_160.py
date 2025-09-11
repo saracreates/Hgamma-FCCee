@@ -138,8 +138,8 @@ hists["gamma_recoil_m_very_tight_cut"] = {
     "output":   "gamma_recoil_m_very_tight_cut",
     "logy":     False,
     "stack":    True,
-    "xmin":     120,
-    "xmax":     135,
+    "xmin":     123, # 120
+    "xmax":     130, # 135
     "xtitle":   "Recoil (GeV)",
     "ytitle":   "Events ",
     "scaleSig": 10,

@@ -368,7 +368,7 @@ def build_graph(df, dataset):
     ##########
     ### CUT 8: missing momentum 
     ##########
-    df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
+    df = df.Define("missP", f"FCCAnalyses::ZHfunctions::missingParticle({ecm}, ReconstructedParticles)")
     df = df.Define("miss_p", "FCCAnalyses::ReconstructedParticle::get_p(missP)[0]")
     df = df.Define("miss_pT", "FCCAnalyses::ReconstructedParticle::get_pt(missP)[0]")
     df = df.Define("miss_e", "FCCAnalyses::ReconstructedParticle::get_e(missP)[0]")
@@ -397,7 +397,7 @@ def build_graph(df, dataset):
     df = df.Define("jet2", "jets_p4[1]")
     df = df.Define("photon", "photons_boosted[0]")  # only one photon after cuts
 
-    df = df.Define("recoil_W", "FCCAnalyses::ZHfunctions::get_recoil_photon_and_jets(240.0, jet1, jet2, photon)")
+    df = df.Define("recoil_W", f"FCCAnalyses::ZHfunctions::get_recoil_photon_and_jets({ecm}, jet1, jet2, photon)")
     df = df.Define("recoil_W_m", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_W)[0]")  # recoil mass of photon plus qq jets
     results.append(df.Histo1D(("recoil_W_m", "", 100, 0, 200), "recoil_W_m"))
 
@@ -418,9 +418,7 @@ def build_graph(df, dataset):
     df = df.Define("cut10", "10")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
 
-    ########
-    ### CUT 11: Angluar distribution of WW system
-    ########
+
 
     # get the W bosons
     df = df.Define("Ws", "FCCAnalyses::ZHfunctions::build_WW(jet1, jet2, lepton, missP)")
@@ -446,12 +444,6 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("W_lv_unboosted_theta", "", 50, 0, 3.14), "W_lv_unboosted_theta"))
     results.append(df.Histo1D(("W_qq_unboosted_costheta", "", 50, -1, 1), "W_qq_unboosted_costheta"))
     results.append(df.Histo1D(("W_lv_unboosted_costheta", "", 50, -1, 1), "W_lv_unboosted_costheta"))
-
-    # abs of both cos theta < 0.9
-    costheta_mag_max = config_WW['cuts']['WW_cos_theta_max']
-    df = df.Filter(f"abs(W_qq_costheta) < {costheta_mag_max} && abs(W_lv_costheta) < {costheta_mag_max}")
-    df = df.Define("cut11", "11")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
 
     #### plot just more variable to have a look at! 
@@ -483,12 +475,12 @@ def build_graph(df, dataset):
 
 
     #########
-    ### CUT 12: lepton pT cut
+    ### CUT 11: lepton pT cut
     #########
-    results.append(df.Histo1D(("lepton_pT_cut12", "", 100, 0, 200), "lepton_pT"))
+    results.append(df.Histo1D(("lepton_pT_cut11", "", 100, 0, 200), "lepton_pT"))
     df = df.Filter(f"lepton_pT > {config_WW['cuts']['pT_lepton']}")  # lepton pT cut
-    df = df.Define("cut12", "12")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
+    df = df.Define("cut11", "11")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
 
 
@@ -514,42 +506,42 @@ def build_graph(df, dataset):
 
 
         ##########
-        ### CUT 13: MVA score cut
+        ### CUT 12: MVA score cut
         ##########
         mva_cut_value = config_WW['cuts']['mva_score_cut']
         df = df.Filter("mva_score_signal > {}".format(mva_cut_value))  # MVA score cut
-        df = df.Define("cut13", "13")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut13"))
+        df = df.Define("cut12", "12")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
 
         # # do a scan
         # mva_cut_values = config_WW['cuts']['mva_score_cut']
         # for i, mva_cut_value in enumerate(mva_cut_values):
         #     df_cut = df.Filter("mva_score_signal > {}".format(mva_cut_value))
-        #     df_cut = df_cut.Define(f"cut{i+13}", f"{i+13}")
-        #     results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+13}"))
+        #     df_cut = df_cut.Define(f"cut{i+12}", f"{i+12}")
+        #     results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+12}"))
 
         #########
-        ### CUT 14: gamma recoil cut tight
+        ### CUT 13: gamma recoil cut tight
         #########
         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
         results.append(df.Histo1D(("gamma_recoil_m_some_cut", "", 60, 110, 150), "gamma_recoil_m"))
         results.append(df.Histo1D(("gamma_recoil_m_last_cut", "", 40, 110, 150), "gamma_recoil_m"))
 
         df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
-        df = df.Define("cut14", "14")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut14"))
+        df = df.Define("cut13", "13")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut13"))
 
 
     else:
         #########
-        ### CUT 13: gamma recoil cut tight
+        ### CUT 12: gamma recoil cut tight
         #########
         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
         results.append(df.Histo1D(("gamma_recoil_m_last_cut", "", 40, 110, 150), "gamma_recoil_m"))
 
         df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
-        df = df.Define("cut13", "13")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut13"))
+        df = df.Define("cut12", "12")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
 
 
     return results, weightsum
