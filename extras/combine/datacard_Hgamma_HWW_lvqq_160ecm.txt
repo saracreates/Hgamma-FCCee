@@ -22,11 +22,11 @@ process      HWW bba cca qqa eea mumua tautaua WW ZZ
 process      0 1 2 3 4 5 6 7 8
 rate         -1 -1 -1 -1 -1 -1 -1 -1 -1
 --------------------------------
-bba_norm lnN - 1.01 - - - - - - - 
-cca_norm lnN - - 1.01 - - - - - - 
-qqa_norm lnN - - - 1.01 - - - - - 
-eea_norm lnN - - - - 1.01 - - - - 
-mumua_norm lnN - - - - - 1.01 - - - 
-tautaua_norm lnN - - - - - - 1.01 - - 
-WW_norm lnN - - - - - - - 1.01 - 
-ZZ_norm lnN - - - - - - - - 1.01 
+bba_norm lnN - 1.05 - - - - - - - 
+cca_norm lnN - - 1.05 - - - - - - 
+qqa_norm lnN - - - 1.05 - - - - - 
+eea_norm lnN - - - - 1.05 - - - - 
+mumua_norm lnN - - - - - 1.05 - - - 
+tautaua_norm lnN - - - - - - 1.05 - - 
+WW_norm lnN - - - - - - - 1.05 - 
+ZZ_norm lnN - - - - - - - - 1.05 

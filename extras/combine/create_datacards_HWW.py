@@ -41,7 +41,7 @@ for proc in ["qqlv", "lvqq"]:
 
         # ONLY if needed - change user defined settings
         cardname = f"datacard_Hgamma_HWW_{proc}_{ecm}ecm.txt" # name of the output datacard
-        uncertainty = "1.01" # systematic uncertainty to apply to all backgrounds (except data_obs and signal)
+        uncertainty = "1.05" # systematic uncertainty to apply to all backgrounds 
         if ecm == 160:
             hist_name = "gamma_recoil_m_very_tight_cut" # name of the histogram you want to fit on
         elif ecm == 365:
