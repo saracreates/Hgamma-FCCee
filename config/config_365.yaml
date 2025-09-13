@@ -9,14 +9,14 @@ outputDir: "outputs/"
 processList:
   # p8_ee_Hgamma:    { crossSection: 8.20481e-05,  fraction: 1, inputDir: "/eos/user/l/lherrman/FCC/data/HiggsGamma"}
   mgp8_ee_ha:    {fraction: 1}
-  wzp6_ee_bba:   {fraction: 1}
-  wzp6_ee_cca:   {fraction: 0.5}
-  wzp6_ee_qqa:   {fraction: 0.5}
-  wzp6_ee_eea:   {fraction: 0.5}
-  wzp6_ee_mumua: {fraction: 0.5}
-  wzp6_ee_tautaua: {fraction: 0.5}
-  p8_ee_WW:        {fraction: 0.5} # do NOT increase highter than 0.5 for HWW if you use the BDT!
-  p8_ee_ZZ:        {fraction: 0.5}
+  wzp6_ee_bba:   {fraction: 0.5} # do NOT increase higher than 0.5 for HWW if you use the BDT!
+  wzp6_ee_cca:   {fraction: 1}
+  wzp6_ee_qqa:   {fraction: 1}
+  wzp6_ee_eea:   {fraction: 1}
+  wzp6_ee_mumua: {fraction: 1}
+  wzp6_ee_tautaua: {fraction: 1}
+  p8_ee_WW:        {fraction: 1} # do NOT increase highter than 0.5 for HWW if you use the BDT!
+  p8_ee_ZZ:        {fraction: 1}
   # wzp6_ee_WWa: {fraction: 0.5} # dataset vanishes...
   # ZH ?
  
@@ -25,7 +25,7 @@ cuts:
   photon_iso_cone_radius_range: [0.01, 0.5]
   photon_iso_threshold: 0.2
   photon_energy_range: [158, 163] # p(gamma) = 160 GeV
-  photon_cos_theta_max: 0.99
+  photon_cos_theta_max: 0.95 # used 0.99 for 160 HWW lvqq...
   recoil_mass_range: [110, 150]
   recoil_mass_signal_range: [123.5, 126.5]
   min_n_reco_no_gamma: 5
