@@ -63,7 +63,8 @@ procs['backgrounds'] =  {
     'WW':[f"p8_ee_WW_ecm{config['ecm']}"], 
     'WWA':[f"wzp6_ee_WWa_ecm{config['ecm']}"],
     'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"],
-    'ZH':[f"mgp8_ee_zh_ecm{config['ecm']}"]
+    'ZH':[f"mgp8_ee_zh_ecm{config['ecm']}"],
+    'tt':[f"p8_ee_tt_ecm{config['ecm']}"]
 }  
 
 legend = {}
@@ -77,6 +78,7 @@ legend['Aee'] = '#gamma e^{+} e^{-}'
 legend['Atautau'] = '#gamma #tau^{+} #tau^{-}'
 legend['Amumu'] = '#gamma #mu^{+} #mu^{-}'
 legend['ZH'] = 'ZH'
+legend['tt'] = 't#bar{t}'
 
 
 hists = {}

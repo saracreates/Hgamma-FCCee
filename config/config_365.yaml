@@ -17,6 +17,7 @@ processList:
   wzp6_ee_tautaua: {fraction: 1}
   p8_ee_WW:        {fraction: 1} # do NOT increase highter than 0.5 for HWW if you use the BDT!
   p8_ee_ZZ:        {fraction: 1}
+  p8_ee_tt:      {fraction: 1}
   # wzp6_ee_WWa: {fraction: 0.5} # dataset vanishes...
   # ZH ?
  
@@ -24,7 +25,7 @@ processList:
 cuts:
   photon_iso_cone_radius_range: [0.01, 0.5]
   photon_iso_threshold: 0.2
-  photon_energy_range: [158, 163] # p(gamma) = 160 GeV
+  photon_energy_range: [150, 163] # p(gamma) = 160 GeV
   photon_cos_theta_max: 0.95 # used 0.99 for 160 HWW lvqq...
   recoil_mass_range: [110, 150]
   recoil_mass_signal_range: [123.5, 126.5]

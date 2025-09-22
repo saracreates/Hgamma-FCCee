@@ -259,7 +259,8 @@ def build_graph(df, dataset):
     ### CUT 2: Photons energy 
     #########
     results.append(df.Histo1D(("photons_boosted_p", "", 80, int(photon_energy_min), int(photon_energy_max)), "photons_boosted_p"))
-    
+    results.append(df.Histo1D(("photons_boosted_p_wider", "", 80, 130, 180), "photons_boosted_p"))
+
     df = df.Filter("photons_boosted.size()>0 ")  
     df = df.Define("cut2", "2")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
