@@ -9,7 +9,7 @@ outputDir: "outputs/"
 processList:
   # p8_ee_Hgamma:    { crossSection: 8.20481e-05,  fraction: 1, inputDir: "/eos/user/l/lherrman/FCC/data/HiggsGamma"}
   mgp8_ee_ha:    {fraction: 1}
-  wzp6_ee_bba:   {fraction: 0.5} # do NOT increase higher than 0.5 for HWW if you use the BDT!
+  wzp6_ee_bba:   {fraction: 1} # do NOT increase higher than 0.5 for HWW qqlv if you use the BDT!
   wzp6_ee_cca:   {fraction: 1}
   wzp6_ee_qqa:   {fraction: 1}
   wzp6_ee_eea:   {fraction: 1}
@@ -18,6 +18,8 @@ processList:
   p8_ee_WW:        {fraction: 1} # do NOT increase highter than 0.5 for HWW if you use the BDT!
   p8_ee_ZZ:        {fraction: 1}
   p8_ee_tt:      {fraction: 1}
+  wzp6_ee_aqqW: {fraction: 0.93} # do NOT increase higher than 0.93 for HWW if you use the BDT!
+  wzp6_ee_alnuW: {fraction: 1}
   # wzp6_ee_WWa: {fraction: 0.5} # dataset vanishes...
   # ZH ?
  

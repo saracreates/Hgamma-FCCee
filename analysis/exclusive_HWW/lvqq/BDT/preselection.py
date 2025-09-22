@@ -30,6 +30,7 @@ print("Setting up analysis for ecm =", ecm)
 # Output directory
 outputDir   = f"outputs/{ecm}/preselection/lvqq/trainingdata"
 inputDir = "/afs/cern.ch/work/s/saaumill/public/analyses/symlink_gammalvqq"
+'''
 xsec = {'240': [16.4385, 8.773e-05* 0.2137], '365': [10.7165, 2.975e-05* 0.2137]} # cross sections for 240 and 365 GeV for p8_ee_WW and mgp8_ee_ha_ecm240_hww
 if int(ecm) == 160: # xsec not online yet
     processList = {
@@ -49,6 +50,17 @@ else:
         f'p8_ee_WW_ecm{ecm}': {'fraction': 1, 'crossSection': xsec[str(ecm)][0], 'inputDir': inputDir}, 
         f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 1, 'crossSection': xsec[str(ecm)][1], 'inputDir':inputDir}, 
     }
+'''
+xsec = {'240': [1.286e-01, 8.773e-05* 0.2137], '365': [1.131e-02, 2.975e-05* 0.2137]} # cross sections for 240 and 365 GeV for wzp6_aqqW and mgp8_ee_ha_ecm240_hww
+if int(ecm) == 240 or int(ecm) == 365:
+    processList = {
+        f'wzp6_ee_aqqW_ecm{ecm}': {'fraction': 1, 'inputDir': inputDir, 'crossSection': xsec[str(ecm)][0]},
+        f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 1, 'crossSection': xsec[str(ecm)][1], 'inputDir':inputDir},
+    }
+else:
+    raise ValueError("Only 240 GeV is supported at the moment!")
+
+
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
 prodTag     = "FCCee/winter2023/IDEA/"

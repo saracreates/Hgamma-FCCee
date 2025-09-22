@@ -62,10 +62,13 @@ procs['backgrounds'] =  {
     'Atautau':[f"wzp6_ee_tautaua_ecm{config['ecm']}"], 
     'Amumu':[f"wzp6_ee_mumua_ecm{config['ecm']}"], 
     'Aee':[f"wzp6_ee_eea_ecm{config['ecm']}"], 
-    'WW':[f"p8_ee_WW_ecm{config['ecm']}"], 
-    'WWA':[f"wzp6_ee_WWa_ecm{config['ecm']}"],
+    'aqqW': [f"wzp6_ee_aqqW_ecm{config['ecm']}"],
+    'alnuW': [f"wzp6_ee_alnuW_ecm{config['ecm']}"], 
+    # 'WW':[f"p8_ee_WW_ecm{config['ecm']}"], 
+    # 'WWA':[f"wzp6_ee_WWa_ecm{config['ecm']}"],
     'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"],
-    'ZH':[f"mgp8_ee_zh_ecm{config['ecm']}"]
+    'ZH':[f"mgp8_ee_zh_ecm{config['ecm']}"], 
+    'tt':[f"p8_ee_tt_ecm{config['ecm']}"],
 }  
 
 legend = {}
@@ -80,6 +83,9 @@ legend['Atautau'] = '#gamma #tau^{+} #tau^{-}'
 legend['Amumu'] = '#gamma #mu^{+} #mu^{-}'
 legend['ZH'] = 'ZH'
 legend['WWA'] = 'WWA'
+legend['aqqW'] = '#gamma qqW'
+legend['alnuW'] = '#gamma l#nuW'
+legend['tt'] = 't#bar{t}'
 
 
 hists = {}
@@ -97,17 +103,17 @@ lepton_pT_min = config_WW['cuts'].get('lepton_pT_min', 0)
 xtitle = ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "pT_{miss} > " + str(config_WW['cuts']['pT_miss']), "Num const per jet > " + str(config_WW['cuts']['n_const_per_jet']), "lepton pT > " + str(lepton_pT_min), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)] #"p_{miss} > 20","p_{T} > 10"
 
 if do_inference:
-    xtitle.insert(-1, "BDT score > " + str(config_WW['cuts']['mva_score_cut']))
+    # xtitle.insert(-1, "BDT score > " + str(config_WW['cuts']['mva_score_cut']))
     
     # BDT scan
     
     # remove last element
-    # xtitle.pop(-1)
-    # # append BDT score cut scan 
-    # for mva_cut_value in config_WW['cuts']['mva_score_cut']:
-    #     xtitle.append(f"BDT score > {mva_cut_value}")
+    xtitle.pop(-1)
+    # append BDT score cut scan 
+    for mva_cut_value in config_WW['cuts']['mva_score_cut']:
+        xtitle.append(f"BDT score > {mva_cut_value}")
 
-    # xtitle.append(str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max))
+    xtitle.append(str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max))
 
 
 

@@ -37,6 +37,7 @@ for key, val in config['processList'].items():
         frac = float(val['fraction']) 
         br_WW = 0.215  # branching ratio for H->WW
         xsec = {'160': 2.127e-5 * br_WW, '240': 8.773e-5 * br_WW, '365': 2.975e-5 * br_WW}.get(str(ecm), 0)
+
         if config_WW['do_inference']:
             frac = 0.7 # only use data that was not trained on 
         entry = {
@@ -53,6 +54,10 @@ for key, val in config['processList'].items():
         if 'inputDir' in val:
             entry['inputDir'] = os.path.join(val['inputDir'], str(ecm))
         processList[f"{key}_ecm{ecm}"] = entry
+    if key == 'wzp6_ee_aqqW':
+        # correct xsec for WW* bkg
+        xsec_aqqW = {'160': 2.328e-02, '240': 1.286e-01, '365': 1.131e-02}.get(str(ecm), 0)
+        entry['crossSection'] = xsec_aqqW
 
 print(processList)
 
@@ -427,12 +432,12 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("lepton_pT_cut10", "", 100, 0, 100), "lepton_pT"))
     results.append(df.Histo1D(("miss_pT_cut10", "", 100, 0, 200), "miss_pT"))
 
-    ##########
-    ### CUT 11: lepton momentum cut
-    ##########
-    df = df.Filter("lepton_pT > " + str(config_WW['cuts']['lepton_pT_min']))  # lepton momentum cut
-    df = df.Define("cut11", "11")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+    # ##########
+    # ### CUT 11: lepton momentum cut
+    # ##########
+    # df = df.Filter("lepton_pT > " + str(config_WW['cuts']['lepton_pT_min']))  # lepton momentum cut
+    # df = df.Define("cut11", "11")
+    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
 
     do_inference = config_WW.get('do_inference', False)
@@ -471,6 +476,16 @@ def build_graph(df, dataset):
         df = df.Define("W_qq_pT", "FCCAnalyses::ReconstructedParticle::get_pt(Ws)[0]")
         df = df.Define("W_lv_pT", "FCCAnalyses::ReconstructedParticle::get_pt(Ws)[1]")
 
+        # plots these jet variables
+        results.append(df.Histo1D(("y23_cut11", "", 100, 0, 1), "y23"))
+        results.append(df.Histo1D(("y34_cut11", "", 100, 0, 1), "y34"))
+        results.append(df.Histo1D((f"jet1_nconst_N2_cut11", "", 30, 0, 30), f"jet1_nconst_N2"))
+        results.append(df.Histo1D((f"jet2_nconst_N2_cut11", "", 30, 0, 30), f"jet2_nconst_N2"))
+        results.append(df.Histo1D((f"jet1_costheta_cut11", "", 50, -1, 1), f"jet1_costheta"))
+        results.append(df.Histo1D((f"jet2_costheta_cut11", "", 50, -1, 1), f"jet2_costheta"))
+        results.append(df.Histo1D((f"jet1_cosphi_cut11", "", 50, -1, 1), f"jet1_cosphi"))
+        results.append(df.Histo1D((f"jet2_cosphi_cut11", "", 50, -1, 1), f"jet2_cosphi"))
+
 
 
         # inference with TMVAHelperXGB
@@ -486,19 +501,33 @@ def build_graph(df, dataset):
 
 
         ##########
-        ### CUT 12: MVA score cut
+        ### CUT 11: MVA score cut
         ##########
         mva_cut_value = config_WW['cuts']['mva_score_cut']
         df = df.Filter("mva_score_signal > {}".format(mva_cut_value))  # MVA score cut
-        df = df.Define("cut12", "12")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
+        df = df.Define("cut11", "11")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
-        # # do a scan
+        # do a scan
         # mva_cut_values = config_WW['cuts']['mva_score_cut']
         # for i, mva_cut_value in enumerate(mva_cut_values):
         #     df_cut = df.Filter("mva_score_signal > {}".format(mva_cut_value))
         #     df_cut = df_cut.Define(f"cut{i+12}", f"{i+12}")
         #     results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+12}"))
+
+
+        results.append(df.Histo1D(("gamma_recoil_m_tight_cut11", "", 80, 110, 150), "gamma_recoil_m"))
+        results.append(df.Histo1D(("gamma_recoil_m_last_cut11", "", 40, 110, 150), "gamma_recoil_m"))
+
+
+
+        ##########
+        ### CUT 12: lepton momentum cut
+        ##########
+        df = df.Filter("lepton_pT > " + str(config_WW['cuts']['lepton_pT_min']))  # lepton momentum cut
+        df = df.Define("cut12", "12")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
+
             
 
 

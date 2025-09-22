@@ -53,6 +53,10 @@ for key, val in config['processList'].items():
         if 'inputDir' in val:
             entry['inputDir'] = os.path.join(val['inputDir'], str(ecm))
         processList[f"{key}_ecm{ecm}"] = entry
+    if key == 'wzp6_ee_aqqW':
+        # correct xsec for WW* bkg
+        xsec_aqqW = {'160': 2.328e-02, '240': 1.286e-01, '365': 1.131e-02}.get(str(ecm), 0)
+        entry['crossSection'] = xsec_aqqW
 
 print(processList)
 
@@ -491,17 +495,17 @@ def build_graph(df, dataset):
         ##########
         ### CUT 11: MVA score cut
         ##########
-        mva_cut_value = config_WW['cuts']['mva_score_cut']
-        df = df.Filter("mva_score_signal > {}".format(mva_cut_value))  # MVA score cut
-        df = df.Define("cut11", "11")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+        # mva_cut_value = config_WW['cuts']['mva_score_cut']
+        # df = df.Filter("mva_score_signal > {}".format(mva_cut_value))  # MVA score cut
+        # df = df.Define("cut11", "11")
+        # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
         # do a scan
-        # mva_cut_values = config_WW['cuts']['mva_score_cut']
-        # for i, mva_cut_value in enumerate(mva_cut_values):
-        #     df_cut = df.Filter("mva_score_signal > {}".format(mva_cut_value))
-        #     df_cut = df_cut.Define(f"cut{i+11}", f"{i+11}")
-        #     results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+11}"))
+        mva_cut_values = config_WW['cuts']['mva_score_cut']
+        for i, mva_cut_value in enumerate(mva_cut_values):
+            df_cut = df.Filter("mva_score_signal > {}".format(mva_cut_value))
+            df_cut = df_cut.Define(f"cut{i+11}", f"{i+11}")
+            results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+11}"))
             
 
 
@@ -511,9 +515,9 @@ def build_graph(df, dataset):
         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
         results.append(df.Histo1D(("gamma_recoil_m_last_cut", "", 40, 110, 150), "gamma_recoil_m"))
 
-        df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
-        df = df.Define("cut12", "12")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
+        # df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
+        # df = df.Define("cut12", "12")
+        # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
     else:
 
 

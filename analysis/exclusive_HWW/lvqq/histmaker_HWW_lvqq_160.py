@@ -53,6 +53,10 @@ for key, val in config['processList'].items():
         if 'inputDir' in val:
             entry['inputDir'] = os.path.join(val['inputDir'], str(ecm))
         processList[f"{key}_ecm{ecm}"] = entry
+    if key == 'wzp6_ee_aqqW':
+        # correct xsec for WW* bkg
+        xsec_aqqW = {'160': 2.328e-02, '240': 1.286e-01, '365': 1.131e-02}.get(str(ecm), 0)
+        entry['crossSection'] = xsec_aqqW
 
 print(processList)
 

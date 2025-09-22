@@ -65,8 +65,11 @@ procs['backgrounds'] =  {
     'Atautau':[f"p8_ee_tautaugamma_ecm{config['ecm']}"], 
     'Amumu':[f"p8_ee_mumugamma_ecm{config['ecm']}"], 
     'Aee':[f"p8_ee_eegamma_ecm{config['ecm']}"], 
-    'WW':[f"p8_ee_WW_ecm{config['ecm']}"], 
-    'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"]}
+    # 'WW':[f"p8_ee_WW_ecm{config['ecm']}"], 
+    'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"], 
+    'aqqW': [f"wzp6_ee_aqqW_ecm{config['ecm']}"],
+    'alnuW': [f"wzp6_ee_alnuW_ecm{config['ecm']}"], 
+    }
 
 legend = {}
 legend['AH'] = '#gamma H'
@@ -78,6 +81,8 @@ legend['ZZ'] = 'ZZ'
 legend['Aee'] = '#gamma e^{+} e^{-}'
 legend['Atautau'] = '#gamma #tau^{+} #tau^{-}'
 legend['Amumu'] = '#gamma #mu^{+} #mu^{-}'
+legend['aqqW'] = '#gamma qqW'
+legend['alnuW'] = '#gamma l#nuW'
 #legend['ZH'] = 'ZH'
 
 
