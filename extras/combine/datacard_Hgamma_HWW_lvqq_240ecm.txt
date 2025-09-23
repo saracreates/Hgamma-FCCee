@@ -9,7 +9,8 @@ shapes qqa * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/2
 shapes eea * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/wzp6_ee_eea_ecm240.root gamma_recoil_m_last_cut
 shapes mumua * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/wzp6_ee_mumua_ecm240.root gamma_recoil_m_last_cut
 shapes tautaua * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/wzp6_ee_tautaua_ecm240.root gamma_recoil_m_last_cut
-shapes WW * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/p8_ee_WW_ecm240.root gamma_recoil_m_last_cut
+shapes aqqW * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/wzp6_ee_aqqW_ecm240.root gamma_recoil_m_last_cut
+shapes alnuW * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/wzp6_ee_alnuW_ecm240.root gamma_recoil_m_last_cut
 shapes ZZ * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/p8_ee_ZZ_ecm240.root gamma_recoil_m_last_cut
 shapes data_obs * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/mgp8_ee_ha_ecm240_hww.root gamma_recoil_m_last_cut
 shapes ZH * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/240/histmaker/lvqq/mgp8_ee_zh_ecm240.root gamma_recoil_m_last_cut
@@ -18,17 +19,18 @@ shapes ZH * /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma-FCCee/outputs/24
 #bin            bin1
 observation     -1
 ------------------------------
-bin          bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1
-process      HWW bba cca qqa eea mumua tautaua WW ZZ ZH
-process      0 1 2 3 4 5 6 7 8 9
-rate         -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+bin          bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1
+process      HWW bba cca qqa eea mumua tautaua aqqW alnuW ZZ ZH
+process      0 1 2 3 4 5 6 7 8 9 10
+rate         -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 --------------------------------
-bba_norm lnN - 1.05 - - - - - - - - 
-cca_norm lnN - - 1.05 - - - - - - - 
-qqa_norm lnN - - - 1.05 - - - - - - 
-eea_norm lnN - - - - 1.05 - - - - - 
-mumua_norm lnN - - - - - 1.05 - - - - 
-tautaua_norm lnN - - - - - - 1.05 - - - 
-WW_norm lnN - - - - - - - 1.05 - - 
-ZZ_norm lnN - - - - - - - - 1.05 - 
-ZH_norm lnN - - - - - - - - - 1.05 
+bba_norm lnN - 1.05 - - - - - - - - - 
+cca_norm lnN - - 1.05 - - - - - - - - 
+qqa_norm lnN - - - 1.05 - - - - - - - 
+eea_norm lnN - - - - 1.05 - - - - - - 
+mumua_norm lnN - - - - - 1.05 - - - - - 
+tautaua_norm lnN - - - - - - 1.05 - - - - 
+aqqW_norm lnN - - - - - - - 1.05 - - - 
+alnuW_norm lnN - - - - - - - - 1.05 - - 
+ZZ_norm lnN - - - - - - - - - 1.05 - 
+ZH_norm lnN - - - - - - - - - - 1.05 

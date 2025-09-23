@@ -55,6 +55,10 @@ for key, val in config['processList'].items():
         if 'inputDir' in val:
             entry['inputDir'] = os.path.join(val['inputDir'], str(ecm))
         processList[f"{key}_ecm{ecm}"] = entry
+    if key == 'wzp6_ee_aqqW':
+        # correct xsec for WW* bkg
+        xsec_aqqW = {'160': 2.328e-02, '240': 1.286e-01, '365': 1.131e-02}.get(str(ecm), 0)
+        entry['crossSection'] = xsec_aqqW
 
 print(processList)
 
@@ -496,7 +500,10 @@ def build_graph(df, dataset):
 
         # inference with TMVAHelperXGB
 
-        tmva_helper = TMVAHelperXGB(f"outputs/{int(ecm)}/BDT/qqlv/bdt_model_example.root", "bdt_model") # read the XGBoost training
+        # inference with TMVAHelperXGB
+        bdt_name = config_WW['BDT']
+        tmva_helper = TMVAHelperXGB(f"outputs/{int(ecm)}/BDT/lvqq/{bdt_name}.root", "bdt_model") # read the XGBoost training
+    
         df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
         df = df.Define("mva_score_signal", "mva_score[0]")
         df = df.Define("mva_score_bkg", "mva_score[1]")

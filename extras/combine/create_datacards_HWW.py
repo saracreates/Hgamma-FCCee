@@ -44,8 +44,8 @@ for proc in ["qqlv", "lvqq"]:
         uncertainty = "1.05" # systematic uncertainty to apply to all backgrounds 
         if ecm == 160:
             hist_name = "gamma_recoil_m_very_tight_cut" # name of the histogram you want to fit on
-        elif ecm == 365:
-            hist_name = "gamma_recoil_m_tight_cut" # name of the histogram you want to fit on
+        # elif ecm == 365:
+        #     hist_name = "gamma_recoil_m_tight_cut" # name of the histogram you want to fit on
         else: 
             # hist_name = "gamma_recoil_m_tight_cut" # 0.5 GeV bins
             hist_name = "gamma_recoil_m_last_cut" # 1 GeV bins
@@ -59,7 +59,9 @@ for proc in ["qqlv", "lvqq"]:
             "eea": data_path + f"wzp6_ee_eea_ecm{ecm}.root",
             "mumua": data_path + f"wzp6_ee_mumua_ecm{ecm}.root",
             "tautaua": data_path + f"wzp6_ee_tautaua_ecm{ecm}.root",
-            "WW": data_path + f"p8_ee_WW_ecm{ecm}.root",
+            # "WW": data_path + f"p8_ee_WW_ecm{ecm}.root",
+            "aqqW": data_path + f"wzp6_ee_aqqW_ecm{ecm}.root",
+            "alnuW": data_path + f"wzp6_ee_alnuW_ecm{ecm}.root",
             "ZZ": data_path + f"p8_ee_ZZ_ecm{ecm}.root",
             "data_obs": data_path + f"mgp8_ee_ha_ecm{ecm}_hww.root"  # using signal as a placeholder for data
         }
@@ -68,6 +70,9 @@ for proc in ["qqlv", "lvqq"]:
         if ecm == 240:
             # Add ZH as bkg
             process_paths["ZH"] = data_path + f"mgp8_ee_zh_ecm{ecm}.root"
+        elif ecm == 365:
+            # Add tt as bkg
+            process_paths["tt"] = data_path + f"p8_ee_tt_ecm{ecm}.root"
 
         # calls main function
         generate_datacard(process_paths, cardname, hist_name, uncertainty)

@@ -103,17 +103,17 @@ lepton_pT_min = config_WW['cuts'].get('lepton_pT_min', 0)
 xtitle = ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), "1 iso lepton", str(m_jj_min) + "< m_{qq} <" + str(m_jj_max), "pT_{miss} > " + str(config_WW['cuts']['pT_miss']), "Num const per jet > " + str(config_WW['cuts']['n_const_per_jet']), "lepton pT > " + str(lepton_pT_min), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)] #"p_{miss} > 20","p_{T} > 10"
 
 if do_inference:
-    # xtitle.insert(-1, "BDT score > " + str(config_WW['cuts']['mva_score_cut']))
+    xtitle.insert(-1, "BDT score > " + str(config_WW['cuts']['mva_score_cut']))
     
-    # BDT scan
+    # # BDT scan
     
-    # remove last element
-    xtitle.pop(-1)
-    # append BDT score cut scan 
-    for mva_cut_value in config_WW['cuts']['mva_score_cut']:
-        xtitle.append(f"BDT score > {mva_cut_value}")
+    # # remove last element
+    # xtitle.pop(-1)
+    # # append BDT score cut scan 
+    # for mva_cut_value in config_WW['cuts']['mva_score_cut']:
+    #     xtitle.append(f"BDT score > {mva_cut_value}")
 
-    xtitle.append(str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max))
+    # xtitle.append(str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max))
 
 
 
@@ -137,6 +137,19 @@ hists["gamma_recoil_m_tight_cut"] = {
     "logy":     False,
     "stack":    True,
     "xmin":     110,
+    "xmax":     150,
+    "xtitle":   "Recoil (GeV)",
+    "ytitle":   "Events ",
+    "scaleSig": 10,
+    "density": False
+}
+
+hists["gamma_recoil_m_last_cut"] = {
+    "input":   "gamma_recoil_m_last_cut",
+    "output":   "gamma_recoil_m_last_cut",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     115,
     "xmax":     150,
     "xtitle":   "Recoil (GeV)",
     "ytitle":   "Events ",
