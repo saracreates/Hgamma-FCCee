@@ -58,7 +58,7 @@ if int(ecm) == 240 or int(ecm) == 365:
         f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 1, 'crossSection': xsec[str(ecm)][1], 'inputDir':inputDir},
     }
 else:
-    raise ValueError("Only 240 GeV is supported at the moment!")
+    raise ValueError("Only 240, 365 GeV is supported at the moment!")
 
 
 

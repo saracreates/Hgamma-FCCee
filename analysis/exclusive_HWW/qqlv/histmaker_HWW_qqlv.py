@@ -88,7 +88,7 @@ intLumi = config['intLumi']
 # define some binning for various histograms
 bins_a_p = (100, 0, 500) # 100 MeV bins
 bins_a_n = (10, 0, 10) # 100 MeV bins
-bins_count = (40, 0, 40)
+bins_count = (45, 0, 45)
 
 
 # name of collections in EDM root files
@@ -502,7 +502,7 @@ def build_graph(df, dataset):
 
         # inference with TMVAHelperXGB
         bdt_name = config_WW['BDT']
-        tmva_helper = TMVAHelperXGB(f"outputs/{int(ecm)}/BDT/lvqq/{bdt_name}.root", "bdt_model") # read the XGBoost training
+        tmva_helper = TMVAHelperXGB(f"outputs/{int(ecm)}/BDT/qqlv/{bdt_name}.root", "bdt_model") # read the XGBoost training
     
         df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
         df = df.Define("mva_score_signal", "mva_score[0]")

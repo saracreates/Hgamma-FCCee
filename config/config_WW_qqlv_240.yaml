@@ -1,10 +1,11 @@
 outputDir_sub: "qqlv"
 do_inference: True
 cuts:
-  m_jj_range: [65, 87]  # W mass range cut
+  m_jj_range: [65, 87] # W mass range cut
   pT_miss: 6  # min missing transverse momentum cut
   recoil_gammaqq_range: [10, 55]
   n_const_per_jet: 4  # number of constituents per jet cut
   pT_lepton: 7  # min lepton pT cut
-  mva_score_cut: 0.99 # [0.9, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.985, 0.99, 0.991, 0.992, 0.993, 0.94, 0.995, 0.996, 0.997, 0.998, 0.999] # for the shape analysis
-BDT: "bdt_model_example_WW"
+  mva_score_cut: 0.98
+  # mva_score_cut: [0.9, 0.905, 0.91, 0.915, 0.92, 0.925, 0.93, 0.935, 0.94, 0.945, 0.95, 0.955, 0.96, 0.965, 0.97, 0.975, 0.98, 0.985, 0.99, 0.991, 0.992, 0.993, 0.994, 0.995, 0.996, 0.997, 0.998, 0.999] 
+BDT: "bdt_model_example"

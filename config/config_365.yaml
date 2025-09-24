@@ -18,7 +18,7 @@ processList:
   p8_ee_ZZ:        {fraction: 1}
   p8_ee_tt:      {fraction: 1}
   wzp6_ee_aqqW: {fraction: 0.93} # do NOT increase higher than 0.93 for HWW if you use the BDT!
-  wzp6_ee_alnuW: {fraction: 1}
+  wzp6_ee_alnuW: {fraction: 0.99} # do NOT use more than 99% if BDT is used!
   # wzp6_ee_WWa: {fraction: 0.5} # dataset vanishes...
   # p8_ee_WW:        {fraction: 1} # do NOT increase highter than 0.5 for HWW if you use the BDT!
   # ZH ?

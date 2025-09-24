@@ -57,6 +57,19 @@ for key, val in config['processList'].items():
         # correct xsec for WW* bkg
         xsec_aqqW = {'160': 2.328e-02, '240': 1.286e-01, '365': 1.131e-02}.get(str(ecm), 0)
         entry['crossSection'] = xsec_aqqW
+    # xsec not on the website yet
+    if ecm==160 and key == 'wzp6_ee_tautaua':
+        entry['crossSection'] = 2.598
+    if ecm==160 and key == 'wzp6_ee_qqa':
+        entry['crossSection'] = 24.188
+    if ecm==160 and key == 'wzp6_ee_mumua':
+        entry['crossSection'] = 2.818
+    if ecm==160 and key == 'wzp6_ee_eea':
+        entry['crossSection'] = 920.5
+    if ecm==160 and key == 'wzp6_ee_cca':
+        entry['crossSection'] = 7.445
+    if ecm==160 and key == 'wzp6_ee_bba':
+        entry['crossSection'] = 8.061
 
 print(processList)
 

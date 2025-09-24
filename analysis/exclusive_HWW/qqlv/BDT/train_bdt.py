@@ -53,7 +53,7 @@ weight_sf = 1e9
 
 path = f"outputs/{args.energy}/preselection/qqlv/trainingdata/"
 sig_df = load_process(path + f"mgp8_ee_ha_ecm{args.energy}_hww.root", variables, weight_sf=weight_sf, target=1)
-bkg = load_process(path + f"p8_ee_WW_ecm{args.energy}.root", variables, weight_sf=weight_sf)
+bkg = load_process(path + f"wzp6_ee_alnuW_ecm{args.energy}.root", variables, weight_sf=weight_sf)
 
 # Concatenate the dataframes into a single dataframe
 data = pd.concat([sig_df, bkg], ignore_index=True)

@@ -62,7 +62,9 @@ procs['backgrounds'] =  {
     'Atautau':[f"wzp6_ee_tautaua_ecm{config['ecm']}"], 
     'Amumu':[f"wzp6_ee_mumua_ecm{config['ecm']}"], 
     'Aee':[f"wzp6_ee_eea_ecm{config['ecm']}"], 
-    'WW':[f"p8_ee_WW_ecm{config['ecm']}"], 
+    'aqqW': [f"wzp6_ee_aqqW_ecm{config['ecm']}"],
+    'alnuW': [f"wzp6_ee_alnuW_ecm{config['ecm']}"], 
+    # 'WWA':[f"wzp6_ee_WWa_ecm{config['ecm']}"],
     'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"],
     'ZH':[f"mgp8_ee_zh_ecm{config['ecm']}"]
 }  
@@ -78,6 +80,8 @@ legend['Aee'] = '#gamma e^{+} e^{-}'
 legend['Atautau'] = '#gamma #tau^{+} #tau^{-}'
 legend['Amumu'] = '#gamma #mu^{+} #mu^{-}'
 legend['ZH'] = 'ZH'
+legend['aqqW'] = '#gamma q#bar{q}W'
+legend['alnuW'] = '#gamma l#nu W'
 
 
 hists = {}

@@ -30,25 +30,16 @@ print("Setting up analysis for ecm =", ecm)
 # Output directory
 outputDir   = f"outputs/{ecm}/preselection/qqlv/trainingdata"
 inputDir = "/afs/cern.ch/work/s/saaumill/public/analyses/symlink_gammalvqq" # path to the input data same as for lvqq
-xsec = {'240': [16.4385, 8.773e-05* 0.2137], '365': [10.7165, 2.975e-05* 0.2137]} # cross sections for 240 and 365 GeV for p8_ee_WW and mgp8_ee_ha_ecm240_hww
+xsec = {'240': [8.136e-02, 8.773e-05* 0.2137], '365': [7.052e-03, 2.975e-05* 0.2137]} # cross sections for 240 and 365 GeV for wzp6_alnuW and mgp8_ee_ha_ecm240_hww
+
 if int(ecm) == 160: # xsec not online yet
+    raise ValueError("No samples for 160 GeV available yet")
+else: 
     processList = {
-        # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-        f'p8_ee_WW_ecm{ecm}': {'fraction': 1, 'inputDir': inputDir}, 
-        f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 1, 'crossSection': 2.127e-5 * 0.2137, 'inputDir': inputDir}, 
-    }
-# only use ONE of the signal files for qqlv (1/3 of the events linked in the repo)
-elif int(ecm) == 240:
-    processList = {
-        f'p8_ee_WW_ecm{ecm}': {'fraction': 1, 'crossSection': xsec[str(ecm)][0], 'inputDir': inputDir}, 
-        f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 0.333, 'crossSection': xsec[str(ecm)][1], 'inputDir':inputDir}, 
-    }
-else:
-    processList = {
-        # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-        f'p8_ee_WW_ecm{ecm}': {'fraction': 1, 'crossSection': xsec[str(ecm)][0], 'inputDir': inputDir}, 
+        f'wzp6_ee_alnuW_ecm{ecm}': {'fraction': 1, 'inputDir': inputDir, 'crossSection': xsec[str(ecm)][0]},
         f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 1, 'crossSection': xsec[str(ecm)][1], 'inputDir':inputDir}, 
     }
+
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
 prodTag     = "FCCee/winter2023/IDEA/"
