@@ -20,8 +20,9 @@ if args.flavor not in ["B", "G"]:
     raise ValueError("Invalid flavor specified. Choose from: B, G")
 
 
-config = load_config("config/config_240.yaml")
-config_jj = load_config("config/config_jj_240.yaml")
+config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_365.yaml")
+config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_365.yaml")
+
 
 print("Configuration:")
 print(config)
@@ -36,9 +37,12 @@ br_flavor = config_jj['branching_ratios'][args.flavor]  # branching ratio for H-
 processList = {}
 for key, val in config['processList'].items():
     if key == 'mgp8_ee_ha':
+        frac = float(val['fraction']) 
+        br_WW = 0.215  # branching ratio for H->WW
+        xsec = {'160': 2.127e-5 * br_flavor, '240': 8.773e-5 * br_flavor, '365': 2.975e-5 * br_flavor}.get(str(ecm), 0)
         entry = {
-            'crossSection': float(val['crossSection']) * br_flavor,  # H-> XX BR
-            'fraction': float(val['fraction']),
+            'fraction': frac,
+            'crossSection': xsec
         }
         processList[f"{key}_ecm{ecm}_h{flavortag}"] = entry
     else:
@@ -54,9 +58,6 @@ for key, val in config['processList'].items():
 print(processList)
 
 
-# Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
-prodTag     = "FCCee/winter2023/IDEA/"
-
 # Link to the dictonary that contains all the cross section informations etc... (mandatory)
 procDict = "FCCee_procDict_winter2023_IDEA.json"
 
@@ -70,7 +71,7 @@ includePaths = ["../functions.h"]
 #Optional: output directory, default is local running directory
 outputDir   =  os.path.join(config['outputDir'], str(ecm),'histmaker/', config_jj['outputDir_sub'], 'H{}{}'.format(args.flavor.lower(), args.flavor.lower()))
 print(outputDir)
-
+inputDir   =  os.path.join(config['outputDir'], str(ecm),'treemaker/', config_jj['outputDir_sub'], 'H{}{}'.format(args.flavor.lower(), args.flavor.lower()))
 # optional: ncpus, default is 4, -1 uses all cores available
 nCPUS       = -1
 
@@ -156,31 +157,15 @@ def build_graph(df, dataset):
     results = []
     df = df.Define("weight", "1.0")
     weightsum = df.Sum("weight")
+
+    results.append(df.Histo1D(("m_jj_cut0", "", 100, 0, 200), "jj_m"))
    
-
-    df = df.Alias("Photon0", "Photon#0.index")
-    df = df.Define(
-            "photons_all",
-            "FCCAnalyses::ReconstructedParticle::get(Photon0, ReconstructedParticles)",
-        )
-
-    df = df.Alias("Electron0", "Electron#0.index")
-    df = df.Define(
-            "electrons_all",
-            "FCCAnalyses::ReconstructedParticle::get(Electron0, ReconstructedParticles)",
-        )
-
-    
 
 
     df = df.Define("photons_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_all)") 
     df = df.Define("photons_n","FCCAnalyses::ReconstructedParticle::get_n(photons_all)")  #number of photons per event
     df = df.Define("photons_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_all))")
     
-
-    df = df.Define("electrons_p", "FCCAnalyses::ReconstructedParticle::get_p(electrons_all)") 
-    df = df.Define("electrons_n","FCCAnalyses::ReconstructedParticle::get_n(electrons_all)")  #number of photons per event
-    df = df.Define("electrons_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(electrons_all))")
 
 
     #########
@@ -195,7 +180,6 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("photons_n_cut_0", "", *bins_a_n), "photons_n"))
     results.append(df.Histo1D(("photons_cos_theta_cut_0", "", 50, -1, 1), "photons_cos_theta"))
 
-   
 
     #isolation cut
     df = df.Define("photons_iso", f"FCCAnalyses::ZHfunctions::coneIsolation({photon_iso_cone_radius_min}, {photon_iso_cone_radius_max})(photons_all, ReconstructedParticles)")  # is this correct?
@@ -207,16 +191,15 @@ def build_graph(df, dataset):
 
     results.append(df.Histo1D(("photon_isolation", "", 50, 0, 10), "photons_iso"))
 
-     
+    #######
+    ### CUT 2: isolation (this one is already in treemaker)
     #########
-    ### CUT 1: Photons must be isolated
-    #########
-    
     df = df.Filter("photons_sel_iso.size()>0 ")  
     df = df.Define("cut1", "1")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut1"))
+  
     
-    results.append(df.Histo1D(("photons_p_cut_1", "",  130, 0, 130), "photons_iso_p"))
+    results.append(df.Histo1D(("photons_p_cut_1", "",  200, 0, 200), "photons_iso_p"))
     results.append(df.Histo1D(("photons_n_cut_1", "", *bins_a_n), "photons_iso_n"))
     results.append(df.Histo1D(("photons_cos_theta_cut_1", "", 50, -1, 1), "photons_iso_cos_theta"))
  
@@ -238,119 +221,90 @@ def build_graph(df, dataset):
     df = df.Define("photons_boosted_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_boosted)") # is this correct?
     df = df.Define("photons_boosted_n","FCCAnalyses::ReconstructedParticle::get_n(photons_boosted)") 
     df = df.Define("photons_boosted_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_boosted))")
+    
+    
+     ##########
+    ### CUT 1: isolated lepton veto
+    ##########
+    df = df.Define(
+        "muons_iso",
+        "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.5)(muons_all, ReconstructedParticles)",
+    )
+    df = df.Define(
+        "muons_sel_iso",
+        "FCCAnalyses::ZHfunctions::sel_iso(0.25)(muons_all, muons_iso)",
+    )
+    df = df.Define(
+        "electrons_iso",
+        "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.5)(electrons_all, ReconstructedParticles)",
+    )
+    df = df.Define(
+        "electrons_sel_iso",
+        "FCCAnalyses::ZHfunctions::sel_iso(0.25)(electrons_all, electrons_iso)",
+    )
 
-    
-    #########
-    ### CUT 2: Photons energy > 50
-    #########
-    
-    df = df.Filter("photons_boosted.size()>0 ")  
+    df = df.Define("num_isolated_leptons", "electrons_sel_iso.size() + muons_sel_iso.size()")
+    results.append(df.Histo1D(("num_isolated_leptons", "", 10, 0, 10), "num_isolated_leptons"))
+
+    df = df.Filter("num_isolated_leptons == 0")  # no isolated lepton
     df = df.Define("cut2", "2")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
+
+    results.append(df.Histo1D(("num_isolated_leptons_veto", "", 10, 0, 10), "num_isolated_leptons"))
+
+
+    #######
+    ### CUT 2: photon momentum
+    #########
+    df = df.Filter("photons_boosted.size()>0 ")  
+    df = df.Define("cut3", "3")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
+  
     
-    results.append(df.Histo1D(("photons_p_cut_2", "",  130, 0, 130), "photons_boosted_p"))
+    results.append(df.Histo1D(("photons_p_cut_2", "",  200, 0, 200), "photons_boosted_p"))
     results.append(df.Histo1D(("photons_n_cut_2", "", *bins_a_n), "photons_boosted_n"))
     results.append(df.Histo1D(("photons_cos_theta_cut_2", "", 50, -1, 1), "photons_boosted_cos_theta"))
  
-
-    
-    #########
-    ### CUT 3: Cos Theta cut
+ 
+    #######
+    ### CUT 3: cosine theta
     #########
     df = df.Filter(f"ROOT::VecOps::All(abs(photons_boosted_cos_theta) < {photon_cos_theta_max}) ") 
-   
-    df = df.Define("cut3", "3")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
+    df = df.Define("cut4", "4")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
+
     
     results.append(df.Histo1D(("photons_p_cut_3", "", 130, 0, 130), "photons_boosted_p"))
     results.append(df.Histo1D(("photons_n_cut_3", "", *bins_a_n), "photons_boosted_n"))
     results.append(df.Histo1D(("photons_cos_theta_cut_3", "", 50, -1, 1), "photons_boosted_cos_theta"))
-
-
-    df = df.Define("recopart_no_gamma", "FCCAnalyses::ReconstructedParticle::remove(ReconstructedParticles, photons_boosted)",)
-    df = df.Define("recopart_no_gamma_n","FCCAnalyses::ReconstructedParticle::get_n(recopart_no_gamma)") 
-   
- 
-    results.append(df.Histo1D(("recopart_no_gamma_n_cut_0", "", 60, 0, 60), "recopart_no_gamma_n"))
+    
+    
 
     # recoil plot
-    df = df.Define("gamma_recoil", "FCCAnalyses::ReconstructedParticle::recoilBuilder(240)(photons_boosted)") 
+    df = df.Define("gamma_recoil", f"FCCAnalyses::ReconstructedParticle::recoilBuilder({ecm})(photons_boosted)") 
     df = df.Define("gamma_recoil_m", "FCCAnalyses::ReconstructedParticle::get_mass(gamma_recoil)[0]") # recoil mass
-    results.append(df.Histo1D(("gamma_recoil_m_cut_3", "", 170, 80, 250), "gamma_recoil_m"))
+    results.append(df.Histo1D(("gamma_recoil_m", "", 170, 80, 250), "gamma_recoil_m"))
     
+
+    #you might want to remove this, without you get precision 110
+    df = df.Define("recopart_no_gamma_n","FCCAnalyses::ReconstructedParticle::get_n(recopart_no_gamma)") 
     #########
     ### CUT 4: require at least 6 reconstructed particles (except gamma)
     #########
     df = df.Filter(f" recopart_no_gamma_n > {min_n_reco_no_gamma}") 
-    
-    df = df.Define("cut4", "4")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
- 
-    results.append(df.Histo1D(("recopart_no_gamma_n_cut_4", "", 60, 0, 60), "recopart_no_gamma_n"))
-    
-
-    
-    results.append(df.Histo1D(("gamma_recoil_m_cut_4", "", 170, 80, 250), "gamma_recoil_m"))
-   
-
-
-    #########
-    ### CUT 5: gamma recoil cut
-    #########
-    df = df.Filter(f"{recoil_mass_min} < gamma_recoil_m && gamma_recoil_m < {recoil_mass_max}") 
-    #df = df.Filter("115 < gamma_recoil_m && gamma_recoil_m < 170") 
-
     df = df.Define("cut5", "5")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
 
-    results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 40, 110, 150), "gamma_recoil_m"))
-    #results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 64, 116, 170), "gamma_recoil_m"))
 
 
-    # NOTE: from here on we do an exclusive analysis, H->bb, H->gg, H->tautau
-
-    # cluster 2 jets
-
-    global jetClusteringHelper
-    global jetFlavourHelper
-
-    collection_no_gamma = copy.deepcopy(collections)
-    collection_no_gamma["PFParticles"] = "recopart_no_gamma"
-
-    jetClusteringHelper = ExclusiveJetClusteringHelper(collection_no_gamma["PFParticles"], 2, "N2")
-    df = jetClusteringHelper.define(df)
-
-    jetFlavourHelper = JetFlavourHelper(
-        collection_no_gamma,
-        jetClusteringHelper.jets,
-        jetClusteringHelper.constituents,
-    )
-    ## define observables for tagger
-    df = jetFlavourHelper.define(df)
-
-    ## tagger inference
-    df = jetFlavourHelper.inference(weaver_preproc, weaver_model, df)
-
-    df = df.Define("y23", "std::sqrt(JetClusteringUtils::get_exclusive_dmerge(_jet_N2, 2))")  # dmerge from 3 to 2
-    df = df.Define("y34", "std::sqrt(JetClusteringUtils::get_exclusive_dmerge(_jet_N2, 3))")  # dmerge from 4 to 3
-    results.append(df.Histo1D(("y23", "", 100, 0, 1), "y23"))
-
-    i = 2
-    for j in range(1, 3):
-        df = df.Define(f"jet{j}_nconst_N{i}", f"jet_nconst_N{i}[{j-1}]")
-        results.append(df.Histo1D((f"jet{j}_nconst_N{i}", "", 30, 0, 30), f"jet{j}_nconst_N{i}"))
-
-
-    df = df.Define("jets_p4","JetConstituentsUtils::compute_tlv_jets({})".format(jetClusteringHelper.jets))
-    df = df.Define("m_jj","JetConstituentsUtils::InvariantMass(jets_p4[0], jets_p4[1])")
-    results.append(df.Histo1D(("m_jj", "", 100, 0, 200), "m_jj"))
-
-
-    df = df.Define("recojet_is{}0".format(args.flavor), "recojet_is{}[0]".format(args.flavor))
-    df = df.Define("recojet_is{}1".format(args.flavor), "recojet_is{}[1]".format(args.flavor))
+    df = df.Define("recojet_isB0", "recojet_is{}[0]".format(args.flavor))
+    df = df.Define("recojet_isB1", "recojet_is{}[1]".format(args.flavor))
+    results.append(df.Histo1D(("recojet_isB0", "", *bins_score_sum), "recojet_isB0"))
+    results.append(df.Histo1D(("recojet_isB1", "", *bins_score_sum), "recojet_isB1"))
 
     df = df.Define("scoresum_flavor", "recojet_is{}[0] + recojet_is{}[1]".format(args.flavor, args.flavor))
     results.append(df.Histo1D(("scoresum_flavor", "", *bins_score_sum), "scoresum_flavor"))
+    
 
 
     # check missing momentum
@@ -359,9 +313,10 @@ def build_graph(df, dataset):
     df = df.Define("miss_pT", "FCCAnalyses::ReconstructedParticle::get_pt(missP)[0]")
     results.append(df.Histo1D(("miss_p", "", 50, 0, 100), "miss_p"))
     results.append(df.Histo1D(("miss_pT", "", 50, 0, 100), "miss_pT"))
-
+    
+ 
     #########
-    ### Cut 6: sum of B-tagging scores > 1
+    ### Cut 5: sum of B-tagging scores > 1
     #########
     dic_jetscores = config_jj['cuts']['sum_jetscores_min']
     scoresum_min = dic_jetscores[args.flavor]
@@ -369,50 +324,54 @@ def build_graph(df, dataset):
     df = df.Filter("scoresum_flavor > {}".format(scoresum_min))  # minimum sum of jet scores
     df = df.Define("cut6", "6")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
+ 
+  
 
 
-    results.append(df.Histo1D(("m_jj_cut6", "", 100, 0, 200), "m_jj"))
+   
 
-    results.append(df.Histo1D(("miss_p_cut6", "", 50, 0, 100), "miss_p"))
-    results.append(df.Histo1D(("miss_pT_cut6", "", 50, 0, 100), "miss_pT"))
+    results.append(df.Histo1D(("miss_p_cut3", "", 50, 0, 100), "miss_p"))
+    results.append(df.Histo1D(("miss_pT_cut3", "", 50, 0, 100), "miss_pT"))
 
+   
+
+    results.append(df.Histo1D(("m_jj_cut5", "", 100, 0, 200), "jj_m"))
 
     ##########
-    ### CUT 7: Cut on inv mass of the two jets (Higgs mass)
+    ### CUT 6: Cut on inv mass of the two jets (Higgs mass)
     ##########
     mjj_min = config_jj['cuts']['m_jj_range'][args.flavor][0]
     mjj_max = config_jj['cuts']['m_jj_range'][args.flavor][1]
-    df = df.Filter(f"{mjj_min} < m_jj && m_jj < {mjj_max}")  # Higgs mass range cut
+    df = df.Filter(f"{mjj_min} < jj_m && jj_m < {mjj_max}")  # Higgs mass range cut
     df = df.Define("cut7", "7")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 
+    results.append(df.Histo1D(("m_jj_cut6", "", 100, 0, 200), "jj_m"))
 
-    ########
-    ### Cut 8: cut on cos theta of the two jets
-    ########
 
-    # Does not improve the analysis
+    #########
+    ### CUT 4: gamma recoil cut
+    #########
+    df = df.Filter(f"{recoil_mass_min} < gamma_recoil_m && gamma_recoil_m < {recoil_mass_max}") 
+    #df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}") 
+    #df = df.Filter("115 < gamma_recoil_m && gamma_recoil_m < 170") 
 
-    # df = df.Define("jets_rp", "FCCAnalyses::ZHfunctions::get_rp_from_jets(jets_p4[0], jets_p4[1])")
-    # df = df.Define("jets_unboosted", "FCCAnalyses::ZHfunctions::unboost_WW(jets_rp, photons_boosted[0], {})".format(ecm))  # unboost the jets to the gamma rest frame
-    # df = df.Define("jets_theta", "FCCAnalyses::ReconstructedParticle::get_theta(jets_unboosted)")
-    # df = df.Define("jets_cos_theta", "cos(jets_theta)")
-    # results.append(df.Histo1D(("jets_cos_theta", "", 50, -1, 1), "jets_cos_theta"))
+    df = df.Define("cut8", "8")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
-    # jj_cos_theta_max = config_jj['cuts']['jj_cos_theta_max']
-    # df = df.Filter("abs(jets_cos_theta[0]) < {}".format(jj_cos_theta_max) + "&& abs(jets_cos_theta[1]) < {}".format(jj_cos_theta_max))  # cos(theta) cut on the two jets
-    # df = df.Define("cut8", "8")
-    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
+    results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 40, 110, 150), "gamma_recoil_m"))
+    #results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 64, 116, 170), "gamma_recoil_m"))
+     
 
    
     #########
     ### CUT 8: gamma recoil cut tight
     #########
-    results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
 
     df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}") 
-    df = df.Define("cut8", "8")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
+    df = df.Define("cut9", "9")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
+    results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
 
    
 

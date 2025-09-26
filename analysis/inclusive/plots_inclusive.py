@@ -1,12 +1,26 @@
 import ROOT
 import os
 import yaml
+import argparse
 
 def load_config(config_path):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
-config = load_config("config/config_240.yaml")
+
+# Set up argument parser
+parser = argparse.ArgumentParser(description="Run a specific analysis: H->jj with j=b,g,tau")
+parser.add_argument(
+    "--flavor", "-f",
+    type=str,
+    default="B",
+    help="Choose from: B, G, TAU"
+)
+args, _ = parser.parse_known_args()  
+
+
+config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_test_365.yaml")
+config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_365.yaml")
 
 
 # global parameters
@@ -18,8 +32,11 @@ energy         = config['ecm']
 collider       = 'FCC-ee'
 formats        = ['png','pdf']
 
-outdir         = os.path.join(config['outputDir'], str(energy),'plots/recoil') 
-inputDir       = os.path.join(config['outputDir'], str(energy),'histmaker/recoil')
+
+outdir         = os.path.join(config['outputDir'], str(energy),'plots/',config_jj['outputDir_sub'], 'H{}{}'.format(args.flavor.lower(), args.flavor.lower()))
+inputDir       = os.path.join(config['outputDir'], str(energy),'histmaker/', config_jj['outputDir_sub'], 'H{}{}'.format(args.flavor.lower(), args.flavor.lower()))
+print(outdir)
+print(inputDir)
 
 plotStatUnc    = True
 
@@ -39,16 +56,19 @@ colors['Amumu'] = ROOT.kMagenta
 #procs['signal'] = {'ZH':['wzp6_ee_mumuH_ecm240']}
 #procs['backgrounds'] =  {'WW':['p8_ee_WW_ecm240'], 'ZZ':['p8_ee_ZZ_ecm240']}
 procs = {}
-procs['signal'] = {'AH':[f"p8_ee_Hgamma_ecm{config['ecm']}"]}
+procs['signal'] = {'AH':[f"mgp8_ee_ha_ecm{config['ecm']}_h{args.flavor.lower() + args.flavor.lower()}"]}
+
 procs['backgrounds'] =  {
-    'Aqq':[f"p8_ee_qqgamma_ecm{config['ecm']}"], 
-    'Acc':[f"p8_ee_ccgamma_ecm{config['ecm']}"], 
-    'Abb':[f"p8_ee_bbgamma_ecm{config['ecm']}"], 
-    'Atautau':[f"p8_ee_tautaugamma_ecm{config['ecm']}"], 
-    'Amumu':[f"p8_ee_mumugamma_ecm{config['ecm']}"], 
-    'Aee':[f"p8_ee_eegamma_ecm{config['ecm']}"], 
+    'Aqq':[f"wzp6_ee_qqa_ecm{config['ecm']}"], 
+    'Acc':[f"wzp6_ee_cca_ecm{config['ecm']}"], 
+    'Abb':[f"wzp6_ee_bba_ecm{config['ecm']}"], 
+    'Atautau':[f"wzp6_ee_tautaua_ecm{config['ecm']}"], 
+    'Amumu':[f"wzp6_ee_mumua_ecm{config['ecm']}"], 
+    'Aee':[f"wzp6_ee_eea_ecm{config['ecm']}"], 
     'WW':[f"p8_ee_WW_ecm{config['ecm']}"], 
-    'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"]}
+    'ZZ':[f"p8_ee_ZZ_ecm{config['ecm']}"],
+    'ZH':[f"mgp8_ee_zh_ecm{config['ecm']}"]
+}
 
 legend = {}
 legend['AH'] = '#gamma H'
@@ -60,7 +80,7 @@ legend['ZZ'] = 'ZZ'
 legend['Aee'] = '#gamma e^{+} e^{-}'
 legend['Atautau'] = '#gamma #tau^{+} #tau^{-}'
 legend['Amumu'] = '#gamma #mu^{+} #mu^{-}'
-#legend['ZH'] = 'ZH'
+legend['ZH'] = 'ZH'
 
 
 hists = {}
@@ -77,11 +97,11 @@ hists["cutFlow"] = {
     "logy":     True,
     "stack":   True,
     "xmin":     0,
-    "xmax":     7,
+    "xmax":     8,
     "ymin":     1e4,
     "ymax":     1e11,
     #"xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5"],
-    "xtitle":   ["All events", f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)],
+    "xtitle":   ["All events", "iso veto",f"iso < {config['cuts']['photon_iso_threshold']}", str(config['cuts']['photon_energy_range'][0]) + "< p_{#gamma} < " + str(config['cuts']['photon_energy_range'][1]), "|cos(#theta)_{#gamma}|<" + str(config['cuts']['photon_cos_theta_max']), f"n particles > {config['cuts']['min_n_reco_no_gamma']}", str(recoil_mass_min) + " < m_{recoil} < " + str(recoil_mass_max), str(signal_mass_min) + " < m_{recoil} < " + str(signal_mass_max)],
     "ytitle":   "Events ",
 }
 
@@ -500,3 +520,17 @@ hists["zmumu_m"] = {
     "xtitle":   "m(#mu^{#plus}#mu^{#minus}) (GeV)",
     "ytitle":   "Events ",
 }"""
+
+
+hists["num_isolated_leptons"] = {
+    "input":   "num_isolated_leptons",
+    "output":   "num_isolated_leptons",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     10,
+    "xtitle":   "isolated leptons",
+    "ytitle":   "Events ",
+    "scaleSig": 1000,
+    "density": False
+}

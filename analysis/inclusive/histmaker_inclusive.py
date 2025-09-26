@@ -6,9 +6,25 @@ def load_config(config_path):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
+# Set up argument parser
+parser = argparse.ArgumentParser(description="Run a specific analysis: H->jj with j=b,g")
+parser.add_argument(
+    "--flavor", "-f",
+    type=str,
+    default="B",
+    help="Choose from: B, G"
+)
+args, _ = parser.parse_known_args()  # <-- Ignore unknown args
+
+if args.flavor not in ["B", "G"]:
+    raise ValueError("Invalid flavor specified. Choose from: B, G")
 
 
-config = load_config("config/config_240.yaml")
+
+
+config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_test_365.yaml")
+config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_365.yaml")
+
 
 print("Configuration:")
 print(config)
@@ -17,29 +33,32 @@ print(config)
 
 ecm = config['ecm']
 scaling_factor = config['scaling_factor']
+flavortag = args.flavor.lower() + args.flavor.lower() # bb or gg
+br_flavor = config_jj['branching_ratios'][args.flavor]  # branching ratio for H->XX, e.g. H->bb or H->gg
 
 # list of processes (mandatory)
 processList = {}
-processList = {}
 for key, val in config['processList'].items():
-    entry = {
-        'fraction': float(val['fraction']),
-    }
-    if 'crossSection' in val:
-        entry['crossSection'] = float(val['crossSection'])  # optional
-        entry['inputDir'] = os.path.join(config['inputDirBase'], str(ecm))
-    processList[f"{key}_ecm{ecm}"] = entry
+    if key == 'mgp8_ee_ha':
+        frac = float(val['fraction']) 
+        br_WW = 0.215  # branching ratio for H->WW
+        xsec = {'160': 2.127e-5 * br_flavor, '240': 8.773e-5 * br_flavor, '365': 2.975e-5 * br_flavor}.get(str(ecm), 0)
+        entry = {
+            'fraction': frac,
+            'crossSection': xsec
+        }
+        processList[f"{key}_ecm{ecm}_h{flavortag}"] = entry
+    else:
+        entry = {
+            'fraction': float(val['fraction']),
+        }
+        if 'crossSection' in val:
+            entry['crossSection'] = float(val['crossSection'])  # optional
+        if 'inputDir' in val:
+            entry['inputDir'] = os.path.join(val['inputDir'], str(ecm))
+        processList[f"{key}_ecm{ecm}"] = entry
 
-"""
-for key, val in config['processList'].items():
-    processList[key + f"_ecm{ecm}"] = {
-        'fraction': float(val['fraction']),
-        'crossSection': float(val['crossSection']),
-        'inputDir': os.path.join(config['inputDirBase'], str(ecm))
-    }
-"""
 print(processList)
-
 
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
@@ -56,7 +75,7 @@ includePaths = ["../functions.h"]
 #inputDir    = "/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data"
 
 #Optional: output directory, default is local running directory
-outputDir   =  os.path.join(config['outputDir'], str(ecm),'histmaker/recoil')
+outputDir   =  os.path.join(config['outputDir'], str(ecm),'histmaker/', config_jj['outputDir_sub'], 'H{}{}'.format(args.flavor.lower(), args.flavor.lower()))
 print(outputDir)
 
 # optional: ncpus, default is 4, -1 uses all cores available
@@ -150,7 +169,9 @@ def build_graph(df, dataset):
             "electrons_all",
             "FCCAnalyses::ReconstructedParticle::get(Electron0, ReconstructedParticles)",
         )
-
+    
+    df = df.Alias("Muon0", "Muon#0.index")
+    df = df.Define("muons_all", "FCCAnalyses::ReconstructedParticle::get(Muon0, ReconstructedParticles)")
     
 
 
@@ -203,14 +224,41 @@ def build_graph(df, dataset):
 
     results.append(df.Histo1D(("photon_isolation", "", 50, 0, 10), "photons_iso"))
 
+     ##########
+    ### CUT 1: isolated lepton veto
+    ##########
+    df = df.Define(
+        "muons_iso",
+        "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.5)(muons_all, ReconstructedParticles)",
+    )
+    df = df.Define(
+        "muons_sel_iso",
+        "FCCAnalyses::ZHfunctions::sel_iso(0.25)(muons_all, muons_iso)",
+    )
+    df = df.Define(
+        "electrons_iso",
+        "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.5)(electrons_all, ReconstructedParticles)",
+    )
+    df = df.Define(
+        "electrons_sel_iso",
+        "FCCAnalyses::ZHfunctions::sel_iso(0.25)(electrons_all, electrons_iso)",
+    )
+
+    df = df.Define("num_isolated_leptons", "electrons_sel_iso.size() + muons_sel_iso.size()")
+    results.append(df.Histo1D(("num_isolated_leptons", "", 10, 0, 10), "num_isolated_leptons"))
+
+    df = df.Filter("num_isolated_leptons == 0")  # no isolated lepton
+    df = df.Define("cut1", "1")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut1"))
+
      
     #########
-    ### CUT 1: Photons must be isolated
+    ### CUT 2: Photons must be isolated
     #########
     
     df = df.Filter("photons_sel_iso.size()>0 ")  
-    df = df.Define("cut1", "1")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut1"))
+    df = df.Define("cut2", "2")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
     
     results.append(df.Histo1D(("photons_p_cut_1", "",  130, 0, 130), "photons_iso_p"))
     results.append(df.Histo1D(("photons_n_cut_1", "", *bins_a_n), "photons_iso_n"))
@@ -238,12 +286,12 @@ def build_graph(df, dataset):
 
     
     #########
-    ### CUT 2: Photons energy > 50
+    ### CUT 3: Photons energy > 50
     #########
     
     df = df.Filter("photons_boosted.size()>0 ")  
-    df = df.Define("cut2", "2")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
+    df = df.Define("cut3", "3")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
     
     results.append(df.Histo1D(("photons_p_cut_2", "",  130, 0, 130), "photons_boosted_p"))
     results.append(df.Histo1D(("photons_n_cut_2", "", *bins_a_n), "photons_boosted_n"))
@@ -253,12 +301,12 @@ def build_graph(df, dataset):
 
     
      #########
-    ### CUT 3: Cos Theta cut
+    ### CUT 4: Cos Theta cut
     #########
     df = df.Filter(f"ROOT::VecOps::All(abs(photons_boosted_cos_theta) < {photon_cos_theta_max}) ") 
    
-    df = df.Define("cut3", "3")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
+    df = df.Define("cut4", "4")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
     
     results.append(df.Histo1D(("photons_p_cut_3", "", 130, 0, 130), "photons_boosted_p"))
     results.append(df.Histo1D(("photons_n_cut_3", "", *bins_a_n), "photons_boosted_n"))
@@ -293,12 +341,12 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("gamma_recoil_m_cut_3", "", 170, 80, 250), "gamma_recoil_m"))
     
     #########
-    ### CUT 4: require at least 6 reconstructed particles (except gamma)
+    ### CUT 5: require at least 6 reconstructed particles (except gamma)
     #########
     df = df.Filter(f" recopart_no_gamma_n > {min_n_reco_no_gamma}") 
     
-    df = df.Define("cut4", "4")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
+    df = df.Define("cut5", "5")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
  
     results.append(df.Histo1D(("recopart_no_gamma_n_cut_4", "", 60, 0, 60), "recopart_no_gamma_n"))
     
@@ -309,13 +357,13 @@ def build_graph(df, dataset):
 
 
     #########
-    ### CUT 5: gamma recoil cut
+    ### CUT 6: gamma recoil cut
     #########
     df = df.Filter(f"{recoil_mass_min} < gamma_recoil_m && gamma_recoil_m < {recoil_mass_max}") 
     #df = df.Filter("115 < gamma_recoil_m && gamma_recoil_m < 170") 
 
-    df = df.Define("cut5", "5")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
+    df = df.Define("cut6", "6")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
 
     results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 40, 110, 150), "gamma_recoil_m"))
     #results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 64, 116, 170), "gamma_recoil_m"))
@@ -326,8 +374,8 @@ def build_graph(df, dataset):
     #df = df.Filter("123.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
     df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}") 
 
-    df = df.Define("cut6", "6")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
+    df = df.Define("cut7", "7")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 
     results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 70, 80, 150), "gamma_recoil_m"))
 
