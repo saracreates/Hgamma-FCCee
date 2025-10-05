@@ -431,9 +431,9 @@ def build_graph(df, dataset):
     results.append(df.Histo1D((f"jet1_nconst_N2", "", 30, 0, 30), f"jet1_nconst_N2"))
     results.append(df.Histo1D((f"jet2_nconst_N2", "", 30, 0, 30), f"jet2_nconst_N2"))
 
-    # df = df.Filter(f"jet1_nconst_N2 > {config_WW['cuts']['n_const_per_jet']} && jet2_nconst_N2 > {config_WW['cuts']['n_const_per_jet']}")  # at least 4 constituent in each jet
-    # df = df.Define("cut10", "10")
-    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
+    df = df.Filter(f"jet1_nconst_N2 > {config_WW['cuts']['n_const_per_jet']} && jet2_nconst_N2 > {config_WW['cuts']['n_const_per_jet']}")  # at least 4 constituent in each jet
+    df = df.Define("cut10", "10")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
 
 
     # plot some histograms 
@@ -443,7 +443,6 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("lepton_p_cut10", "", 100, 0, 100), "lepton_p"))
     results.append(df.Histo1D(("lepton_pT_cut10", "", 100, 0, 100), "lepton_pT"))
     results.append(df.Histo1D(("miss_pT_cut10", "", 100, 0, 200), "miss_pT"))
-
 
 
 
@@ -497,12 +496,12 @@ def build_graph(df, dataset):
 
 
         ##########
-        ### CUT 10: MVA score cut
+        ### CUT 11: MVA score cut
         ##########
         mva_cut_value = config_WW['cuts']['mva_score_cut']
         df = df.Filter("mva_score_signal > {}".format(mva_cut_value))  # MVA score cut
-        df = df.Define("cut10", "10")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
+        df = df.Define("cut11", "11")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
         # # do a scan
         # mva_cut_values = config_WW['cuts']['mva_score_cut']
@@ -512,27 +511,38 @@ def build_graph(df, dataset):
         #     results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+11}"))
             
 
+        ##########
+        ### CUT 12: lepton momentum cut
+        ##########
+        results.append(df.Histo1D(("gamma_recoil_m_tight_cut_backup", "", 80, 110, 150), "gamma_recoil_m"))
+        results.append(df.Histo1D(("gamma_recoil_m_very_tight_cut_backup", "", 60, 120, 135), "gamma_recoil_m"))
+        results.append(df.Histo1D(("gamma_recoil_m_last_cut_backup", "", 40, 110, 150), "gamma_recoil_m"))
+
+        df = df.Filter("lepton_pT > " + str(config_WW['cuts']['lepton_pT_min']))  # lepton momentum cut
+        df = df.Define("cut12", "12")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
 
         #########
-        ### CUT 11: gamma recoil cut tight
+        ### CUT 13: gamma recoil cut tight
         #########
         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
         results.append(df.Histo1D(("gamma_recoil_m_very_tight_cut", "", 60, 120, 135), "gamma_recoil_m"))
+        results.append(df.Histo1D(("gamma_recoil_m_last_cut", "", 40, 110, 150), "gamma_recoil_m"))
 
         df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
-        df = df.Define("cut11", "11")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+        df = df.Define("cut13", "13")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut13"))
     else:
         #########
-        ### CUT 10: gamma recoil cut tight
+        ### CUT 11: gamma recoil cut tight
         #########
         #df = df.Filter("13.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
         results.append(df.Histo1D(("gamma_recoil_m_very_tight_cut", "", 60, 120, 135), "gamma_recoil_m"))
 
         df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
-        df = df.Define("cut10", "10")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
+        df = df.Define("cut11", "11")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
 
     return results, weightsum

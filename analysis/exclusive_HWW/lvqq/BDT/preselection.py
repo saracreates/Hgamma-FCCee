@@ -51,14 +51,13 @@ else:
         f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 1, 'crossSection': xsec[str(ecm)][1], 'inputDir':inputDir}, 
     }
 '''
-xsec = {'240': [1.286e-01, 8.773e-05* 0.2137], '365': [1.131e-02, 2.975e-05* 0.2137]} # cross sections for 240 and 365 GeV for wzp6_aqqW and mgp8_ee_ha_ecm240_hww
-if int(ecm) == 240 or int(ecm) == 365:
-    processList = {
-        f'wzp6_ee_aqqW_ecm{ecm}': {'fraction': 1, 'inputDir': inputDir, 'crossSection': xsec[str(ecm)][0]},
-        f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 1, 'crossSection': xsec[str(ecm)][1], 'inputDir':inputDir},
-    }
-else:
-    raise ValueError("Only 240, 365 GeV is supported at the moment!")
+xsec = {'160': [2.328e-02, 2.127e-5* 0.2137], '240': [1.286e-01, 8.773e-05* 0.2137], '365': [1.131e-02, 2.975e-05* 0.2137]} # cross sections for 240 and 365 GeV for wzp6_aqqW and mgp8_ee_ha_ecm240_hww
+
+processList = {
+    f'wzp6_ee_aqqW_ecm{ecm}': {'fraction': 1, 'inputDir': inputDir, 'crossSection': xsec[str(ecm)][0]},
+    f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 1, 'crossSection': xsec[str(ecm)][1], 'inputDir':inputDir},
+}
+
 
 
 

@@ -101,7 +101,7 @@ intLumi = config['intLumi']
 # define some binning for various histograms
 bins_a_p = (100, 0, 500) # 100 MeV bins
 bins_a_n = (10, 0, 10) # 100 MeV bins
-bins_count = (40, 0, 40)
+bins_count = (45, 0, 45)
 
 
 # name of collections in EDM root files
@@ -398,16 +398,16 @@ def build_graph(df, dataset):
     # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
     ########
-    ### CUT X: missing transverse momentum
+    ### CUT 8: missing transverse momentum
     ########
 
-    # df = df.Filter(f"miss_pT > {config_WW['cuts']['pT_miss']}")  # missing transverse momentum cut
-    # df = df.Define("cut8", "8")
-    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
+    df = df.Filter(f"miss_pT > {config_WW['cuts']['pT_miss']}")  # missing transverse momentum cut
+    df = df.Define("cut8", "8")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
 
     ##########
-    ### CUT X: recoil of photon plus qq jets must be in W mass range
+    ### CUT 9: recoil of photon plus qq jets must be in W mass range
     ##########
 
     df = df.Define("jet1", "jets_p4[0]")
@@ -418,22 +418,22 @@ def build_graph(df, dataset):
     df = df.Define("recoil_W_m", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_W)[0]")  # recoil mass of photon plus qq jets
     results.append(df.Histo1D(("recoil_W_m", "", 100, 0, 200), "recoil_W_m"))
 
-    # recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range']
+    recoil_gammaqq_min, recoil_gammaqq_max = config_WW['cuts']['recoil_gammaqq_range']
 
-    # df = df.Filter(f"{recoil_gammaqq_min} < recoil_W_m && recoil_W_m < {recoil_gammaqq_max}")  # W mass range cut
-    # df = df.Define("cut9", "9")
-    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
+    df = df.Filter(f"{recoil_gammaqq_min} < recoil_W_m && recoil_W_m < {recoil_gammaqq_max}")  # W mass range cut
+    df = df.Define("cut9", "9")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
 
     ########
-    ### CUT 8: number of constituents in jets
+    ### CUT 10: number of constituents in jets
     ########
 
-    results.append(df.Histo1D((f"jet1_nconst_N2_cut8", "", 30, 0, 30), f"jet1_nconst_N2"))
-    results.append(df.Histo1D((f"jet2_nconst_N2_cut8", "", 30, 0, 30), f"jet2_nconst_N2"))
+    results.append(df.Histo1D((f"jet1_nconst_N2_cut10", "", 30, 0, 30), f"jet1_nconst_N2"))
+    results.append(df.Histo1D((f"jet2_nconst_N2_cut10", "", 30, 0, 30), f"jet2_nconst_N2"))
 
     df = df.Filter(f"jet1_nconst_N2 > {config_WW['cuts']['n_const_per_jet']} && jet2_nconst_N2 > {config_WW['cuts']['n_const_per_jet']}")  # at least 4 constituent in each jet
-    df = df.Define("cut8", "8")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
+    df = df.Define("cut10", "10")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
 
 
 
@@ -492,12 +492,12 @@ def build_graph(df, dataset):
 
 
     #########
-    ### CUT X: lepton pT cut
+    ### CUT 11: lepton pT cut
     #########
-    # results.append(df.Histo1D(("lepton_pT_cut11", "", 100, 0, 200), "lepton_pT"))
-    # df = df.Filter(f"lepton_pT > {config_WW['cuts']['pT_lepton']}")  # lepton pT cut
-    # df = df.Define("cut11", "11")
-    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+    results.append(df.Histo1D(("lepton_pT_cut11", "", 100, 0, 200), "lepton_pT"))
+    df = df.Filter(f"lepton_pT > {config_WW['cuts']['pT_lepton']}")  # lepton pT cut
+    df = df.Define("cut11", "11")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
 
 
@@ -523,22 +523,22 @@ def build_graph(df, dataset):
 
 
         ##########
-        ### CUT 9: MVA score cut
+        ### CUT 12: MVA score cut
         ##########
         mva_cut_value = config_WW['cuts']['mva_score_cut']
         df = df.Filter("mva_score_signal > {}".format(mva_cut_value))  # MVA score cut
-        df = df.Define("cut9", "9")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
+        df = df.Define("cut12", "12")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
 
         # # do a scan
         # mva_cut_values = config_WW['cuts']['mva_score_cut']
         # for i, mva_cut_value in enumerate(mva_cut_values):
         #     df_cut = df.Filter("mva_score_signal > {}".format(mva_cut_value))
-        #     df_cut = df_cut.Define(f"cut{i+9}", f"{i+9}")
-        #     results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+9}"))
+        #     df_cut = df_cut.Define(f"cut{i+12}", f"{i+12}")
+        #     results.append(df_cut.Histo1D(("cutFlow", "", *bins_count), f"cut{i+12}"))
 
         #########
-        ### CUT 10: gamma recoil cut tight
+        ### CUT 13: gamma recoil cut tight
         #########
         results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
         results.append(df.Histo1D(("gamma_recoil_m_test_cut", "", 40, 120, 140), "gamma_recoil_m"))
@@ -547,9 +547,10 @@ def build_graph(df, dataset):
         results.append(df.Histo1D(("gamma_recoil_m_very_tight_cut", "", 60, 120, 135), "gamma_recoil_m"))
         results.append(df.Histo1D(("gamma_recoil_m_very_tight_cut_half", "", 30, 120, 135), "gamma_recoil_m"))
 
+
         df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
-        df = df.Define("cut10", "10")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
+        df = df.Define("cut13", "13")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut13"))
 
 
     else:
@@ -561,8 +562,8 @@ def build_graph(df, dataset):
         results.append(df.Histo1D(("gamma_recoil_m_very_tight_cut", "", 60, 120, 135), "gamma_recoil_m"))
 
         df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}")
-        df = df.Define("cut9", "9")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
+        df = df.Define("cut12", "12")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
 
 
     return results, weightsum

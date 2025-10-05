@@ -29,21 +29,21 @@ print("Setting up analysis for ecm =", ecm)
 outputDir   = f"outputs/{ecm}/preselection/lvqq/trainingdata"
 inputDir = "/afs/cern.ch/work/s/saaumill/public/analyses/symlink_gammalvqq"
 # xsec = {'240': [16.4385, 8.773e-05* 0.2137], '365': [10.7165, 2.975e-05* 0.2137]} # cross sections for 240 and 365 GeV for p8_ee_WW and mgp8_ee_ha_ecm240_hww
-xsec = {'240': [1.286e-01, 8.773e-05* 0.2137], '365': [1.131e-02, 2.975e-05* 0.2137]} # cross sections for 240 and 365 GeV for wzp6_aqqW and mgp8_ee_ha_ecm240_hww
+xsec = {'160': [2.328e-02, 2.127e-5* 0.2137], '240': [1.286e-01, 8.773e-05* 0.2137], '365': [1.131e-02, 2.975e-05* 0.2137]} # cross sections for 240 and 365 GeV for wzp6_aqqW and mgp8_ee_ha_ecm240_hww
 
-if int(ecm) == 160: # xsec not online yet
-    processList = {
-        # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-        f'p8_ee_WW_ecm{ecm}': {'fraction': 0.5, 'inputDir': '/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/'}, 
-        f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 0.5, 'crossSection': 2.127e-5 * 0.2137, 'inputDir': '/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/'}, 
-    }
-else:
-    processList = {
-        # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-        #f'p8_ee_WW_ecm{ecm}': {'fraction': 1, 'crossSection': xsec[str(ecm)][0], 'inputDir': inputDir}, 
-        f'wzp6_ee_aqqW_ecm{ecm}': {'fraction': 1, 'inputDir': inputDir, 'crossSection': xsec[str(ecm)][0]},
-        f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 1, 'crossSection': xsec[str(ecm)][1], 'inputDir':inputDir}, 
-    }
+
+# processList = { # 160
+#     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
+#     f'p8_ee_WW_ecm{ecm}': {'fraction': 0.5, 'inputDir': '/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/'}, 
+#     f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 0.5, 'crossSection': 2.127e-5 * 0.2137, 'inputDir': '/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/'}, 
+# }
+
+processList = {
+    # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
+    #f'p8_ee_WW_ecm{ecm}': {'fraction': 1, 'crossSection': xsec[str(ecm)][0], 'inputDir': inputDir}, 
+    f'wzp6_ee_aqqW_ecm{ecm}': {'fraction': 1, 'inputDir': inputDir, 'crossSection': xsec[str(ecm)][0]},
+    f'mgp8_ee_ha_ecm{ecm}_hww':   {'fraction': 1, 'crossSection': xsec[str(ecm)][1], 'inputDir':inputDir}, 
+}
 
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
