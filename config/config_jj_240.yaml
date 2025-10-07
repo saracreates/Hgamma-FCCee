@@ -4,5 +4,5 @@ branching_ratios:
   G: 0.082
   TAU: 0.062
 cuts:
-  m_jj_range: {B: [105, 135], G: [105, 135]} # G: [118, 128]} test this! # Higgs
-  sum_jetscores_min: {B: 1.03, G: 1.27}  # minimum sum of jet. Best values: B: 1.03, G: 1.33, TAU: ? 
+  m_jj_range: {B: [105, 135], G: [115, 130], TAU: [10, 135]} # G: [118, 128]} test this! # Higgs
+  sum_jetscores_min: {B: 1.03, G: 1.2, TAU: 1.9}  # minimum sum of jet. Best values: B: 1.03, G: 1.33, TAU: ? 

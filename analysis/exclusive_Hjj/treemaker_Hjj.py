@@ -12,16 +12,29 @@ parser.add_argument(
     "--flavor", "-f",
     type=str,
     default="B",
-    help="Choose from: B, G"
+    help="Choose from: B, G, TAU"
+)
+parser.add_argument(
+    "--config", "-c",
+    type=int,
+    default=240,
+    help="Choose from: 160, 240,365"
 )
 args, _ = parser.parse_known_args()  # <-- Ignore unknown args
 
-if args.flavor not in ["B", "G"]:
+if args.flavor not in ["B", "G", "TAU"]:
     raise ValueError("Invalid flavor specified. Choose from: B, G")
 
+if args.config == 160:
+    config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_160.yaml")
+    config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_160.yaml")
+elif args.config == 240:
+    config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_240.yaml")
+    config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_240.yaml")
+elif args.config == 365:
+    config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_365.yaml")
+    config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_365.yaml")
 
-config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_test.yaml")
-config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_240.yaml")
 
 print("Configuration:")
 print(config)
@@ -31,6 +44,7 @@ print(config)
 ecm = config['ecm']
 flavortag = args.flavor.lower() + args.flavor.lower() # bb or gg
 br_flavor = config_jj['branching_ratios'][args.flavor]  # branching ratio for H->XX, e.g. H->bb or H->gg
+
 
 # list of processes (mandatory)
 processList = {}

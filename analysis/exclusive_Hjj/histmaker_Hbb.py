@@ -263,14 +263,16 @@ def build_graph(df, dataset):
 
     df = df.Define("num_isolated_leptons", "electrons_sel_iso.size() + muons_sel_iso.size()")
     results.append(df.Histo1D(("num_isolated_leptons", "", 10, 0, 10), "num_isolated_leptons"))
-    #test without lepton veto
-    
+
     df = df.Filter("num_isolated_leptons == 0")  # no isolated lepton
     df = df.Define("cut2", "2")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
-   
+
     results.append(df.Histo1D(("num_isolated_leptons_veto", "", 10, 0, 10), "num_isolated_leptons"))
     results.append(df.Histo1D(("m_jj_cut2", "", 100, 0, 200), "jj_m"))
+
+
+
 
     #######
     ### CUT 2: photon momentum
@@ -283,8 +285,18 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("photons_p_cut_2", "",  200, 0, 200), "photons_boosted_p"))
     results.append(df.Histo1D(("photons_n_cut_2", "", *bins_a_n), "photons_boosted_n"))
     results.append(df.Histo1D(("photons_cos_theta_cut_2", "", 50, -1, 1), "photons_boosted_cos_theta"))
- 
- 
+
+
+  
+    #######
+    ### m cut variable
+    #########
+    df = df.Define(
+        "m_cut",
+        "FCCAnalyses::ZHfunctions::get_mcut(jj_m, 12,  240, photons_boosted_p, 87.5)",
+    )
+    
+    
     #######
     ### CUT 3: cosine theta
     #########
@@ -313,11 +325,9 @@ def build_graph(df, dataset):
     #########
     ### CUT 4: require at least 6 reconstructed particles (except gamma)
     #########
-    df = df.Filter(f" recopart_no_gamma_n < {min_n_reco_no_gamma}") 
+    df = df.Filter(f" recopart_no_gamma_n > {min_n_reco_no_gamma}") 
     df = df.Define("cut5", "5")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
-
-    results.append(df.Histo1D(("recopart_no_gamma_n_after", "", 100, 0, 100), "recopart_no_gamma_n"))
  
     print("flavor!!")
     print("recojet_is{}0".format(args.flavor))
@@ -325,8 +335,8 @@ def build_graph(df, dataset):
 
     df = df.Define("recojet_is{}0".format(args.flavor), "recojet_is{}[0]".format(args.flavor))
     df = df.Define("recojet_is{}1".format(args.flavor), "recojet_is{}[1]".format(args.flavor))
-    results.append(df.Histo1D(("recojet_isTAU0", "", *bins_score_sum), "recojet_is{}0".format(args.flavor)))
-    results.append(df.Histo1D(("recojet_isTAU1", "", *bins_score_sum), "recojet_is{}1".format(args.flavor)))
+    results.append(df.Histo1D(("recojet_isG0", "", *bins_score_sum), "recojet_is{}0".format(args.flavor)))
+    results.append(df.Histo1D(("recojet_isG1", "", *bins_score_sum), "recojet_is{}1".format(args.flavor)))
 
     df = df.Define("scoresum_flavor", "recojet_is{}[0] + recojet_is{}[1]".format(args.flavor, args.flavor))
     results.append(df.Histo1D(("scoresum_flavor", "", *bins_score_sum), "scoresum_flavor"))
@@ -354,7 +364,8 @@ def build_graph(df, dataset):
 
     results.append(df.Histo1D(("scoresum_flavor_cut6", "", *bins_score_sum), "scoresum_flavor"))
 
-    
+    results.append(df.Histo1D(("miss_p_cut3", "", 50, 0, 100), "miss_p"))
+    results.append(df.Histo1D(("miss_pT_cut3", "", 50, 0, 100), "miss_pT"))
 
    
 
@@ -365,26 +376,21 @@ def build_graph(df, dataset):
     ##########
     mjj_min = config_jj['cuts']['m_jj_range'][args.flavor][0]
     mjj_max = config_jj['cuts']['m_jj_range'][args.flavor][1]
-    df = df.Filter(f"{mjj_min} < jj_m ")  # for hadhad 
-    #df = df.Filter(f"{mjj_min} < jj_m && jj_m <  {mjj_max}") 
+    df = df.Filter(f"{mjj_min} < jj_m && jj_m < {mjj_max}")  # Higgs mass range cut
     df = df.Define("cut7", "7")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 
     results.append(df.Histo1D(("m_jj_cut6", "", 100, 0, 200), "jj_m"))
 
-    results.append(df.Histo1D(("miss_p_cut6", "", 50, 0, 100), "miss_p"))
-    results.append(df.Histo1D(("miss_pT_cut6", "", 50, 0, 100), "miss_pT"))
-
-     ##########
-    ### CUT 7: miss pt 
-    ##########
-    df = df.Filter("2 < miss_pT ") 
+    results.append(df.Histo1D(("m_cut", "",  100, 0, 100), "m_cut"))
+     
+    df = df.Filter("m_cut < 10") 
     df = df.Define("cut8", "8")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
-    results.append(df.Histo1D(("miss_pT_cut8", "", 50, 0, 100), "miss_pT"))
+    results.append(df.Histo1D(("m_cut_after", "",  100, 0, 100), "m_cut"))
 
-  
+
     #########
     ### CUT 4: gamma recoil cut
     #########

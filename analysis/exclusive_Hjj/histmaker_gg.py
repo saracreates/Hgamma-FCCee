@@ -188,7 +188,7 @@ def build_graph(df, dataset):
 
 
     #Baseline selection
-    results.append(df.Histo1D(("photons_p_cut_0", "", 130, 0, 130), "photons_p"))
+    results.append(df.Histo1D(("photons_p_cut_0", "", 150, 0, 150), "photons_p"))
     results.append(df.Histo1D(("photons_n_cut_0", "", *bins_a_n), "photons_n"))
     results.append(df.Histo1D(("photons_cos_theta_cut_0", "", 50, -1, 1), "photons_cos_theta"))
 
@@ -263,12 +263,11 @@ def build_graph(df, dataset):
 
     df = df.Define("num_isolated_leptons", "electrons_sel_iso.size() + muons_sel_iso.size()")
     results.append(df.Histo1D(("num_isolated_leptons", "", 10, 0, 10), "num_isolated_leptons"))
-    #test without lepton veto
-    
+
     df = df.Filter("num_isolated_leptons == 0")  # no isolated lepton
     df = df.Define("cut2", "2")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
-   
+
     results.append(df.Histo1D(("num_isolated_leptons_veto", "", 10, 0, 10), "num_isolated_leptons"))
     results.append(df.Histo1D(("m_jj_cut2", "", 100, 0, 200), "jj_m"))
 
@@ -313,7 +312,7 @@ def build_graph(df, dataset):
     #########
     ### CUT 4: require at least 6 reconstructed particles (except gamma)
     #########
-    df = df.Filter(f" recopart_no_gamma_n < {min_n_reco_no_gamma}") 
+    df = df.Filter(f" recopart_no_gamma_n > {min_n_reco_no_gamma}") 
     df = df.Define("cut5", "5")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
 
@@ -325,11 +324,11 @@ def build_graph(df, dataset):
 
     df = df.Define("recojet_is{}0".format(args.flavor), "recojet_is{}[0]".format(args.flavor))
     df = df.Define("recojet_is{}1".format(args.flavor), "recojet_is{}[1]".format(args.flavor))
-    results.append(df.Histo1D(("recojet_isTAU0", "", *bins_score_sum), "recojet_is{}0".format(args.flavor)))
-    results.append(df.Histo1D(("recojet_isTAU1", "", *bins_score_sum), "recojet_is{}1".format(args.flavor)))
+    results.append(df.Histo1D(("recojet_isG0", "", *bins_score_sum), "recojet_is{}0".format(args.flavor)))
+    results.append(df.Histo1D(("recojet_isG1", "", *bins_score_sum), "recojet_is{}1".format(args.flavor)))
 
     df = df.Define("scoresum_flavor", "recojet_is{}[0] + recojet_is{}[1]".format(args.flavor, args.flavor))
-    results.append(df.Histo1D(("scoresum_flavor", "", *bins_score_sum), "scoresum_flavor"))
+    
     
 
 
@@ -339,6 +338,19 @@ def build_graph(df, dataset):
     df = df.Define("miss_pT", "FCCAnalyses::ReconstructedParticle::get_pt(missP)[0]")
     results.append(df.Histo1D(("miss_p", "", 50, 0, 100), "miss_p"))
     results.append(df.Histo1D(("miss_pT", "", 50, 0, 100), "miss_pT"))
+
+    ##########
+    ### CUT 6: Cut on inv mass of the two jets (Higgs mass)
+    ##########
+    mjj_min = config_jj['cuts']['m_jj_range'][args.flavor][0]
+    mjj_max = config_jj['cuts']['m_jj_range'][args.flavor][1]
+    df = df.Filter(f"{mjj_min} < jj_m && jj_m < {mjj_max}")  # Higgs mass range cut
+    df = df.Define("cut6", "6")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
+
+    results.append(df.Histo1D(("m_jj_cut6", "", 100, 0, 200), "jj_m"))
+
+    results.append(df.Histo1D(("scoresum_flavor", "", *bins_score_sum), "scoresum_flavor"))
     
  
     #########
@@ -348,43 +360,36 @@ def build_graph(df, dataset):
     scoresum_min = dic_jetscores[args.flavor]
     # print("Using minimum sum of jet scores for {}: {}".format(args.flavor, scoresum_min))
     df = df.Filter("scoresum_flavor > {}".format(scoresum_min))  # minimum sum of jet scores
-    df = df.Define("cut6", "6")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
+   # df = df.Filter("recojet_isG0 > 0.4")  
+    df = df.Define("cut7", "7")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
+
+    results.append(df.Histo1D(("recojet_isG0_cut6", "", *bins_score_sum), "recojet_is{}0".format(args.flavor)))
+    results.append(df.Histo1D(("recojet_isG1_cut6", "", *bins_score_sum), "recojet_is{}1".format(args.flavor)))
     
 
     results.append(df.Histo1D(("scoresum_flavor_cut6", "", *bins_score_sum), "scoresum_flavor"))
 
     
-
-   
-
-    results.append(df.Histo1D(("m_jj_cut5", "", 100, 0, 200), "jj_m"))
-
-    ##########
-    ### CUT 6: Cut on inv mass of the two jets (Higgs mass)
-    ##########
-    mjj_min = config_jj['cuts']['m_jj_range'][args.flavor][0]
-    mjj_max = config_jj['cuts']['m_jj_range'][args.flavor][1]
-    df = df.Filter(f"{mjj_min} < jj_m ")  # for hadhad 
-    #df = df.Filter(f"{mjj_min} < jj_m && jj_m <  {mjj_max}") 
-    df = df.Define("cut7", "7")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
-
-    results.append(df.Histo1D(("m_jj_cut6", "", 100, 0, 200), "jj_m"))
-
-    results.append(df.Histo1D(("miss_p_cut6", "", 50, 0, 100), "miss_p"))
-    results.append(df.Histo1D(("miss_pT_cut6", "", 50, 0, 100), "miss_pT"))
-
-     ##########
-    ### CUT 7: miss pt 
-    ##########
-    df = df.Filter("2 < miss_pT ") 
+    """
+    #########
+    ### Cut : g score 1
+    #########
+    df = df.Filter("recojet_isG1 > 0.5")  
     df = df.Define("cut8", "8")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
+    
 
-    results.append(df.Histo1D(("miss_pT_cut8", "", 50, 0, 100), "miss_pT"))
+    results.append(df.Histo1D(("recojet_isG0_cut7", "", *bins_score_sum), "recojet_is{}0".format(args.flavor)))
+    results.append(df.Histo1D(("recojet_isG1_cut7", "", *bins_score_sum), "recojet_is{}1".format(args.flavor)))
+    """
+    results.append(df.Histo1D(("m_jj_cut5", "", 100, 0, 200), "jj_m"))
+    results.append(df.Histo1D(("miss_p_cut3", "", 50, 0, 100), "miss_p"))
+    results.append(df.Histo1D(("miss_pT_cut3", "", 50, 0, 100), "miss_pT"))
 
-  
+
+
+
     #########
     ### CUT 4: gamma recoil cut
     #########
@@ -392,10 +397,10 @@ def build_graph(df, dataset):
     #df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}") 
     #df = df.Filter("115 < gamma_recoil_m && gamma_recoil_m < 170") 
 
-    df = df.Define("cut9", "9")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
+    df = df.Define("cut8", "8")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
-    results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 40, 110, 150), "gamma_recoil_m"))
+    results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 26, 113, 139), "gamma_recoil_m"))
     #results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 40, 115, 150), "gamma_recoil_m"))
     #results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 64, 116, 170), "gamma_recoil_m"))
      
@@ -406,8 +411,8 @@ def build_graph(df, dataset):
     #########
 
     df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}") 
-    df = df.Define("cut10", "10")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
+    df = df.Define("cut9", "9")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
     results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 80, 110, 150), "gamma_recoil_m"))
 
    

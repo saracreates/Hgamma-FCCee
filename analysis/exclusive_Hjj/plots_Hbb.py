@@ -113,11 +113,11 @@ hists["cutFlow"] = {
     "logy":     True,
     "stack":   True,
     "xmin":     0,
-    "xmax":     8,
+    "xmax":     9,
     "ymin":     1e4,
     "ymax":     1e11,
     #"xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5"],
-    "xtitle":   ["All events", "photon isolation from treemaker","lepton veto","photon momentum", "cos theta","particle n cut", "mjj cut", "tagger score cut",  "m recoil loose","m recoil tight"], 
+    "xtitle":   ["All events", "photon isolation from treemaker","lepton veto","photon momentum", "cos theta","particle n cut",  "tagger score cut", "mjj cut", "mcut", "m recoil loose","m recoil tight"], 
     "ytitle":   "Events ",
 }
 
@@ -173,6 +173,29 @@ hists["gamma_recoil_m"] = {
     "density": True
 }
 
+hists["m_cut"] = {
+    "input":   "m_cut",
+    "output":   "m_cut",
+    "logy":     True,
+    "stack":    False,
+    "xmin":     0,
+    "xmax":     100,
+    "xtitle":   "m_cut (GeV)",
+    "ytitle":   "Events ",
+    "density": False
+}
+
+hists["m_cut_after"] = {
+    "input":   "m_cut_after",
+    "output":   "m_cut_after",
+    "logy":     True,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     100,
+    "xtitle":   "m_cut (GeV)",
+    "ytitle":   "Events ",
+    "density": False
+}
 
 hists["photons_p_cut_2"] = {
     "input":   "photons_p_cut_2",

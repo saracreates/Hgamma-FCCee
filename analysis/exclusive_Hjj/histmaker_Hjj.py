@@ -12,16 +12,29 @@ parser.add_argument(
     "--flavor", "-f",
     type=str,
     default="B",
-    help="Choose from: B, G"
+    help="Choose from: B, G, TAU"
+)
+parser.add_argument(
+    "--config", "-c",
+    type=int,
+    default=240,
+    help="Choose from: 160, 240,365"
 )
 args, _ = parser.parse_known_args()  # <-- Ignore unknown args
 
-if args.flavor not in ["B", "G"]:
+if args.flavor not in ["B", "G", "TAU"]:
     raise ValueError("Invalid flavor specified. Choose from: B, G")
 
 
-config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_365.yaml")
-config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_365.yaml")
+if args.config == 160:
+    config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_test_160.yaml")
+    config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_160.yaml")
+elif args.config == 240:
+    config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_240.yaml")
+    config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_240.yaml")
+elif args.config == 365:
+    config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_test.yaml")
+    config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_365.yaml")
 
 
 print("Configuration:")
@@ -167,7 +180,6 @@ def build_graph(df, dataset):
     df = df.Define("photons_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_all))")
     
 
-
     #########
     ### CUT 0: all events
     #########
@@ -230,14 +242,20 @@ def build_graph(df, dataset):
         "muons_iso",
         "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.5)(muons_all, ReconstructedParticles)",
     )
+    results.append(df.Histo1D(("iso_muons", "", 500, 0, 10), "muons_iso"))
+
     df = df.Define(
         "muons_sel_iso",
         "FCCAnalyses::ZHfunctions::sel_iso(0.25)(muons_all, muons_iso)",
     )
+
     df = df.Define(
         "electrons_iso",
         "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.5)(electrons_all, ReconstructedParticles)",
     )
+
+    results.append(df.Histo1D(("iso_electrons", "", 500, 0, 10), "electrons_iso"))
+
     df = df.Define(
         "electrons_sel_iso",
         "FCCAnalyses::ZHfunctions::sel_iso(0.25)(electrons_all, electrons_iso)",
@@ -251,7 +269,7 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
 
     results.append(df.Histo1D(("num_isolated_leptons_veto", "", 10, 0, 10), "num_isolated_leptons"))
-
+    results.append(df.Histo1D(("m_jj_cut2", "", 100, 0, 200), "jj_m"))
 
     #######
     ### CUT 2: photon momentum
@@ -284,23 +302,28 @@ def build_graph(df, dataset):
     df = df.Define("gamma_recoil", f"FCCAnalyses::ReconstructedParticle::recoilBuilder({ecm})(photons_boosted)") 
     df = df.Define("gamma_recoil_m", "FCCAnalyses::ReconstructedParticle::get_mass(gamma_recoil)[0]") # recoil mass
     results.append(df.Histo1D(("gamma_recoil_m", "", 170, 80, 250), "gamma_recoil_m"))
+
+    results.append(df.Histo1D(("gamma_recoil_m_ini", "", 40, 110, 150), "gamma_recoil_m"))
     
 
     #you might want to remove this, without you get precision 110
     df = df.Define("recopart_no_gamma_n","FCCAnalyses::ReconstructedParticle::get_n(recopart_no_gamma)") 
+    results.append(df.Histo1D(("recopart_no_gamma_n", "", 100, 0, 100), "recopart_no_gamma_n"))
     #########
     ### CUT 4: require at least 6 reconstructed particles (except gamma)
     #########
     df = df.Filter(f" recopart_no_gamma_n > {min_n_reco_no_gamma}") 
     df = df.Define("cut5", "5")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
+ 
+    print("flavor!!")
+    print("recojet_is{}0".format(args.flavor))
 
 
-
-    df = df.Define("recojet_isB0", "recojet_is{}[0]".format(args.flavor))
-    df = df.Define("recojet_isB1", "recojet_is{}[1]".format(args.flavor))
-    results.append(df.Histo1D(("recojet_isB0", "", *bins_score_sum), "recojet_isB0"))
-    results.append(df.Histo1D(("recojet_isB1", "", *bins_score_sum), "recojet_isB1"))
+    df = df.Define("recojet_is{}0".format(args.flavor), "recojet_is{}[0]".format(args.flavor))
+    df = df.Define("recojet_is{}1".format(args.flavor), "recojet_is{}[1]".format(args.flavor))
+    results.append(df.Histo1D(("recojet_isG0", "", *bins_score_sum), "recojet_is{}0".format(args.flavor)))
+    results.append(df.Histo1D(("recojet_isG1", "", *bins_score_sum), "recojet_is{}1".format(args.flavor)))
 
     df = df.Define("scoresum_flavor", "recojet_is{}[0] + recojet_is{}[1]".format(args.flavor, args.flavor))
     results.append(df.Histo1D(("scoresum_flavor", "", *bins_score_sum), "scoresum_flavor"))
@@ -324,11 +347,9 @@ def build_graph(df, dataset):
     df = df.Filter("scoresum_flavor > {}".format(scoresum_min))  # minimum sum of jet scores
     df = df.Define("cut6", "6")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
- 
-  
+    
 
-
-   
+    results.append(df.Histo1D(("scoresum_flavor_cut6", "", *bins_score_sum), "scoresum_flavor"))
 
     results.append(df.Histo1D(("miss_p_cut3", "", 50, 0, 100), "miss_p"))
     results.append(df.Histo1D(("miss_pT_cut3", "", 50, 0, 100), "miss_pT"))
@@ -360,6 +381,7 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
     results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 40, 110, 150), "gamma_recoil_m"))
+    #results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 40, 115, 150), "gamma_recoil_m"))
     #results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 64, 116, 170), "gamma_recoil_m"))
      
 

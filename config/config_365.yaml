@@ -7,22 +7,22 @@ inputDirBase: "/eos/user/l/lherrman/FCC/data/HiggsGamma"
 outputDir: "/eos/user/l/lherrman/FCC/Higgsgamma/outputs/"
 
 processList:
-  mgp8_ee_ha:    {fraction: 0.5}
-  wzp6_ee_bba:   {fraction: 0.001}
-  wzp6_ee_cca:   {fraction: 0.5}
-  wzp6_ee_qqa:   {fraction: 0.5}
-  wzp6_ee_eea:   {fraction: 0.5}
-  wzp6_ee_mumua: {fraction: 0.5}
-  wzp6_ee_tautaua: {fraction: 0.1}
-  p8_ee_WW:        {fraction: 0.05} # do NOT increase highter than 0.5 for HWW if you use the BDT!
-  p8_ee_ZZ:        {fraction: 0.1}
+  #mgp8_ee_ha:    {fraction: 1}
+  wzp6_ee_bba:   {fraction: 0.08} #8000000
+  wzp6_ee_cca:   {fraction: 1}
+  wzp6_ee_qqa:   {fraction: 1}
+  wzp6_ee_eea:   {fraction: 1}
+  wzp6_ee_mumua: {fraction: 1}
+  wzp6_ee_tautaua: {fraction: 1}
+  p8_ee_WW:        {fraction: 0.08} # do NOT increase highter than 0.5 for HWW if you use the BDT!
+  p8_ee_ZZ:        {fraction: 1}
   p8_ee_tt:      {fraction: 1}
  
 
 cuts:
   photon_iso_cone_radius_range: [0.01, 0.5]
   photon_iso_threshold: 0.2
-  photon_energy_range: [130, 170] 
+  photon_energy_range: [140, 170] 
   photon_cos_theta_max: 0.95
   recoil_mass_range: [110, 150]
   recoil_mass_signal_range: [123.5, 126.5]

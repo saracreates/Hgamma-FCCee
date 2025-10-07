@@ -542,6 +542,17 @@ float get_costheta(float theta) {
     return std::cos(theta);
 }
 
+
+float get_mcut(float mjj, float sigma_mjj, float cms, ROOT::VecOps::RVec<float> photon_energy, float mono_p) {
+    float m_cut;
+    auto photon_energy_scalar = photon_energy[0];
+ 
+    m_cut = std::sqrt(((mjj-cms)*(mjj-cms)/(sigma_mjj*sigma_mjj))+((photon_energy_scalar-mono_p)*(photon_energy_scalar-mono_p)/(0.03*0.03*mono_p)));
+
+    return m_cut;
+
+}
+
 Vec_f sorted_scores(float score1, float score2){
     // sort scores in descending order
     Vec_f scores;
