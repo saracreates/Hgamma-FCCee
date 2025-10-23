@@ -1,0 +1,15 @@
+Overview of the files used for BDT training: 
+
+
+bb channel at 240 GeV:
+signal: 1.000.000 events available -> 10 files
+bb background: 100.000.000 events available -> 1000 files
+
+Not more than half of events used for training: 
+signal (61% survive cuts): 1000000*0.5*0.61 ~ 300000 events
+for background I want the same amount of events (3% survive the cuts)
+
+--> 5 signal files
+--> 125 background files
+
+
