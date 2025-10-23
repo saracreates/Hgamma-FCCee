@@ -617,6 +617,51 @@ Vec_rp sort_rp_by_energy(Vec_rp particles) {
 
 
 
+float get_jet_energy(const ROOT::RVec<TLorentzVector> &jets, int position) {
+
+    if (jets.size() >= 2) {
+        return jets[position].E(); 
+    } else {
+        return -1;
+    }
+}
+
+float get_jet_costheta(const ROOT::RVec<TLorentzVector> &jets, int position) {
+
+    if (jets.size() >= 2) {
+        return std::cos(jets[position].Theta()); 
+    } else {
+        return -1;
+    }
+}
+
+float get_jet_cosphi(const ROOT::RVec<TLorentzVector> &jets, int position) {
+
+    if (jets.size() >= 2) {
+        return std::cos(jets[position].Phi()); 
+    } else {
+        return -1;
+    }
+}
+
+float transform_score(float score){
+    return std::log(score/(1-score));
+}
+
+float angular_dist(const ROOT::RVec<TLorentzVector> &jets){
+    
+    if (jets.size() >= 2) {
+        TVector3 j1 = jets[0].Vect();
+        TVector3 j2 = jets[1].Vect();
+        return j1.Dot(j2)/(j1.Mag()*j2.Mag()); 
+    } else {
+        return 2;
+    }
+
+}
+
+
+
 }}
 
 #endif

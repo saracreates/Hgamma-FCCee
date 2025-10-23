@@ -1,6 +1,7 @@
 import os, copy
 import yaml
 import argparse
+from addons.TMVAHelper.TMVAHelper import TMVAHelperXGB
 
 def load_config(config_path):
     with open(config_path, "r") as f:
@@ -30,7 +31,7 @@ if args.config == 160:
     config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_test_160.yaml")
     config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_160.yaml")
 elif args.config == 240:
-    config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_240.yaml")
+    config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_test.yaml")
     config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_240.yaml")
 elif args.config == 365:
     config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_test.yaml")
@@ -84,7 +85,8 @@ includePaths = ["../functions.h"]
 #Optional: output directory, default is local running directory
 outputDir   =  os.path.join(config['outputDir'], str(ecm),'histmaker/', config_jj['outputDir_sub'], 'H{}{}'.format(args.flavor.lower(), args.flavor.lower()))
 print(outputDir)
-inputDir   =  os.path.join(config['outputDir'], str(ecm),'treemaker/', config_jj['outputDir_sub'], 'H{}{}'.format(args.flavor.lower(), args.flavor.lower()))
+#inputDir   =  os.path.join(config['outputDir'], str(ecm),'treemaker/', config_jj['outputDir_sub'], 'H{}{}'.format(args.flavor.lower(), args.flavor.lower()))
+inputDir   =  os.path.join(config['outputDir'], str(ecm),'treemaker/increase_eval_stat/', config_jj['outputDir_sub'], 'H{}{}'.format(args.flavor.lower(), args.flavor.lower()))
 # optional: ncpus, default is 4, -1 uses all cores available
 nCPUS       = -1
 
@@ -178,6 +180,18 @@ def build_graph(df, dataset):
     df = df.Define("photons_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_all)") 
     df = df.Define("photons_n","FCCAnalyses::ReconstructedParticle::get_n(photons_all)")  #number of photons per event
     df = df.Define("photons_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_all))")
+
+    #jet energy
+    df = df.Define("jet0_energy", "FCCAnalyses::ZHfunctions::get_jet_energy(jets_p4,0)") 
+    df = df.Define("jet1_energy", "FCCAnalyses::ZHfunctions::get_jet_energy(jets_p4,1)") 
+    df = df.Define("jet_energy_ratio", "jet1_energy/jet0_energy") 
+    results.append(df.Histo1D(("jet0_energy", "", 200, 0, 200), "jet0_energy"))
+    results.append(df.Histo1D(("jet1_energy", "", 200, 0, 200), "jet1_energy"))
+    results.append(df.Histo1D(("jet_energy_ratio", "", 100, 0, 1), "jet_energy_ratio"))
+
+    #angular distance
+    df = df.Define("cos_jet_dist", "FCCAnalyses::ZHfunctions::angular_dist(jets_p4)") 
+    results.append(df.Histo1D(("cos_jet_dist", "", 100, -1, 1), "cos_jet_dist"))
     
 
     #########
@@ -191,6 +205,8 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("photons_p_cut_0", "", 130, 0, 130), "photons_p"))
     results.append(df.Histo1D(("photons_n_cut_0", "", *bins_a_n), "photons_n"))
     results.append(df.Histo1D(("photons_cos_theta_cut_0", "", 50, -1, 1), "photons_cos_theta"))
+
+    
 
 
     #isolation cut
@@ -287,7 +303,8 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("photons_cos_theta_cut_2", "", 50, -1, 1), "photons_boosted_cos_theta"))
 
 
-  
+    
+
     #######
     ### m cut variable
     #########
@@ -295,7 +312,7 @@ def build_graph(df, dataset):
         "m_cut",
         "FCCAnalyses::ZHfunctions::get_mcut(jj_m, 12,  240, photons_boosted_p, 87.5)",
     )
-    
+    results.append(df.Histo1D(("m_cut", "",  100, 0, 100), "m_cut"))
     
     #######
     ### CUT 3: cosine theta
@@ -335,8 +352,8 @@ def build_graph(df, dataset):
 
     df = df.Define("recojet_is{}0".format(args.flavor), "recojet_is{}[0]".format(args.flavor))
     df = df.Define("recojet_is{}1".format(args.flavor), "recojet_is{}[1]".format(args.flavor))
-    results.append(df.Histo1D(("recojet_isG0", "", *bins_score_sum), "recojet_is{}0".format(args.flavor)))
-    results.append(df.Histo1D(("recojet_isG1", "", *bins_score_sum), "recojet_is{}1".format(args.flavor)))
+    results.append(df.Histo1D(("recojet_isB0", "", *bins_score_sum), "recojet_is{}0".format(args.flavor)))
+    results.append(df.Histo1D(("recojet_isB1", "", *bins_score_sum), "recojet_is{}1".format(args.flavor)))
 
     df = df.Define("scoresum_flavor", "recojet_is{}[0] + recojet_is{}[1]".format(args.flavor, args.flavor))
     results.append(df.Histo1D(("scoresum_flavor", "", *bins_score_sum), "scoresum_flavor"))
@@ -382,14 +399,70 @@ def build_graph(df, dataset):
 
     results.append(df.Histo1D(("m_jj_cut6", "", 100, 0, 200), "jj_m"))
 
-    results.append(df.Histo1D(("m_cut", "",  100, 0, 100), "m_cut"))
+    
      
-    df = df.Filter("m_cut < 10") 
-    df = df.Define("cut8", "8")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
+   # df = df.Filter("m_cut < 15") 
+   # df = df.Define("cut8", "8")
+   # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
-    results.append(df.Histo1D(("m_cut_after", "",  100, 0, 100), "m_cut"))
+   # results.append(df.Histo1D(("m_cut_after", "",  100, 0, 100), "m_cut"))
 
+
+   
+
+
+    #look at remaining BDT variables:
+    # cos theta j1
+    df = df.Define("jet0_costheta", "FCCAnalyses::ZHfunctions::get_jet_costheta(jets_p4,0)")
+    df = df.Define("jet1_costheta", "FCCAnalyses::ZHfunctions::get_jet_costheta(jets_p4,1)")
+    df = df.Define("jet0_cosphi", "FCCAnalyses::ZHfunctions::get_jet_cosphi(jets_p4,0)")
+    df = df.Define("jet1_cosphi", "FCCAnalyses::ZHfunctions::get_jet_cosphi(jets_p4,1)")
+
+    results.append(df.Histo1D(("jet0_costheta", "", 200, -1, 1), "jet0_costheta"))
+    results.append(df.Histo1D(("jet1_costheta", "", 200, -1, 1), "jet1_costheta"))
+    results.append(df.Histo1D(("jet0_cosphi", "", 200, -1, 1), "jet0_cosphi"))
+    results.append(df.Histo1D(("jet1_cosphi", "", 200, -1, 1), "jet1_cosphi"))
+
+    do_inference = config_jj.get('do_inference', False)
+    if do_inference:
+
+        #convert the data types
+        df = df.Redefine("jj_m", "static_cast<float>(jj_m)")
+        df = df.Redefine("m_cut", "static_cast<float>(m_cut)")
+        df = df.Redefine("jet_energy_ratio", "static_cast<float>(jet_energy_ratio)")
+        df = df.Redefine("cos_jet_dist", "static_cast<float>(cos_jet_dist)")
+        df = df.Redefine("photons_boosted_p", "static_cast<float>(photons_boosted_p[0])")
+        df = df.Redefine("photons_boosted_n", "static_cast<float>(photons_boosted_n)")
+        df = df.Redefine("photons_boosted_cos_theta", "static_cast<float>(photons_boosted_cos_theta[0])")
+        df = df.Redefine("jet0_costheta", "static_cast<float>(jet0_costheta)")
+        df = df.Redefine("jet1_costheta", "static_cast<float>(jet1_costheta)")
+        df = df.Redefine("jet0_cosphi", "static_cast<float>(jet0_cosphi)")
+        df = df.Redefine("jet1_cosphi", "static_cast<float>(jet1_cosphi)")
+        df = df.Redefine("recopart_no_gamma_n", "static_cast<float>(recopart_no_gamma_n)")
+        df = df.Redefine("gamma_recoil_m", "static_cast<float>(gamma_recoil_m)")
+        df = df.Redefine("miss_p", "static_cast<float>(miss_p)")
+        df = df.Redefine("miss_pT", "static_cast<float>(miss_pT)")
+
+    
+        # inference with TMVAHelperXGB
+        bdt_name = config_jj['BDT']
+        BDTName = os.path.join(config['outputDir'], str(ecm),'treemaker/BDT/', config_jj['outputDir_sub'], 'H{}{}'.format(args.flavor.lower(), args.flavor.lower()), '{}.root'.format(bdt_name))
+        tmva_helper = TMVAHelperXGB(BDTName, "bdt_model") # read the XGBoost training
+        
+        df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
+        df = df.Define("mva_score_signal", "mva_score[0]")
+        bins_mva = (100, 0, 1)
+       
+        results.append(df.Histo1D(("mva_score_signal", "", 100,0,1), "mva_score_signal"))
+        df = df.Define("mva_score_trafo", "FCCAnalyses::ZHfunctions::transform_score(mva_score_signal)")
+        df = df.Filter("mva_score_signal > 0") 
+        df = df.Define("cut8", "8")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
+        results.append(df.Histo1D(("mva_score_trafo", "", 72,-14,5), "mva_score_trafo"))
+        
+        #df = df.Define("cut9", "9")
+        #results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
+        
 
     #########
     ### CUT 4: gamma recoil cut
@@ -401,10 +474,9 @@ def build_graph(df, dataset):
     df = df.Define("cut9", "9")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
 
-    results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 40, 110, 150), "gamma_recoil_m"))
+    results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 18, 122, 140), "gamma_recoil_m"))
     #results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 40, 115, 150), "gamma_recoil_m"))
     #results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 64, 116, 170), "gamma_recoil_m"))
-     
 
    
     #########

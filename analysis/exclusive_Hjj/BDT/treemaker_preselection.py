@@ -12,16 +12,29 @@ parser.add_argument(
     "--flavor", "-f",
     type=str,
     default="B",
-    help="Choose from: B, G"
+    help="Choose from: B, G, TAU"
+)
+parser.add_argument(
+    "--config", "-c",
+    type=int,
+    default=240,
+    help="Choose from: 160, 240,365"
 )
 args, _ = parser.parse_known_args()  # <-- Ignore unknown args
 
-if args.flavor not in ["B", "G"]:
+if args.flavor not in ["B", "G", "TAU"]:
     raise ValueError("Invalid flavor specified. Choose from: B, G")
 
+if args.config == 160:
+    config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_160.yaml")
+    config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_160.yaml")
+elif args.config == 240:
+    config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_240.yaml")
+    config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_240.yaml")
+elif args.config == 365:
+    config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_365.yaml")
+    config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_365.yaml")
 
-config = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_365.yaml")
-config_jj = load_config("/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/config/config_jj_365.yaml")
 
 print("Configuration:")
 print(config)
@@ -31,6 +44,12 @@ print(config)
 ecm = config['ecm']
 flavortag = args.flavor.lower() + args.flavor.lower() # bb or gg
 br_flavor = config_jj['branching_ratios'][args.flavor]  # branching ratio for H->XX, e.g. H->bb or H->gg
+
+#Optional: output directory, default is local running directory
+outputDir   =  os.path.join(config['outputDir'], str(ecm),'treemaker/BDT/', config_jj['outputDir_sub'], 'H{}{}'.format(args.flavor.lower(), args.flavor.lower()))
+print(outputDir)
+inputDir = "/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/ourrepo/Hgamma-FCCee/analysis/exclusive_Hjj/BDT/symlinks"
+
 
 # list of processes (mandatory)
 processList = {}
@@ -58,21 +77,18 @@ print(processList)
 
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
-prodTag     = "FCCee/winter2023/IDEA/"
+#prodTag     = "FCCee/winter2023/IDEA/"
 
 # Link to the dictonary that contains all the cross section informations etc... (mandatory)
 procDict = "FCCee_procDict_winter2023_IDEA.json"
 
 # additional/custom C++ functions, defined in header files (optional)
-includePaths = ["../functions.h"]
+includePaths = ["../../functions.h"]
 
 # Define the input dir (optional)
 #inputDir    = "outputs/FCCee/higgs/mH-recoil/mumu/stage1"
 #inputDir    = "/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data"
 
-#Optional: output directory, default is local running directory
-outputDir   =  os.path.join(config['outputDir'], str(ecm),'treemaker/', config_jj['outputDir_sub'], 'H{}{}'.format(args.flavor.lower(), args.flavor.lower()))
-print(outputDir)
 
 # optional: ncpus, default is 4, -1 uses all cores available
 nCPUS       = -1
@@ -184,42 +200,86 @@ class RDFanalysis:
     
         df = df.Filter("photons_sel_iso.size()>0 ")
         df = df.Define("recopart_no_gamma", "FCCAnalyses::ReconstructedParticle::remove(ReconstructedParticles, photons_sel_iso)",)
-        """
+        
+        
+        
         #sort in p  and select highest energetic one
         df = df.Define("iso_highest_p","FCCAnalyses::ZHfunctions::sort_by_energy(photons_sel_iso)")
 
         #energy cut
         df = df.Define("photons_boosted", f"FCCAnalyses::ReconstructedParticle::sel_p({photon_energy_min},{photon_energy_max})(iso_highest_p)") # looked okay from photons all
-   
+        #df = df.Define("photons_boosted", "FCCAnalyses::ReconstructedParticle::sel_p(60,100)(iso_highest_p)")
+
         df = df.Define("photons_boosted_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_boosted)") # is this correct?
         df = df.Define("photons_boosted_n","FCCAnalyses::ReconstructedParticle::get_n(photons_boosted)") 
         df = df.Define("photons_boosted_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_boosted))")
-       
-        #########
-        ### CUT 2: Photons energy > 50
-        #########
     
-        df = df.Filter("photons_boosted.size()>0 ") 
-        
+    
+        ##########
+        ### CUT 1: isolated lepton veto
+        ##########
+        df = df.Define(
+            "muons_iso",
+            "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.5)(muons_all, ReconstructedParticles)",
+        )
+        results.append(df.Histo1D(("iso_muons", "", 500, 0, 10), "muons_iso"))
+
+        df = df.Define(
+            "muons_sel_iso",
+            "FCCAnalyses::ZHfunctions::sel_iso(0.25)(muons_all, muons_iso)",
+        )
+
+        df = df.Define(
+            "electrons_iso",
+            "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.5)(electrons_all, ReconstructedParticles)",
+        )
+
+
+        df = df.Define(
+            "electrons_sel_iso",
+            "FCCAnalyses::ZHfunctions::sel_iso(0.25)(electrons_all, electrons_iso)",
+        )
+
+        df = df.Define("num_isolated_leptons", "electrons_sel_iso.size() + muons_sel_iso.size()")
+
+        df = df.Filter("num_isolated_leptons == 0")  # no isolated lepton
+   
+
+    
+
+        #######
+        ### CUT 2: photon momentum
         #########
-        ### CUT 3: Cos Theta cut
+        df = df.Filter("photons_boosted.size()>0 ")  
+    
+    
+        
+    
+    
+        #######
+        ### CUT 3: cosine theta
         #########
         df = df.Filter(f"ROOT::VecOps::All(abs(photons_boosted_cos_theta) < {photon_cos_theta_max}) ") 
       
-        ## create a new collection of reconstructed particles removing targeted photons
-        
-        df = df.Define("recopart_no_gamma_n","FCCAnalyses::ReconstructedParticle::get_n(recopart_no_gamma)") 
 
-        df = df.Define("gamma_recoil", "FCCAnalyses::ReconstructedParticle::recoilBuilder(240)(photons_boosted)") 
+        
+        # recoil plot
+        df = df.Define("gamma_recoil", f"FCCAnalyses::ReconstructedParticle::recoilBuilder({ecm})(photons_boosted)") 
         df = df.Define("gamma_recoil_m", "FCCAnalyses::ReconstructedParticle::get_mass(gamma_recoil)[0]") # recoil mass
         
-       
+
+        #you might want to remove this, without you get precision 110
+        df = df.Define("recopart_no_gamma_n","FCCAnalyses::ReconstructedParticle::get_n(recopart_no_gamma)") 
         #########
         ### CUT 4: require at least 6 reconstructed particles (except gamma)
         #########
         df = df.Filter(f" recopart_no_gamma_n > {min_n_reco_no_gamma}") 
+     
+    
+      
+
+
         
-        """
         ## perform N=2 jet clustering
         global jetClusteringHelper
         global jetFlavourHelper
@@ -262,6 +322,12 @@ class RDFanalysis:
         ## tagger inference
         df = jetFlavourHelper.inference(weaver_preproc, weaver_model, df)
 
+        df = df.Define("y23", "std::sqrt(JetClusteringUtils::get_exclusive_dmerge(_jet_N2, 2))")  # dmerge from 3 to 2
+        df = df.Define("y34", "std::sqrt(JetClusteringUtils::get_exclusive_dmerge(_jet_N2, 3))")  # dmerge from 4 to 3
+
+        i = 2
+        for j in range(1, 3):
+            df = df.Define(f"jet{j}_nconst_N{i}", f"(float)jet_nconst_N{i}[{j-1}]")
 
         df = df.Define(
             "jets_p4",
@@ -273,8 +339,78 @@ class RDFanalysis:
             "jj_m",
             "JetConstituentsUtils::InvariantMass(jets_p4[0], jets_p4[1])",
         )
+        
+        ## flavor
+        print("flavor!!")
+        print("recojet_is{}0".format(args.flavor))
 
-  
+
+        df = df.Define("recojet_is{}0".format(args.flavor), "recojet_is{}[0]".format(args.flavor))
+        df = df.Define("recojet_is{}1".format(args.flavor), "recojet_is{}[1]".format(args.flavor))
+        df = df.Define("scoresum_flavor", "recojet_is{}[0] + recojet_is{}[1]".format(args.flavor, args.flavor))
+        
+
+        # check missing momentum
+        df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
+        df = df.Define("miss_p", "FCCAnalyses::ReconstructedParticle::get_p(missP)[0]")
+        df = df.Define("miss_pT", "FCCAnalyses::ReconstructedParticle::get_pt(missP)[0]")
+    
+        #########
+        ### Cut 5: sum of B-tagging scores > 1
+        #########
+        dic_jetscores = config_jj['cuts']['sum_jetscores_min']
+        scoresum_min = dic_jetscores[args.flavor]
+        # print("Using minimum sum of jet scores for {}: {}".format(args.flavor, scoresum_min))
+        df = df.Filter("scoresum_flavor > {}".format(scoresum_min))  # minimum sum of jet scores
+
+
+    
+
+        ##########
+        ### CUT 6: Cut on inv mass of the two jets (Higgs mass)
+        ##########
+        mjj_min = config_jj['cuts']['m_jj_range'][args.flavor][0]
+        mjj_max = config_jj['cuts']['m_jj_range'][args.flavor][1]
+        df = df.Filter(f"{mjj_min} < jj_m && jj_m < {mjj_max}")  # Higgs mass range cut
+
+        #jet energy
+        df = df.Define("jet0_energy", "FCCAnalyses::ZHfunctions::get_jet_energy(jets_p4,0)") 
+        df = df.Define("jet1_energy", "FCCAnalyses::ZHfunctions::get_jet_energy(jets_p4,1)") 
+        df = df.Define("jet_energy_ratio", "jet1_energy/jet0_energy") 
+
+        #angular distance
+        df = df.Define("cos_jet_dist", "FCCAnalyses::ZHfunctions::angular_dist(jets_p4)") 
+
+       
+        # cos theta j1
+        df = df.Define("jet0_costheta", "FCCAnalyses::ZHfunctions::get_jet_costheta(jets_p4, 0)")
+        df = df.Define("jet1_costheta", "FCCAnalyses::ZHfunctions::get_jet_costheta(jets_p4, 1)")
+        df = df.Define("jet0_cosphi", "FCCAnalyses::ZHfunctions::get_jet_cosphi(jets_p4, 0)")
+        df = df.Define("jet1_cosphi", "FCCAnalyses::ZHfunctions::get_jet_cosphi(jets_p4, 1)")
+      
+        #######
+        ### m cut variable
+        #########
+        df = df.Define(
+            "m_cut",
+            "FCCAnalyses::ZHfunctions::get_mcut(jj_m, 12,  240, photons_boosted_p, 87.5)",
+        )
+
+
+        
+        #df = df.Filter("m_cut < 15") 
+
+
+
+        #########
+        ### CUT 4: gamma recoil cut
+        #########
+        df = df.Filter(f"{recoil_mass_min} < gamma_recoil_m && gamma_recoil_m < {recoil_mass_max}") 
+        #df = df.Filter(f"{signal_mass_min} < gamma_recoil_m && gamma_recoil_m < {signal_mass_max}") 
+        #df = df.Filter("115 < gamma_recoil_m && gamma_recoil_m < 170") 
+
+            
+    
        
         return df
 
@@ -283,13 +419,29 @@ class RDFanalysis:
     # Mandatory: output function, please make sure you return the branchlist as a python list
     def output():
         branchList = [
-            "ReconstructedParticles",
-            "photons_all",
-            "electrons_all",
-            "muons_all",
+            "m_cut",
+            "jet_energy_ratio",
+            "cos_jet_dist",
             "jj_m",
-            "recopart_no_gamma",
+            "photons_boosted_p",
+            "photons_boosted_n",
+            "photons_boosted_cos_theta",
+            "recopart_no_gamma_n",
+            "gamma_recoil_m",
+            "y23", 
+            "y34",
+            "jet1_nconst_N2", 
+            "jet2_nconst_N2", 
+            "miss_p", 
+            "miss_pT", 
+            "jet0_costheta", 
+            "jet1_costheta", 
+            "jet0_cosphi", 
+            "jet1_cosphi",
         ]
+
+
+         
 
         ## outputs jet scores and constituent breakdown
         branchList += jetFlavourHelper.outputBranches()

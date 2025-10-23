@@ -107,6 +107,7 @@ m_jj_min, m_jj_max = config_jj['cuts']['m_jj_range'][args.flavor]
 sum_jetscores = config_jj['cuts']['sum_jetscores_min'][args.flavor]
 
 
+
 hists["cutFlow"] = {
     "input":   "cutFlow",
     "output":   "cutFlow",
@@ -117,11 +118,41 @@ hists["cutFlow"] = {
     "ymin":     1e4,
     "ymax":     1e11,
     #"xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5"],
-    "xtitle":   ["All events", "photon isolation from treemaker","lepton veto","photon momentum", "cos theta","particle n cut",  "tagger score cut", "mjj cut", "mcut", "m recoil loose","m recoil tight"], 
+    "xtitle":   ["All events", "photon isolation from treemaker","lepton veto","photon momentum", "cos theta","particle n cut",  "tagger score cut", "mjj cut",  "mva cut","m recoil loose","m recoil tight"], 
     "ytitle":   "Events ",
 }
 
+do_inference = config_jj.get('do_inference', False)
+if do_inference:
+    hists["mva_score_signal"] = {
+    "input":   "mva_score_signal",
+    "output":   "mva_score_signal",
+    "logy":     True,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     1,
+    "xtitle":   "BDT signal score",
+    "ytitle":   "Events ",
+    "scaleSig": 100,
+    "density": False
+    }
 
+    hists["mva_score_trafo"] = {
+    "input":   "mva_score_trafo",
+    "output":   "mva_score_trafo",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     -14,
+    "xmax":     6,
+    "xtitle":   "log(score/(1-score))",
+    "ytitle":   "Events ",
+    "scaleSig": 100,
+    "density": False
+    }
+
+
+
+"""
 hists["gamma_recoil_m_tight_cut"] = {
     "input":   "gamma_recoil_m_tight_cut",
     "output":   "gamma_recoil_m_tight_cut",
@@ -134,7 +165,7 @@ hists["gamma_recoil_m_tight_cut"] = {
     "scaleSig": 100,
     "density": False
 }
-
+"""
 hists["gamma_recoil_m_ini"] = {
     "input":   "gamma_recoil_m_ini",
     "output":   "gamma_recoil_m_ini",
@@ -173,29 +204,45 @@ hists["gamma_recoil_m"] = {
     "density": True
 }
 
-hists["m_cut"] = {
-    "input":   "m_cut",
-    "output":   "m_cut",
+
+
+hists["jet0_energy"] = {
+    "input":   "jet0_energy",
+    "output":   "jet0_energy",
     "logy":     True,
-    "stack":    False,
+    "stack":    True,
     "xmin":     0,
-    "xmax":     100,
-    "xtitle":   "m_cut (GeV)",
+    "xmax":     200,
+    "xtitle":   "jet0_energy(GeV)",
     "ytitle":   "Events ",
     "density": False
 }
 
-hists["m_cut_after"] = {
-    "input":   "m_cut_after",
-    "output":   "m_cut_after",
+hists["jet1_energy"] = {
+    "input":   "jet1_energy",
+    "output":   "jet1_energy",
     "logy":     True,
     "stack":    True,
     "xmin":     0,
-    "xmax":     100,
-    "xtitle":   "m_cut (GeV)",
+    "xmax":     200,
+    "xtitle":   "jet1_energy(GeV)",
     "ytitle":   "Events ",
     "density": False
 }
+
+hists["jet_energy_ratio"] = {
+    "input":   "jet_energy_ratio",
+    "output":   "jet_energy_ratio",
+    "logy":     True,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     1,
+    "xtitle":   "jet_energy_ratio (GeV)",
+    "ytitle":   "Events ",
+    "density": False
+}
+
+
 
 hists["photons_p_cut_2"] = {
     "input":   "photons_p_cut_2",
@@ -353,11 +400,20 @@ hists["scoresum_flavor_cut6"] = {
     "density": True
 }
 
+hists["cos_jet_dist"] = {
+    "input":   "cos_jet_dist",
+    "output":   "cos_jet_dist",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     -1,
+    "xmax":     1,
+    "xtitle":   "cos_jet_dist",
+    "ytitle":   "Events ",
+}
 
-
-hists["recojet_isG0"] = {
-    "input":   "recojet_isG0",
-    "output":   "recojet_isG0",
+hists["recojet_isB0"] = {
+    "input":   "recojet_isB0",
+    "output":   "recojet_isB0",
     "logy":     False,
     "stack":    True,
     "xmin":     0,
@@ -367,9 +423,9 @@ hists["recojet_isG0"] = {
     "density": True
 }
 
-hists["recojet_isG1"] = {
-    "input":   "recojet_isG1",
-    "output":   "recojet_isG1",
+hists["recojet_isB1"] = {
+    "input":   "recojet_isB1",
+    "output":   "recojet_isB1",
     "logy":     False,
     "stack":    True,
     "xmin":     0,
@@ -379,29 +435,6 @@ hists["recojet_isG1"] = {
     "density": True
 }
 
-hists["recojet_isG0_cut6"] = {
-    "input":   "recojet_isG0_cut6",
-    "output":   "recojet_isG0_cut6",
-    "logy":     False,
-    "stack":    True,
-    "xmin":     0,
-    "xmax":     1,
-    "xtitle":   "flavor 0 score",
-    "ytitle":   "Events ",
-    "density": True
-}
-
-hists["recojet_isG1_cut6"] = {
-    "input":   "recojet_isG1_cut6",
-    "output":   "recojet_isG1_cut6",
-    "logy":     False,
-    "stack":    True,
-    "xmin":     0,
-    "xmax":     1,
-    "xtitle":   "flavor 1 score",
-    "ytitle":   "Events ",
-    "density": True
-}
 
 
 
@@ -409,18 +442,6 @@ hists["recojet_isG1_cut6"] = {
 hists["recopart_no_gamma_n"] = {
     "input":   "recopart_no_gamma_n",
     "output":   "recopart_no_gamma_n",
-    "logy":     False,
-    "stack":    True,
-    "xmin":     0,
-    "xmax":     100,
-    "xtitle":   "reco particle",
-    "ytitle":   "Events ",
-    "density": True
-}
-
-hists["recopart_no_gamma_n_after"] = {
-    "input":   "recopart_no_gamma_n_after",
-    "output":   "recopart_no_gamma_n_after",
     "logy":     False,
     "stack":    True,
     "xmin":     0,
@@ -480,6 +501,51 @@ hists["num_isolated_leptons_veto"] = {
     "density": False
 }
 
+hists["jet0_costheta"] = {
+    "input":   "jet0_costheta",
+    "output":   "jet0_costheta",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     -1,
+    "xmax":     1,
+    "xtitle":   "cotheta",
+    "ytitle":   "Events ",
+}
+
+hists["jet1_costheta"] = {
+    "input":   "jet1_costheta",
+    "output":   "jet1_costheta",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     -1,
+    "xmax":     1,
+    "xtitle":   "cotheta",
+    "ytitle":   "Events ",
+}
+
+hists["jet0_cosphi"] = {
+    "input":   "jet0_cosphi",
+    "output":   "jet0_cosphi",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     -1,
+    "xmax":     1,
+    "xtitle":   "cosphi",
+    "ytitle":   "Events ",
+}
+
+hists["jet1_cosphi"] = {
+    "input":   "jet1_cosphi",
+    "output":   "jet1_cosphi",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     -1,
+    "xmax":     1,
+    "xtitle":   "cosphi",
+    "ytitle":   "Events ",
+}
+
+
 hists["photons_cos_theta_cut_2"] = {
     "input":   "photons_cos_theta_cut_2",
     "output":   "photons_cos_theta_cut_2",
@@ -507,3 +573,14 @@ hists["photons_cos_theta_cut_3"] = {
     "density": True
 }
 
+hists["m_cut"] = {
+    "input":   "m_cut",
+    "output":   "m_cut",
+    "logy":     True,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     100,
+    "xtitle":   "m_cut (GeV)",
+    "ytitle":   "Events ",
+    "density": False
+}

@@ -7,15 +7,16 @@ inputDirBase: "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA"
 outputDir: "/eos/user/l/lherrman/FCC/Higgsgamma/outputs/"
 
 processList: 
-  mgp8_ee_ha:    {fraction: 1}
-  wzp6_ee_bba:   {fraction: 1} #0.005
-  wzp6_ee_cca:   {fraction: 1} #0.1
-  wzp6_ee_qqa:   {fraction: 1}
-  wzp6_ee_eea:   {fraction: 1}
-  wzp6_ee_mumua: {fraction: 1}
-  wzp6_ee_tautaua: {fraction: 1}
-  p8_ee_WW:        {fraction: 1} # do NOT increase highter than 0.5 for HWW if you use the BDT! 0.005
-  p8_ee_ZZ:        {fraction: 1} #0.02
+  mgp8_ee_ha:    {fraction: 1} #0.5 for eval
+  wzp6_ee_bba:   {fraction: 1} #0.5
+  #wzp6_ee_cca:   {fraction: 1} #0.1
+  #wzp6_ee_qqa:   {fraction: 1}
+  #wzp6_ee_eea:   {fraction: 1}
+  #wzp6_ee_mumua: {fraction: 1}
+  #wzp6_ee_tautaua: {fraction: 1}
+  #p8_ee_WW:        {fraction: 1} # do NOT increase highter than 0.5 for HWW if you use the BDT! 0.005
+  #wzp6_ee_WWa
+  #p8_ee_ZZ:        {fraction: 1} #0.02
   #mgp8_ee_zh:      {fraction: 1}
 
 cuts:

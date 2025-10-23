@@ -1,4 +1,6 @@
 outputDir_sub: "exclusive_Hjj"
+do_inference: True
+BDT: "bdt_model_example"
 branching_ratios:
   B: 0.580
   G: 0.082

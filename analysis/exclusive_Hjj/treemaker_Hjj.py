@@ -85,7 +85,7 @@ includePaths = ["../functions.h"]
 #inputDir    = "/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data"
 
 #Optional: output directory, default is local running directory
-outputDir   =  os.path.join(config['outputDir'], str(ecm),'treemaker/', config_jj['outputDir_sub'], 'H{}{}'.format(args.flavor.lower(), args.flavor.lower()))
+outputDir   =  os.path.join(config['outputDir'], str(ecm),'treemaker/increase_eval_stat', config_jj['outputDir_sub'], 'H{}{}'.format(args.flavor.lower(), args.flavor.lower()))
 print(outputDir)
 
 # optional: ncpus, default is 4, -1 uses all cores available
@@ -289,6 +289,8 @@ class RDFanalysis:
         )
 
   
+
+  
        
         return df
 
@@ -303,6 +305,7 @@ class RDFanalysis:
             "muons_all",
             "jj_m",
             "recopart_no_gamma",
+            "jets_p4",
         ]
 
         ## outputs jet scores and constituent breakdown
